@@ -22,6 +22,7 @@ void keyDown(unsigned char key, int x, int y);
 void keyUp(unsigned char key, int x, int y);
 void specialKeyDown(unsigned char key, int x, int y);
 void specialKeyUp(unsigned char key, int x, int y);
-void mouse(GLint button, GLint state, GLint x, GLint y);
+void mouseClick(GLint button, GLint state, GLint x, GLint y);
+void moveMouse(GLint x, GLint y);
 
 #endif

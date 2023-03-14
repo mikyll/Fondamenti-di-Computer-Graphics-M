@@ -27,9 +27,15 @@ void specialKeyUp(unsigned char key, int x, int y)
 	input.specialKeys[key] = 0;
 }
 
-void mouse(GLint button, GLint state, GLint x, GLint y)
+void mouseClick(GLint button, GLint state, GLint x, GLint y)
 {
 	input.mouseKeys[button] = state;
+	input.mouse.x = x;
+	input.mouse.y = y;
+}
+
+void moveMouse(GLint x, GLint y)
+{
 	input.mouse.x = x;
 	input.mouse.y = y;
 }

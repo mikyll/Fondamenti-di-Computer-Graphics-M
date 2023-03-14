@@ -50,8 +50,6 @@ void doInput()
 		}
 	}
 	else enableRight = 1;
-
-
 }
 
 void update(int value)
@@ -79,7 +77,8 @@ int main(int argc, char** argv)
 	glutKeyboardUpFunc(keyUp);
 	glutSpecialFunc(specialKeyDown);
 	glutSpecialUpFunc(specialKeyUp);
-	glutMouseFunc(mouse);
+	glutMouseFunc(mouseClick);
+	glutPassiveMotionFunc(moveMouse);
 
 	// update
 	glutTimerFunc(20, update, 0);
