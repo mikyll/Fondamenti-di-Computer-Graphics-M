@@ -1,28 +1,36 @@
 #ifndef INPUT_H_
 #define INPUT_H_
 
-#include <GL/freeglut.h>
+#ifdef __cplusplus
+extern "C" {
+#endif 
 
-typedef struct {
-	int x, y;
-} Mouse;
+	#include <GL/freeglut.h>
 
-typedef struct {
-	unsigned char keys[256];
-	unsigned char specialKeys[256];
-	unsigned char mouseKeys[3];
-	Mouse mouse;
-} Input;
+	typedef struct {
+		int x, y;
+	} Mouse;
+
+	typedef struct {
+		unsigned char keys[256];
+		unsigned char specialKeys[256];
+		unsigned char mouseKeys[3];
+		Mouse mouse;
+	} Input;
 
 
-Input input;
+	Input input;
 
-void initInput();
-void keyDown(unsigned char key, int x, int y);
-void keyUp(unsigned char key, int x, int y);
-void specialKeyDown(unsigned char key, int x, int y);
-void specialKeyUp(unsigned char key, int x, int y);
-void mouseClick(GLint button, GLint state, GLint x, GLint y);
-void moveMouse(GLint x, GLint y);
+	void initInput();
+	void keyDown(unsigned char key, int x, int y);
+	void keyUp(unsigned char key, int x, int y);
+	void specialKeyDown(int key, int x, int y);
+	void specialKeyUp(int key, int x, int y);
+	void mouseClick(GLint button, GLint state, GLint x, GLint y);
+	void moveMouse(GLint x, GLint y);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // !INPUT_H

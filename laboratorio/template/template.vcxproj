@@ -129,9 +129,11 @@
   <ItemGroup>
     <ClCompile Include="input.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="text.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="input.h" />
+    <ClInclude Include="text.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
