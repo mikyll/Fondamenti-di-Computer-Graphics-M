@@ -127,14 +127,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\00.3 - 3D Cube Transmat\main.cpp" />
-    <ClCompile Include="..\00.3 - 3D Cube Transmat\ShaderMaker.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\00.3 - 3D Cube Transmat\ShaderMaker.h" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cube.cpp" />
+    <ClCompile Include="input.c" />
+    <ClCompile Include="00es_main.cpp" />
+    <ClCompile Include="ShaderMaker.cpp" />
+    <ClCompile Include="text.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cube.h" />
+    <ClInclude Include="input.h" />
+    <ClInclude Include="ShaderMaker.h" />
+    <ClInclude Include="text.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

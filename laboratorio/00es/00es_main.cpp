@@ -22,10 +22,18 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "input.h"
+#include "text.h"
+
 using namespace glm;
 
-int		width = 800;
-int		height = 800;
+
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
+
+int		width = 500;
+int		height = 500;
 int		fov = 45;
 float	zNear = 0.01;
 float	zFar = 10000.0;
@@ -36,10 +44,11 @@ vec3 cameraPos = vec3(0.0, 0.0, 10.0);
 vec3 cameraFront = vec3(0.0, 0.0, -1.0);
 vec3 cameraUp = vec3(0.0, 1.0, 0.0);
 
-float deltaTime = 0.0;  //tempo fra il frame corrente e l'ultimo
+float deltaTime = 0.0;  // tempo fra il frame corrente e l'ultimo
 float last_frame = 0.0;  // tempo dell'ultimo frame
 
 float rotateX = 15, rotateY = -15, rotateZ = 0;  // rotation amounts about axes, controlled by keyboard
+float scaleX = 1.0, scaleY = 1.0, scaleZ = 1.0;
 
 //////////////////////////////////////////////////////////////////////////
 // Cube data
@@ -72,40 +81,29 @@ color4 colors[8] = {
 	color4(0.0, 1.0, 1.0, 1.0)   // cyan
 };
 int Index = 0;  // global variable indexing into VBO arrays
-void polygon(int a, int b, int c, int d)
+void polygon(int a, int b, int c, int d, int color)
 {
-	vColors[Index] = colors[a]; vPositions[Index] = positions[a]; Index++;
-	vColors[Index] = colors[b]; vPositions[Index] = positions[b]; Index++;
-	vColors[Index] = colors[c]; vPositions[Index] = positions[c]; Index++;
-	vColors[Index] = colors[a]; vPositions[Index] = positions[a]; Index++;
-	vColors[Index] = colors[c]; vPositions[Index] = positions[c]; Index++;
-	vColors[Index] = colors[d]; vPositions[Index] = positions[d]; Index++;
+	vColors[Index] = colors[color]; vPositions[Index] = positions[a]; Index++;
+	vColors[Index] = colors[color]; vPositions[Index] = positions[b]; Index++;
+	vColors[Index] = colors[color]; vPositions[Index] = positions[c]; Index++;
+	vColors[Index] = colors[color]; vPositions[Index] = positions[a]; Index++;
+	vColors[Index] = colors[color]; vPositions[Index] = positions[c]; Index++;
+	vColors[Index] = colors[color]; vPositions[Index] = positions[d]; Index++;
 }
 void colorcube()
 {
-	polygon(1, 0, 3, 2);
-	polygon(2, 3, 7, 6);
-	polygon(3, 0, 4, 7);
-	polygon(6, 5, 1, 2);
-	polygon(4, 5, 6, 7);
-	polygon(5, 4, 0, 1);
+	polygon(1, 0, 3, 2, 1); // red
+	polygon(2, 3, 7, 6, 4); // blue
+	polygon(3, 0, 4, 7, 5); // magenta
+	polygon(6, 5, 1, 2, 3); // green
+	polygon(4, 5, 6, 7, 7); // cyan
+	polygon(5, 4, 0, 1, 2); // yellow
 }
 ///////////////////////////////////////////////////////////////////////////////////
 
 mat4 Projection, Model, View;
 
-vec3 cubePositions[] = {
- vec3(0.0f,   0.0f,  0.0f),
- vec3(2.0f,   5.0f,-15.0f),
- vec3(-1.5f, -2.2f, -2.5f),
- vec3(-3.8f, -2.0f,-12.3f),
- vec3(2.4f,  -0.4f, -3.5f),
- vec3(-1.7f,  3.0f, -7.5f),
- vec3(1.3f,  -2.0f, -2.5f),
- vec3(1.5f,   2.0f, -2.5f),
- vec3(1.5f,   0.2f, -1.5f),
- vec3(-1.3f,  1.0f, -1.5f)
-};
+vec3 cubePosition = vec3(0.0f, 0.0f, 0.0f);
 
 void initShader(void)
 {
@@ -172,68 +170,130 @@ void resize(int w, int h)
 	glViewport(0, 0, w, h);
 }
 
-void mykeyboard(unsigned char key, int x, int y)
+void doInput()
 {
 	float alfa = 0.05 * deltaTime;
 
-	switch (key)
-
-	{
-	case 033: // Escape Key
-	case 'q': case 'Q':
+	// Key input
+	if (input.keys['q'] || input.keys['Q'] || input.keys[033]) // Escape Key
 		exit(EXIT_SUCCESS);
-		break;
-	case 'a': //move camera to the right
+	if (input.keys['a']) { // move camera to the right
 		vec3 dir = normalize(cross(cameraFront, cameraUp));
 		cameraPos = cameraPos - alfa * dir;
-		break;
-
-	case 'A': //move camera to the left 
+	}
+	if (input.keys['d']) { // move camera to the left
 		vec3 direzione = normalize(cross(cameraFront, cameraUp));
 		cameraPos = cameraPos + alfa * direzione;
-		break;
-
-	case 's': // move camera away (same direction)
-		cameraPos = cameraPos - alfa * cameraFront;
-		break;
-
-	case 'S': // move camera close (same direction)
+	}
+	if (input.keys['w']) { // move camera close (same direction)
 		cameraPos = cameraPos + alfa * cameraFront;
-		break;
-	case ' ':  // reset values to their defaults
+	}
+	if (input.keys['s']) { // move camera away (same direction)
+		cameraPos = cameraPos - alfa * cameraFront;
+	}
+	if (input.keys[' ']) { // reset values to their defaults
 		cameraPos = vec3(0.0, 0.0, 10.0);
 		cameraFront = vec3(0.0, 0.0, -1.0);
 		cameraUp = vec3(0.0, 1.0, 0.0);
-
-		break;
 	}
 
-	glutPostRedisplay();
-}
-
-void specialKeyFunction(int key, int x, int y) {
-	// called when a special key is pressed 
-	if (key == GLUT_KEY_LEFT)
+	// Special key input
+	if (input.specialKeys[GLUT_KEY_LEFT])
+	{
 		rotateY -= 15;
-	else if (key == GLUT_KEY_RIGHT)
+		if (rotateY < 0)
+			rotateY += 360;
+	}
+	if (input.specialKeys[GLUT_KEY_RIGHT])
+	{
 		rotateY += 15;
-	else if (key == GLUT_KEY_DOWN)
+		if (rotateY >= 360)
+			rotateY -= 360;
+	}
+	if (input.specialKeys[GLUT_KEY_DOWN])
+	{
 		rotateX += 15;
-	else if (key == GLUT_KEY_UP)
+		if (rotateX >= 360)
+			rotateX -= 360;
+
+	}
+	if (input.specialKeys[GLUT_KEY_UP])
+	{
 		rotateX -= 15;
-	else if (key == GLUT_KEY_PAGE_UP)
+		if (rotateX < 0)
+			rotateX += 360;
+	}
+	if (input.specialKeys[GLUT_KEY_PAGE_UP])
+	{
 		rotateZ += 15;
-	else if (key == GLUT_KEY_PAGE_DOWN)
+		if (rotateZ >= 360)
+			rotateZ -= 360;
+	}
+	if (input.specialKeys[GLUT_KEY_PAGE_DOWN])
+	{
 		rotateZ -= 15;
-	else if (key == GLUT_KEY_HOME)
+		if (rotateZ < 0)
+			rotateZ += 360;
+	}
+
+	if (input.specialKeys[GLUT_KEY_HOME])
 		rotateX = rotateY = rotateZ = 0;
-	glutPostRedisplay();
+
+	/*if (input.mouse.keys[GLUT_LEFT_BUTTON])
+	{
+		scaleX = 1.1;
+	}
+	else scaleX = 1.0;
+
+	if (input.mouse.keys[GLUT_MIDDLE_BUTTON])
+	{
+		scaleY = 1.1;
+	}
+	else scaleY = 1.0;
+
+	if (input.mouse.keys[GLUT_RIGHT_BUTTON])
+	{
+		scaleZ = 1.1;
+	}
+	else scaleZ = 1.0;*/
+
+	if (input.mouse.keys[GLUT_LEFT_BUTTON])
+	{
+		scaleX = MIN(10.0, scaleX * 1.1);
+	}
+	else scaleX = MAX(1.0, scaleX * 0.9);
+	if (input.mouse.keys[GLUT_MIDDLE_BUTTON])
+	{
+		scaleY = MIN(10.0, scaleY * 1.1);
+	}
+	else scaleY = MAX(1.0, scaleY * 0.9);
+	if (input.mouse.keys[GLUT_RIGHT_BUTTON])
+	{
+		scaleZ = MIN(10.0, scaleZ * 1.1);
+	}
+	else scaleZ = MAX(1.0, scaleZ * 0.9);
+	
 }
 
-
-void drawScene(void)
+void drawText()
 {
-	int i, n_cubi = 5;  // fino a 10 cubi
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+
+	char out[64];
+	sprintf_s(out, 64, "Rotation: [%3.0f, %3.0f, %3.0f]", rotateX, rotateY, rotateZ);
+	RenderString(-0.99, -0.99, 1.0, GLUT_BITMAP_HELVETICA_18, out, 1.0f, 0.0f, 0.0f);
+	printf("%s", out);
+	sprintf_s(out, 64, "Size: [%2.3f, %2.3f, %2.3f]", scaleX, scaleY, scaleZ);
+	RenderString(0.0, 0.0, 1.0, GLUT_BITMAP_HELVETICA_18, out, 1.0f, 1.0f, 1.0f);
+	printf(" - %s\n", out);
+
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+}
+
+void drawScene()
+{
 	float timevalue = glutGet(GLUT_ELAPSED_TIME) * 0.0001;
 
 	//Passo al Vertex Shader il puntatore alla matrice Projection, che sarà associata alla variabile Uniform mat4 Projection
@@ -249,34 +309,37 @@ void drawScene(void)
 	float currentFrame = glutGet(GLUT_ELAPSED_TIME);
 	deltaTime = currentFrame - last_frame;
 	last_frame = currentFrame;
-	glClearColor(1.0, 0.0, 1.0, 0.0);
+
+	glClearColor(0.0, 0.0, 0.0, 0.0);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	for (i = 0; i < n_cubi; i++)
-	{
-		Model = mat4(1.0);
-		Model = translate(Model, cubePositions[i]);
-		Model = rotate(Model, radians(rotateX), glm::vec3(1.0f, 0.0f, 0.0f)); 
-		Model = rotate(Model, radians(rotateY), glm::vec3(0.0f, 1.0f, 0.0f));
-		Model = rotate(Model, radians(rotateZ), glm::vec3(0.0f, 0.0f, 1.0f));
-		Model = scale(Model, vec3(2.0f, 2.0f, 2.0f));
 
-		//Passo al Vertex Shader il puntatore alla matrice Model, che sarà associata alla variabile Uniform mat4 Projection
-		//all'interno del Vertex shader. Uso l'identificatio MatModel
-		glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(Model));
+	Model = mat4(1.0);
+	Model = translate(Model, cubePosition);
+	Model = rotate(Model, radians(rotateX), glm::vec3(1.0f, 0.0f, 0.0f)); 
+	Model = rotate(Model, radians(rotateY), glm::vec3(0.0f, 1.0f, 0.0f));
+	Model = rotate(Model, radians(rotateZ), glm::vec3(0.0f, 0.0f, 1.0f));
+	Model = scale(Model, vec3(scaleX, scaleY, scaleZ));
+
+	//Passo al Vertex Shader il puntatore alla matrice Model, che sarà associata alla variabile Uniform mat4 Projection
+	//all'interno del Vertex shader. Uso l'identificatio MatModel
+	glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(Model));
 	
-		glBindVertexArray(vao);
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glDrawArrays(GL_TRIANGLES, 0, NumVertices);
-	}
+	glBindVertexArray(vao);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glDrawArrays(GL_TRIANGLES, 0, NumVertices);
+	
+	drawText();
+
 	glutSwapBuffers();
 }
 
 void update(int a)
 {
-	glutTimerFunc(20, update, 0);
+	doInput();
 	glutPostRedisplay();
+	glutTimerFunc(20, update, 0);
 }
 
 int main(int argc, char* argv[])
@@ -289,26 +352,32 @@ int main(int argc, char* argv[])
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 
 	glutInitWindowSize(width, height);
-	glutInitWindowPosition(100, 100);
-	glutCreateWindow("(Advanced) Cubes 3D");
-	glutDisplayFunc(drawScene);
-	glutReshapeFunc(resize);
-	
-	glutMouseWheelFunc(mousewheel);
-	glutKeyboardFunc(mykeyboard);
-	glutSpecialFunc(specialKeyFunction);
+	glutInitWindowPosition(0, 0);
+	glutCreateWindow("LAB 00 Es");
 
-	glutTimerFunc(20, update, 0);
 	glewExperimental = GL_TRUE;
 	glewInit();
+
+	
+	// Input
+	glutMouseWheelFunc(mousewheel);
+	initInput(1);
+
+	// Update
+	glutTimerFunc(20, update, 0);
+	
+
+	// Draw
+	glutDisplayFunc(drawScene);
+	glutReshapeFunc(resize);
 
 	initShader();
 	init();
 
 	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_BLEND);
-	//glEnable(GL_ALPHA_TEST);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glEnable(GL_ALPHA_TEST);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	glutMainLoop();
 }
