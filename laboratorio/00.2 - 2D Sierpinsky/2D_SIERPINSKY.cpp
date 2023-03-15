@@ -103,7 +103,7 @@ void init(void)
 	glBufferData(GL_ARRAY_BUFFER, nPointPOL * sizeof(Point), &PuntiPOL[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	// 
+	
 
 	// Background color
 	glClearColor(1.0, 0.5, 0.0, 1.0);
