@@ -8,13 +8,17 @@ extern "C" {
 	#include <GL/freeglut.h>
 
 	typedef struct {
+		unsigned char keys[256];
+		unsigned char specialKeys[256];
+	} Keyboard;
+
+	typedef struct {
+		unsigned char keys[3];
 		int x, y;
 	} Mouse;
 
 	typedef struct {
-		unsigned char keys[256];
-		unsigned char specialKeys[256];
-		unsigned char mouseKeys[3];
+		Keyboard keyboard;
 		Mouse mouse;
 	} Input;
 

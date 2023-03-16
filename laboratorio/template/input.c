@@ -7,27 +7,27 @@ void initInput()
 
 void keyDown(unsigned char key, int x, int y)
 {
-	input.keys[key] = 1;
+	input.keyboard.keys[key] = 1;
 }
 
 void keyUp(unsigned char key, int x, int y)
 {
-	input.keys[key] = 0;
+	input.keyboard.keys[key] = 0;
 }
 
 void specialKeyDown(int key, int x, int y)
 {
-	input.specialKeys[key] = 1;
+	input.keyboard.specialKeys[key] = 1;
 }
 
 void specialKeyUp(int key, int x, int y)
 {
-	input.specialKeys[key] = 0;
+	input.keyboard.specialKeys[key] = 0;
 }
 
 void mouseClick(GLint button, GLint state, GLint x, GLint y)
 {
-	input.mouseKeys[button] = state;
+	input.mouse.keys[button] = !state;
 	input.mouse.x = x;
 	input.mouse.y = y;
 }

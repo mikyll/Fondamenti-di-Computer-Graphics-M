@@ -129,11 +129,9 @@
   <ItemGroup>
     <ClCompile Include="01es_main.cpp" />
     <ClCompile Include="ShaderMaker.cpp" />
-    <ClCompile Include="text.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShaderMaker.h" />
-    <ClInclude Include="text.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
