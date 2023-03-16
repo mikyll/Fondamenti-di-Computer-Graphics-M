@@ -25,43 +25,66 @@
 
 using namespace glm;
 
-#include "text.h"
-
-static unsigned int programId;
-
-unsigned int VAO;
-unsigned int VBO;
-
-unsigned int VAO_2;
-unsigned int VBO_2;
-
-
-#define MaxNumPts 300
-float PointArray[MaxNumPts][2];
-float CurveArray[MaxNumPts][2];
-
-int NumPts = 0;
-
-// Window size in pixels
-int		width = 500;
-int		height = 500;
-
-/* Prototypes */
-void addNewPoint(float x, float y);
-int main(int argc, char** argv);
-void removeFirstPoint();
-void removeLastPoint();
+#define MAX_NUM_PTS 300
 
 typedef struct {
 	float x, y;
 } Point2D;
 
-typedef struct {
-	float x, y, z;
-} Point3D;
+// FUNCTION DECLARATIONS ========================
+void resizeWindow(int w, int h);
+void myKeyboardFunc(unsigned char key, int x, int y);
+void myMouseFunc(int button, int state, int x, int y);
 
-int changed = 0;
+void initShader();
+void init();
 
+void addNewPoint(float x, float y);
+void removeFirstPoint();
+void removeLastPoint();
+
+Point2D lerp(Point2D a, Point2D b, float t);
+void lerp2(float a[2], float b[2], float t, float res[2]);
+Point2D deCasteljau(float points[MAX_NUM_PTS][2], int numPoints, float t);
+
+void drawScene();
+
+// GLOBAL VARIABLES =============================
+static unsigned int programId;
+
+// Vertex Array Objects & Vertex Buffer Objects
+// Control Polygon (Points and Segments)
+unsigned int VAO;
+unsigned int VBO;
+// Curves
+unsigned int VAO_2;
+unsigned int VBO_2;
+
+float ctrlPointArray[MAX_NUM_PTS][2];
+float curvePointArray[MAX_NUM_PTS][2];
+
+// current number of control polygon
+int numPts = 0;
+
+// Num of points used to render the curve
+int numPtsCurve = 100;
+
+// Window size in pixels
+int		width = 500;
+int		height = 500;
+
+// FUNCTION DEFINITIONS =========================
+void resizeWindow(int w, int h)
+{
+	height = (h > 1) ? h : 2;
+	width = (w > 1) ? w : 2;
+	gluOrtho2D(-1.0f, 1.0f, -1.0f, 1.0f);
+	glViewport(0, 0, (GLsizei)w, (GLsizei)h);
+}
+
+/*
+* Keyboard Input
+*/
 void myKeyboardFunc(unsigned char key, int x, int y)
 {
 	switch (key) {
@@ -79,16 +102,11 @@ void myKeyboardFunc(unsigned char key, int x, int y)
 	}
 }
 
-void resizeWindow(int w, int h)
+/*
+* Mouse Input
+*/
+void myMouseFunc(int button, int state, int x, int y)
 {
-	height = (h > 1) ? h : 2;
-	width = (w > 1) ? w : 2;
-	gluOrtho2D(-1.0f, 1.0f, -1.0f, 1.0f);
-	glViewport(0, 0, (GLsizei)w, (GLsizei)h);
-}
-
-// Left button presses place a new control point.
-void myMouseFunc(int button, int state, int x, int y) {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
 		// (x,y) viewport(0,width)x(0,height)   -->   (xPos,yPos) window(-1,1)x(-1,1)
@@ -97,42 +115,10 @@ void myMouseFunc(int button, int state, int x, int y) {
 
 		addNewPoint(xPos, yPos);
 		glutPostRedisplay();
-
-		changed = 1;
 	}
 }
 
-void removeFirstPoint() {
-	int i;
-	if (NumPts > 0) {
-		// Remove the first point, slide the rest down
-		NumPts--;
-		for (i = 0; i < NumPts; i++) {
-			PointArray[i][0] = PointArray[i + 1][0];
-			PointArray[i][1] = PointArray[i + 1][1];
-		}
-	}
-}
-
-// Add a new point to the end of the list.  
-// Remove the first point in the list if too many points.
-void removeLastPoint() {
-	if (NumPts > 0) {
-		NumPts--;
-	}
-}
-
-// Add a new point to the end of the list.  
-// Remove the first point in the list if too many points.
-void addNewPoint(float x, float y) {
-	if (NumPts >= MaxNumPts) {
-		removeFirstPoint();
-	}
-	PointArray[NumPts][0] = x;
-	PointArray[NumPts][1] = y;
-	NumPts++;
-}
-void initShader(void)
+void initShader()
 {
 	GLenum ErrorCheckValue = glGetError();
 
@@ -144,14 +130,17 @@ void initShader(void)
 
 }
 
-
-void init(void)
+/*
+* Init VAOs and VBOs
+*/
+void init()
 {
 	// VAO for control polygon
 	glGenVertexArrays(1, &VAO);
 	glBindVertexArray(VAO);
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
 	// VAO for curve
 	glGenVertexArrays(1, &VAO_2);
 	glBindVertexArray(VAO_2);
@@ -163,6 +152,54 @@ void init(void)
 	glViewport(0, 0, 500, 500);
 }
 
+/*
+* Remove the first Control Point, moving the rest
+* of the array by one position.
+*/
+void removeFirstPoint()
+{
+	if (numPts > 0)
+	{
+		// Remove the first point, slide the rest down
+		numPts--;
+		for (int i = 0; i < numPts; i++)
+		{
+			ctrlPointArray[i][0] = ctrlPointArray[i + 1][0];
+			ctrlPointArray[i][1] = ctrlPointArray[i + 1][1];
+		}
+	}
+}
+
+/*
+* Remove the last Control Point
+*/
+void removeLastPoint()
+{
+	if (numPts > 0)
+	{
+		numPts--;
+	}
+}
+
+/*
+* Add a new control point (to the end of the array).
+* If there are too many (if MAX is reached) we remove the
+* first of the array.
+*/
+void addNewPoint(float x, float y)
+{
+	if (numPts >= MAX_NUM_PTS)
+	{
+		removeFirstPoint();
+	}
+	ctrlPointArray[numPts][0] = x;
+	ctrlPointArray[numPts][1] = y;
+	numPts++;
+}
+
+/*
+* Return the linear iterpolation of two points a and b.
+*/
 Point2D lerp(Point2D a, Point2D b, float t)
 {
 	Point2D res;
@@ -178,10 +215,13 @@ void lerp2(float a[2], float b[2], float t, float res[2])
 	res[1] = (1 - t) * a[1] + t * b[1];
 }
 
-Point2D deCasteljau(float points[MaxNumPts][2], int numPoints, float t)
+/*
+* Given an array of points, evaluate a point of the Bézier curve in t.
+*/
+Point2D deCasteljau(float points[MAX_NUM_PTS][2], int numPoints, float t)
 {
 	// Auxiliary array (since we edit it in each iteration, we don't want to lose the initial array)
-	Point2D pointArrayAux[MaxNumPts];
+	Point2D pointArrayAux[MAX_NUM_PTS];
 	pointArrayAux[0] = { 0,0 };
 
 	// Copy
@@ -204,31 +244,24 @@ Point2D deCasteljau(float points[MaxNumPts][2], int numPoints, float t)
 	return pointArrayAux[0];
 }
 
-void drawScene(void)
+void drawScene()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	// If there are at least 2 points
-	if (NumPts > 1) {
-		int numPtsCurve = 100;
-
-		// Draw curve
-		if (changed)
+	// Draw the curve if there's at least 2 points
+	if (numPts > 1)
+	{
+		for (int i = 0; i < numPtsCurve; i++)
 		{
-			for (int i = 0; i < numPtsCurve; i++)
-			{
-				Point2D res = deCasteljau(PointArray, NumPts, (float)i / numPtsCurve);
-				CurveArray[i][0] = res.x;
-				CurveArray[i][1] = res.y;
-			}
-
-			changed = 0;
+			Point2D res = deCasteljau(ctrlPointArray, numPts, (float)i / numPtsCurve);
+			curvePointArray[i][0] = res.x;
+			curvePointArray[i][1] = res.y;
 		}
 
 		// Draw curve
 		glBindVertexArray(VAO_2);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO_2);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(CurveArray), &CurveArray[0], GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(curvePointArray), &curvePointArray[0], GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
 		glPointSize(1.0);
@@ -236,18 +269,19 @@ void drawScene(void)
 		glDrawArrays(GL_LINE_STRIP, 0, numPtsCurve);
 		glBindVertexArray(0);
 	}
+
 	// Draw control polygon
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(PointArray), &PointArray[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(ctrlPointArray), &ctrlPointArray[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	// Draw the control points CP
 	glPointSize(6.0);
-	glDrawArrays(GL_POINTS, 0, NumPts);
+	glDrawArrays(GL_POINTS, 0, numPts);
 	// Draw the line segments between CP
 	glLineWidth(2.0);
-	glDrawArrays(GL_LINE_STRIP, 0, NumPts);
+	glDrawArrays(GL_LINE_STRIP, 0, numPts);
 	glBindVertexArray(0);
 
 	glutSwapBuffers();
@@ -266,10 +300,10 @@ int main(int argc, char** argv)
 	glutInitWindowPosition(100, 100);
 	glutCreateWindow("Draw curves 2D");
 
-	glutDisplayFunc(drawScene);
 	glutReshapeFunc(resizeWindow);
 	glutKeyboardFunc(myKeyboardFunc);
 	glutMouseFunc(myMouseFunc);
+	glutDisplayFunc(drawScene);
 
 	glewExperimental = GL_TRUE;
 	glewInit();
@@ -277,19 +311,7 @@ int main(int argc, char** argv)
 	initShader();
 	init();
 
-
-	//test
-	/*printf("\n\n");
-	float arr[4][2] = { { 1.0, 1.0 }, { 1.0, 2.0 }, { 5.0, 5.0 }, { 6.0, 6.0 } };
-	float t = 0.5;
-
-	Point2D p1 = { 1.0, 1.0 }, p2 = { 1.0, 2.0 }, p3 = { 5.0, 5.0 }, p4 = { 6.0, 6.0 };
-	Point2D p12 = lerp(p1, p2, t), p23 = lerp(p2, p3, t), p34 = lerp(p2, p3, t);
-	Point2D res = deCasteljau(arr, 4, t);
-
-	printf("lerp_P1-P2: (%1.1f,%1.1f), lerp_P2-P3: (%1.1f,%1.1f)\nres: (%1.1f,%1.1f)\n", p12.x, p12.y, p23.x, p23.y, res.x, res.y);
-
-	return 0;*/
-
 	glutMainLoop();
+
+	return 0;
 }

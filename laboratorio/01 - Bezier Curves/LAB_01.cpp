@@ -33,11 +33,11 @@ unsigned int VBO_2;
 
 using namespace glm;
 
-#define MaxNumPts 300
-float PointArray[MaxNumPts][2];
-float CurveArray[MaxNumPts][2];
+#define MAX_NUM_PTS 300
+float ctrlPointArray[MAX_NUM_PTS][2];
+float curvePointArray[MAX_NUM_PTS][2];
 
-int NumPts = 0;
+int numPts = 0;
 
 // Window size in pixels
 int		width = 500;
@@ -68,12 +68,12 @@ void myKeyboardFunc(unsigned char key, int x, int y)
 }
 void removeFirstPoint() {
 	int i;
-	if (NumPts > 0) {
+	if (numPts > 0) {
 		// Remove the first point, slide the rest down
-		NumPts--;
-		for (i = 0; i < NumPts; i++) {
-			PointArray[i][0] = PointArray[i + 1][0];
-			PointArray[i][1] = PointArray[i + 1][1];
+		numPts--;
+		for (i = 0; i < numPts; i++) {
+			ctrlPointArray[i][0] = ctrlPointArray[i + 1][0];
+			ctrlPointArray[i][1] = ctrlPointArray[i + 1][1];
 		}
 	}
 }
@@ -102,20 +102,20 @@ void myMouseFunc(int button, int state, int x, int y) {
 // Add a new point to the end of the list.  
 // Remove the first point in the list if too many points.
 void removeLastPoint() {
-	if (NumPts > 0) {
-		NumPts--;
+	if (numPts > 0) {
+		numPts--;
 	}
 }
 
 // Add a new point to the end of the list.  
 // Remove the first point in the list if too many points.
 void addNewPoint(float x, float y) {
-	if (NumPts >= MaxNumPts) {
+	if (numPts >= MAX_NUM_PTS) {
 		removeFirstPoint();
 	}
-		PointArray[NumPts][0] = x;
-		PointArray[NumPts][1] = y;
-		NumPts++;
+		ctrlPointArray[numPts][0] = x;
+		ctrlPointArray[numPts][1] = y;
+		numPts++;
 }
 void initShader(void)
 {
@@ -152,22 +152,22 @@ void drawScene(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	if (NumPts > 1) {
+	if (numPts > 1) {
 		// Draw curve
 		// TODO
 		}
 	// Draw control polygon
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(PointArray), &PointArray[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(ctrlPointArray), &ctrlPointArray[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	// Draw the control points CP
 	glPointSize(6.0);
-	glDrawArrays(GL_POINTS, 0, NumPts);
+	glDrawArrays(GL_POINTS, 0, numPts);
 	// Draw the line segments between CP
 	glLineWidth(2.0);
-	glDrawArrays(GL_LINE_STRIP, 0, NumPts);
+	glDrawArrays(GL_LINE_STRIP, 0, numPts);
 	glBindVertexArray(0);
 	glutSwapBuffers();
 }
