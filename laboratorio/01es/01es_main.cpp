@@ -102,6 +102,8 @@ int iHoverCtrlPt = -1;
 // Used to detect while the user is dragging the mouse
 int dragging = 0;
 
+int incrementCtrlPtSize = 0;
+
 // FUNCTION DEFINITIONS =========================
 
 void initShader()
@@ -259,18 +261,26 @@ void inputKeyboard(unsigned char key, int x, int y)
 }
 
 /*
-* Keyboard Input: special keys
+* Keyboard Input: special keys (down)
 */
-void inputSpecialKeyboard(int key, int x, int y)
+void specialKeyDown(int key, int x, int y)
 {
 	switch (key) {
 	case GLUT_KEY_UP:
-		ctrlPointSize = MIN(ctrlPointSize + 0.5, 10.0);
+		incrementCtrlPtSize = 1;
 		break;
 	case GLUT_KEY_DOWN:
-		ctrlPointSize = MAX(ctrlPointSize - 0.5, 1.0);
+		incrementCtrlPtSize = -1;
 		break;
 	}
+}
+/*
+* Keyboard Input: special keys (up)
+*/
+void specialKeyUp(int key, int x, int y)
+{
+	if(key == GLUT_KEY_UP || key == GLUT_KEY_DOWN)
+		incrementCtrlPtSize = 0;
 }
 
 /*
@@ -366,6 +376,9 @@ void inputMouseDrag(int x, int y)
 
 void update(int value)
 {
+
+	ctrlPointSize = MIN(10.0, MAX(1.0, ctrlPointSize + 0.1 * incrementCtrlPtSize));
+
 	// Update curve: draw the curve only if there are at least 2 points
 	if (numPts > 1)
 	{
@@ -434,7 +447,8 @@ int main(int argc, char** argv)
 	// Input callbacks
 	glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
 	glutKeyboardFunc(inputKeyboard);
-	glutSpecialFunc(inputSpecialKeyboard);
+	glutSpecialFunc(specialKeyDown);
+	glutSpecialUpFunc(specialKeyUp);
 	glutMouseFunc(inputMouseClick);
 	glutPassiveMotionFunc(inputMousePassiveMove);
 	glutMotionFunc(inputMouseDrag);
