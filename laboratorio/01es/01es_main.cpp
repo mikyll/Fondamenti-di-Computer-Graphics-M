@@ -42,6 +42,13 @@ using namespace glm;
 
 #define MAX_NUM_PTS 300
 
+#define MIN_CTRL_PTS_SIZE 1.0f
+#define MAX_CTRL_PTS_SIZE 20.0f
+
+// test
+int prevNum = 0;
+// currNum = numPts
+
 // Auxiliary data structure to ease the usage of 2D points
 typedef struct {
 	float x, y;
@@ -53,8 +60,7 @@ void removeFirstPoint();
 void removeLastPoint();
 
 Point2D lerp(Point2D a, Point2D b, float t);
-void lerp2(float a[2], float b[2], float t, float res[2]);
-Point2D deCasteljau(float points[MAX_NUM_PTS][2], int numPoints, float t);
+Point2D deCasteljau(Point2D points[MAX_NUM_PTS], int numPoints, float t);
 
 void update(int value);
 
@@ -78,23 +84,23 @@ int	height = 500;
 
 // Vertex Array Objects & Vertex Buffer Objects
 // Control Polygon (Points and Segments)
-unsigned int VAO;
-unsigned int VBO;
+unsigned int VAO_ControlPoints;
+unsigned int VBO_ControlPoints;
 // Curves
-unsigned int VAO_2;
-unsigned int VBO_2;
+unsigned int VAO_CurvePoints;
+unsigned int VBO_CurvePoints;
 
-float ctrlPointArray[MAX_NUM_PTS][2];
-float curvePointArray[MAX_NUM_PTS][2];
+Point2D ctrlPointArray[MAX_NUM_PTS];
+Point2D curvePointArray[MAX_NUM_PTS];
 
 // Current number of control polygon
 int numPts = 0;
 
 // Num of points used to render the curve
-int numPtsCurve = 100;
+int numPtsCurve = 300;
 
 // Size of the Control Points
-float ctrlPointSize = 6.0;
+float ctrlPointSize = 8.0;
 
 // Index of the Control Point the mouse is hovering
 int iHoverCtrlPt = -1;
@@ -104,8 +110,7 @@ int dragging = 0;
 
 int incrementCtrlPtSize = 0;
 
-// FUNCTION DEFINITIONS =========================
-
+// INIT ===================================================
 void initShader()
 {
 	GLenum ErrorCheckValue = glGetError();
@@ -119,74 +124,89 @@ void initShader()
 }
 
 /*
-* Init VAOs and VBOs
+Init VAOs and VBOs
 */
 void init()
 {
 	// VAO for control polygon
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glGenVertexArrays(1, &VAO_ControlPoints);
+	glBindVertexArray(VAO_ControlPoints);
+	glGenBuffers(1, &VBO_ControlPoints);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_ControlPoints);
 
 	// VAO for curve
-	glGenVertexArrays(1, &VAO_2);
-	glBindVertexArray(VAO_2);
-	glGenBuffers(1, &VBO_2);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_2);
+	glGenVertexArrays(1, &VAO_CurvePoints);
+	glBindVertexArray(VAO_CurvePoints);
+	glGenBuffers(1, &VBO_CurvePoints);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_CurvePoints);
 
 	// Background color
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 	glViewport(0, 0, 500, 500);
 }
 
+// LOGIC ==================================================
 /*
-* Remove the first Control Point, moving the rest
-* of the array by one position.
+Remove the first Control Point, moving the rest
+of the array by one position.
 */
 void removeFirstPoint()
 {
 	if (numPts > 0)
 	{
+		if (iHoverCtrlPt == 0)
+		{
+			iHoverCtrlPt = -1;
+			glutSetCursor(CURSOR_NORMAL);
+		}
+		else if(iHoverCtrlPt > 0)
+			iHoverCtrlPt--;
+
 		// Remove the first point, slide the rest down
 		numPts--;
 		for (int i = 0; i < numPts; i++)
 		{
-			ctrlPointArray[i][0] = ctrlPointArray[i + 1][0];
-			ctrlPointArray[i][1] = ctrlPointArray[i + 1][1];
+			ctrlPointArray[i].x = ctrlPointArray[i + 1].x;
+			ctrlPointArray[i].y = ctrlPointArray[i + 1].y;
 		}
 	}
 }
 
 /*
-* Remove the last Control Point
+Remove the last Control Point
 */
 void removeLastPoint()
 {
 	if (numPts > 0)
 	{
+		if (iHoverCtrlPt == numPts - 1)
+		{
+			iHoverCtrlPt = -1;
+			glutSetCursor(CURSOR_NORMAL);
+		}
 		numPts--;
 	}
 }
 
 /*
-* Add a new control point (to the end of the array).
-* If there are too many (if MAX is reached) we remove the
-* first of the array.
+Add a new control point (to the end of the array).
+If there are too many (if MAX is reached) we remove the
+first of the array.
 */
-void addNewPoint(float x, float y)
+void addNewPoint(Point2D point)
 {
 	if (numPts >= MAX_NUM_PTS)
 	{
 		removeFirstPoint();
 	}
-	ctrlPointArray[numPts][0] = x;
-	ctrlPointArray[numPts][1] = y;
+	ctrlPointArray[numPts].x = point.x;
+	ctrlPointArray[numPts].y = point.y;
 	numPts++;
 }
 
+// ES 3: Bézier curve with de Casteljau algorithm
 /*
-* Return the linear iterpolation of two points a and b.
+Return the linear iterpolation of two points a and b.
 */
 Point2D lerp(Point2D a, Point2D b, float t)
 {
@@ -197,26 +217,20 @@ Point2D lerp(Point2D a, Point2D b, float t)
 	return res;
 }
 
-void lerp2(float a[2], float b[2], float t, float res[2])
-{
-	res[0] = (1 - t) * a[0] + t * b[0];
-	res[1] = (1 - t) * a[1] + t * b[1];
-}
-
 /*
-* Given an array of points, evaluate a point of the Bézier curve in t.
+Given an array of points, evaluate a point of the Bézier curve in t.
 */
-Point2D deCasteljau(float points[MAX_NUM_PTS][2], int numPoints, float t)
+Point2D deCasteljau(Point2D points[MAX_NUM_PTS], int numPoints, float t)
 {
 	// Auxiliary array (since we edit it in each iteration, we don't want to lose the initial array)
 	Point2D pointArrayAux[MAX_NUM_PTS];
 	pointArrayAux[0] = { 0.0, 0.0 };
 
-	// Copy
+	// Copy to the auxiliary array
 	for (int i = 0; i < numPoints; i++)
 	{
-		pointArrayAux[i].x = points[i][0];
-		pointArrayAux[i].y = points[i][1];
+		pointArrayAux[i].x = points[i].x;
+		pointArrayAux[i].y = points[i].y;
 	}
 
 	// "Depth" loop
@@ -232,6 +246,7 @@ Point2D deCasteljau(float points[MAX_NUM_PTS][2], int numPoints, float t)
 	return pointArrayAux[0];
 }
 
+// INPUT ==================================================
 void resizeWindow(int w, int h)
 {
 	height = (h > 1) ? h : 2;
@@ -241,7 +256,7 @@ void resizeWindow(int w, int h)
 }
 
 /*
-* Keyboard Input: normal keys
+Keyboard Input: normal keys
 */
 void inputKeyboard(unsigned char key, int x, int y)
 {
@@ -261,7 +276,7 @@ void inputKeyboard(unsigned char key, int x, int y)
 }
 
 /*
-* Keyboard Input: special keys (down)
+Keyboard Input: special keys (down)
 */
 void specialKeyDown(int key, int x, int y)
 {
@@ -275,7 +290,7 @@ void specialKeyDown(int key, int x, int y)
 	}
 }
 /*
-* Keyboard Input: special keys (up)
+Keyboard Input: special keys (up)
 */
 void specialKeyUp(int key, int x, int y)
 {
@@ -284,7 +299,7 @@ void specialKeyUp(int key, int x, int y)
 }
 
 /*
-* Mouse Input: click
+Mouse Input: click
 */
 void inputMouseClick(int button, int state, int x, int y)
 {
@@ -302,10 +317,15 @@ void inputMouseClick(int button, int state, int x, int y)
 			else
 			{
 				// (x,y) viewport(0,width)x(0,height)   -->   (xPos,yPos) window(-1,1)x(-1,1)
-				float xPos = -1.0f + ((float)x) * 2 / ((float)(width));
-				float yPos = -1.0f + ((float)(height - y)) * 2 / ((float)(height));
+				Point2D point = {
+					-1.0f + ((float)x) * 2 / ((float)(width)),
+					-1.0f + ((float)(height - y)) * 2 / ((float)(height)),
+				};
+				
+				// test
+				//std::cout << "New Point: P" << (numPts+1) << "(" << point.x << "," << point.y << ")" << std::endl;
 
-				addNewPoint(xPos, yPos);
+				addNewPoint(point);
 				glutPostRedisplay();
 			}
 		}
@@ -318,7 +338,7 @@ void inputMouseClick(int button, int state, int x, int y)
 }
 
 /*
-* Mouse Input: move
+Mouse Input: move
 */
 void inputMousePassiveMove(int x, int y)
 {
@@ -329,18 +349,19 @@ void inputMousePassiveMove(int x, int y)
 	float sizeOffsetY = ctrlPointSize / (height);
 
 	/*
-	* Check if the mouse is hovering a Control Point.
-	* If it is: store in iHoverCtrlPt the index of the Control Point
-	* that (xMousePos,yMousePos) are inside.
-	* Otherwise: set iHoverCtrlPt to -1.
+	Check if the mouse is hovering a Control Point.
+	If it is: store in iHoverCtrlPt the index of the Control Point
+	that (xMousePos,yMousePos) are inside.
+	Otherwise: set iHoverCtrlPt to -1 (it's not hovering
+	a control point).
 	*/
 	for (int i = 0; i < numPts; i++)
 	{
 		float minX, maxX, minY, maxY;
-		minX = ctrlPointArray[i][0] - sizeOffsetX;
-		maxX = ctrlPointArray[i][0] + sizeOffsetX;
-		minY = ctrlPointArray[i][1] - sizeOffsetY;
-		maxY = ctrlPointArray[i][1] + sizeOffsetY;
+		minX = ctrlPointArray[i].x - sizeOffsetX;
+		maxX = ctrlPointArray[i].x + sizeOffsetX;
+		minY = ctrlPointArray[i].y - sizeOffsetY;
+		maxY = ctrlPointArray[i].y + sizeOffsetY;
 
 		// Mouse coords inside the point
 		if (minX <= xMousePos && xMousePos <= maxX &&
@@ -358,8 +379,9 @@ void inputMousePassiveMove(int x, int y)
 	}
 }
 
+// ES 4: Drag & drop control points
 /*
-* Mouse Input: drag (move while pressing)
+Mouse Input: drag (move while pressing)
 */
 void inputMouseDrag(int x, int y)
 {
@@ -369,15 +391,15 @@ void inputMouseDrag(int x, int y)
 		float yPos = -1.0f + ((float)(height - y)) * 2 / ((float)(height));
 		
 		// MIN/MAX to limit the dragging to end up inside the window
-		ctrlPointArray[iHoverCtrlPt][0] = MIN(1.0, MAX(-1.0, xPos));
-		ctrlPointArray[iHoverCtrlPt][1] = MIN(1.0, MAX(-1.0, yPos));
+		ctrlPointArray[iHoverCtrlPt].x = MIN(1.0, MAX(-1.0, xPos));
+		ctrlPointArray[iHoverCtrlPt].y = MIN(1.0, MAX(-1.0, yPos));
 	}
 }
 
+// UPDATE =================================================
 void update(int value)
 {
-
-	ctrlPointSize = MIN(10.0, MAX(1.0, ctrlPointSize + 0.1 * incrementCtrlPtSize));
+	ctrlPointSize = MAX(MIN_CTRL_PTS_SIZE, MIN(MAX_CTRL_PTS_SIZE, ctrlPointSize + 0.1 * incrementCtrlPtSize));
 
 	// Update curve: draw the curve only if there are at least 2 points
 	if (numPts > 1)
@@ -385,22 +407,34 @@ void update(int value)
 		for (int i = 0; i < numPtsCurve; i++)
 		{
 			Point2D res = deCasteljau(ctrlPointArray, numPts, (float)i / numPtsCurve);
-			curvePointArray[i][0] = res.x;
-			curvePointArray[i][1] = res.y;
+			curvePointArray[i].x = res.x;
+			curvePointArray[i].y = res.y;
+
+
+			
 		}
+
+		// test
+		/*if (numPts != prevNum)
+		{
+			Point2D res = deCasteljau(ctrlPointArray, numPts, 0.5);
+			std::cout << "DeCasteljau: (" << res.x << "," << res.y << ")" << std::endl;
+			prevNum = numPts;
+		}*/
 	}
 
 	glutPostRedisplay();
 	glutTimerFunc(20, update, 0);
 }
 
+// DRAW ===================================================
 void drawScene()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Draw control polygon
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBindVertexArray(VAO_ControlPoints);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_ControlPoints);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(ctrlPointArray), &ctrlPointArray[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -415,8 +449,8 @@ void drawScene()
 	if (numPts > 1)
 	{
 		// Draw curve
-		glBindVertexArray(VAO_2);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO_2);
+		glBindVertexArray(VAO_CurvePoints);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_CurvePoints);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(curvePointArray), &curvePointArray[0], GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
@@ -428,6 +462,7 @@ void drawScene()
 	glutSwapBuffers();
 }
 
+// MAIN ===================================================
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
