@@ -9,12 +9,21 @@
 * This program draws straight lines connecting dots placed with mouse clicks.
 *
 * Usage:
-*	Left click to place a control point.
+*	- Left click to place a control point.
 *		(Maximum number of control points allowed is currently set at 300)
-*	Press 'f' to remove the first control point
-*	Press 'l' to remove the last control point.
-*	Drag and drop the mouse while hovering a control point to move it.
-*	Press escape to exit.
+*	- Press 'f' to remove the first control point.
+*	- Press 'l' to remove the last control point.
+*	- Press 'i' to print control points.
+*	- Press 'o' to print curve points.
+*	- Drag and drop the mouse while hovering a control point to move it.
+*	- Press escape to exit.
+* 
+*	Curves rendering:
+*	- (default) Press 'F1' to select "de Casteljau Uniform" method
+*	- Press 'F2' to select "Catmull-Rom Spline" method 
+*	- Press 'F3' to select "de Casteljau Adaptive Subdivision" method
+*	- Press 'F4' to select ""
+*	- Press 'F5' to clear control points and curve points
 */
 
 #include <iostream>
@@ -36,7 +45,7 @@
 #include "01_3.h"
 #include "01_5a.h"
 #include "01_5b.h"
-//#include "01_5c.h"
+#include "01_5c.h"
 
 using namespace glm;
 
@@ -45,26 +54,26 @@ using namespace glm;
 #define CURSOR_DRAG GLUT_CURSOR_CYCLE
 
 // FUNCTION DECLARATIONS ========================
-void initShader();
-void init();
+static void initShader();
+static void init();
 
-void addNewPoint(Point2D point);
-void addNewPoint(float x, float y);
-void removeFirstPoint();
-void removeLastPoint();
+static void clearPoints();
+static void addNewPoint(Point2D point);
+static void addNewPoint(float x, float y);
+static void removeFirstPoint();
+static void removeLastPoint();
+static void printControlPoints();
+static void printCurvePoints();
 
-// Function Pointer for getting the curve
-void (*getCurve)(Point2D* ctrlPts, int numCtrl, Point2D* curvePts, int* numCurve);
+static void update(int value);
 
-void update(int value);
+static void resizeWindow(int w, int h);
+static void inputKeyboard(unsigned char key, int x, int y);
+static void inputMouseClick(int button, int state, int x, int y);
+static void inputMouseDrag(int x, int y);
+static void inputMousePassiveMove(int x, int y);
 
-void resizeWindow(int w, int h);
-void inputKeyboard(unsigned char key, int x, int y);
-void inputMouseClick(int button, int state, int x, int y);
-void inputMouseDrag(int x, int y);
-void inputMousePassiveMove(int x, int y);
-
-void drawScene();
+static void drawScene();
 
 // GLOBAL VARIABLES =============================
 static unsigned int programId;
@@ -88,7 +97,7 @@ Point2D curvePointArray[(MAX_NUM_PTS*2) - 1];
 int numCtrlPts = 0;
 
 // Num of points used to render the curve
-int numCurvePts = 300;
+int numCurvePts = 0;
 
 // Size of the Control Points
 float ctrlPointSize = 8.0;
@@ -101,8 +110,11 @@ int dragging = 0;
 
 int incrementCtrlPtSize = 0;
 
+// Function Pointer for getting the curve
+static void (*getCurve)(Point2D* ctrlPts, int numCtrl, Point2D* curvePts, int* numCurve);
+
 // INIT ===================================================
-void initShader()
+static void initShader()
 {
 	GLenum ErrorCheckValue = glGetError();
 
@@ -117,7 +129,7 @@ void initShader()
 /*
 Init VAOs and VBOs
 */
-void init()
+static void init()
 {
 	// VAO for control polygon
 	glGenVertexArrays(1, &VAO_ControlPoints);
@@ -138,10 +150,33 @@ void init()
 
 // LOGIC ==================================================
 /*
+Clear all the control points and curve points.
+*/
+static void clearPoints()
+{
+	// Clear control points
+	for (int i = 0; i < numCtrlPts; i++)
+	{
+		ctrlPointArray[i] = { 0.0f, 0.0f };
+	}
+	numCtrlPts = 0;
+
+	// Clear curve points
+	for (int i = 0; i < numCurvePts; i++)
+	{
+		curvePointArray[i] = { 0.0f, 0.0f };
+	}
+	numCurvePts = 0;
+
+	iHoverCtrlPt = -1;
+	glutSetCursor(CURSOR_NORMAL);
+}
+
+/*
 Remove the first Control Point, moving the rest
 of the array by one position.
 */
-void removeFirstPoint()
+static void removeFirstPoint()
 {
 	if (numCtrlPts > 0)
 	{
@@ -157,8 +192,7 @@ void removeFirstPoint()
 		numCtrlPts--;
 		for (int i = 0; i < numCtrlPts; i++)
 		{
-			ctrlPointArray[i].x = ctrlPointArray[i + 1].x;
-			ctrlPointArray[i].y = ctrlPointArray[i + 1].y;
+			ctrlPointArray[i] = ctrlPointArray[i + 1];
 		}
 	}
 }
@@ -166,7 +200,7 @@ void removeFirstPoint()
 /*
 Remove the last Control Point
 */
-void removeLastPoint()
+static void removeLastPoint()
 {
 	if (numCtrlPts > 0)
 	{
@@ -184,23 +218,43 @@ Add a new control point (to the end of the array).
 If there are too many (if MAX is reached) we remove the
 first of the array.
 */
-void addNewPoint(Point2D point)
+static void addNewPoint(Point2D point)
 {
 	if (numCtrlPts >= MAX_NUM_PTS)
 	{
 		removeFirstPoint();
 	}
-	ctrlPointArray[numCtrlPts].x = point.x;
-	ctrlPointArray[numCtrlPts].y = point.y;
+	ctrlPointArray[numCtrlPts] = point;
 	numCtrlPts++;
 }
-void addNewPoint(float x, float y)
+static void addNewPoint(float x, float y)
 {
 	addNewPoint({x, y});
 }
 
+static void printControlPoints()
+{
+	std::cout << std::endl << "CONTROL POINTS: " << numCtrlPts << std::endl;
+	for (int i = 0; i < numCtrlPts; i++)
+	{
+		std::cout << "P" << (i+1) << "(" << ctrlPointArray[i].x << "," << ctrlPointArray[i].y << ")" << std::endl;
+	}
+	std::cout << std::endl;
+}
+
+static void printCurvePoints()
+{
+
+	std::cout << "CURVE POINTS: " << numCurvePts << std::endl;
+	for (int i = 0; i < numCurvePts; i++)
+	{
+		std::cout << "P" << (i + 1) << "(" << curvePointArray[i].x << "," << ctrlPointArray[i].y << ")" << std::endl;
+	}
+	std::cout << std::endl;
+}
+
 // INPUT ==================================================
-void resizeWindow(int w, int h)
+static void resizeWindow(int w, int h)
 {
 	height = (h > 1) ? h : 2;
 	width = (w > 1) ? w : 2;
@@ -211,16 +265,20 @@ void resizeWindow(int w, int h)
 /*
 Keyboard Input: normal keys
 */
-void inputKeyboard(unsigned char key, int x, int y)
+static void inputKeyboard(unsigned char key, int x, int y)
 {
 	switch (key) {
 	case 'f':
 		removeFirstPoint();
-		glutPostRedisplay();
 		break;
 	case 'l':
 		removeLastPoint();
-		glutPostRedisplay();
+		break;
+	case 'i':
+		printControlPoints();
+		break; 
+	case 'o':
+		printCurvePoints();
 		break;
 	case 27: // Escape key
 		exit(0);
@@ -231,7 +289,7 @@ void inputKeyboard(unsigned char key, int x, int y)
 /*
 Keyboard Input: special keys (down)
 */
-void specialKeyDown(int key, int x, int y)
+static void specialKeyDown(int key, int x, int y)
 {
 	switch (key) {
 	case GLUT_KEY_UP:
@@ -243,16 +301,33 @@ void specialKeyDown(int key, int x, int y)
 	// Algorithm Selection
 	case GLUT_KEY_F1:
 		getCurve = getCurve_deCasteljau;
+		std::cout << "SELECTED ALGORITHM: de Casteljau with uniform method" << std::endl;
 		break;
 	case GLUT_KEY_F2:
+		getCurve = getCurve_CatmullRomSpline;
+		std::cout << "SELECTED ALGORITHM: Catmull-Rom Spline" << std::endl;
+		std::cout << "\tNot yet implemented." << std::endl; // TO-DO
+		break;
+	case GLUT_KEY_F3:
 		getCurve = getCurve_adaptiveSubdivision;
+		std::cout << "SELECTED ALGORITHM: de Casteljau with adaptive subdivision method" << std::endl;
+		break;
+	case GLUT_KEY_F4:
+		getCurve = getCurve_cubicSegments;
+		std::cout << "SELECTED ALGORITHM: cubic segments" << std::endl;
+		std::cout << "\tNot yet implemented." << std::endl; // TO-DO
+		break;
+	case GLUT_KEY_F5:
+		getCurve = NULL;
+		clearPoints();
+		std::cout << "SELECTED ALGORITHM: none (clear curve)" << std::endl;
 		break;
 	}
 }
 /*
 Keyboard Input: special keys (up)
 */
-void specialKeyUp(int key, int x, int y)
+static void specialKeyUp(int key, int x, int y)
 {
 	if(key == GLUT_KEY_UP || key == GLUT_KEY_DOWN)
 		incrementCtrlPtSize = 0;
@@ -261,7 +336,7 @@ void specialKeyUp(int key, int x, int y)
 /*
 Mouse Input: click
 */
-void inputMouseClick(int button, int state, int x, int y)
+static void inputMouseClick(int button, int state, int x, int y)
 {
 	if (button == GLUT_LEFT_BUTTON)
 	{
@@ -297,7 +372,7 @@ void inputMouseClick(int button, int state, int x, int y)
 /*
 Mouse Input: move
 */
-void inputMousePassiveMove(int x, int y)
+static void inputMousePassiveMove(int x, int y)
 {
 	float xMousePos = -1.0f + ((float)x) * 2 / ((float)(width));
 	float yMousePos = -1.0f + ((float)(height - y)) * 2 / ((float)(height));
@@ -340,7 +415,7 @@ void inputMousePassiveMove(int x, int y)
 /*
 Mouse Input: drag (move while pressing)
 */
-void inputMouseDrag(int x, int y)
+static void inputMouseDrag(int x, int y)
 {
 	if (dragging)
 	{
@@ -381,7 +456,7 @@ void inputMouseDrag(int x, int y)
 }*/
 
 // UPDATE =================================================
-void update(int value)
+static void update(int value)
 {
 	ctrlPointSize = MAX(MIN_CTRL_PTS_SIZE, MIN(MAX_CTRL_PTS_SIZE, ctrlPointSize + 0.1 * incrementCtrlPtSize));
 
@@ -397,7 +472,7 @@ void update(int value)
 }
 
 // DRAW ===================================================
-void drawScene()
+static void drawScene()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -466,6 +541,10 @@ int main(int argc, char** argv)
 
 	initShader();
 	init();
+
+	// default: deCasteljau
+	getCurve = getCurve_deCasteljau;
+	std::cout << std::endl << "SELECTED ALGORITHM: de Casteljau with uniform method" << std::endl;
 
 	glutMainLoop();
 

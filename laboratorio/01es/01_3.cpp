@@ -37,6 +37,8 @@ void getCurve_deCasteljau(Point2D* ctrlPts, int numCtrl, Point2D* curvePts, int*
 	if (numCtrl < 2)
 		return;
 
+	*numCurve = MIN(100, MAX(MAX_NUM_PTS, numCtrl * 2));
+
 	for (int i = 0; i < *numCurve; i++)
 	{
 		curvePts[i] = deCasteljau(ctrlPts, numCtrl, (float)i / *numCurve);

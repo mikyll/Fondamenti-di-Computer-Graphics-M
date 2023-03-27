@@ -1,10 +1,10 @@
 /*
-* ES 5b: Adaptive Subdivision
+* ES 5b: adaptive subdivision
 * 
 * Subdivide a Bézier curve by applying de Casteljau's
 * method.
 * 
-* Adaptive Subdivision:
+* Adaptive subdivision method:
 * "Break a curve into smaller and smaller subcurves
 * until each subcurve is sufficiently close to being a
 * straight line (Flat Test), so that rendering the

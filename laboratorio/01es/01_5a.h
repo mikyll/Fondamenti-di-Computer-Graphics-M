@@ -1,3 +1,10 @@
+/*
+* ES 5c: Catmull - Rom spline
+*
+*
+*
+*/
+
 #pragma once
 
 #include "defs.h"

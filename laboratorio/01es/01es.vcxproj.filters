@@ -33,6 +33,12 @@
     <ClCompile Include="01_5a.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="01_5c.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="01_5c.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ShaderMaker.h">
