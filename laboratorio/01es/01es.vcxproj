@@ -127,11 +127,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="01es_main.cpp" />
+    <ClCompile Include="01_5a.cpp" />
+    <ClCompile Include="01_main.cpp" />
+    <ClCompile Include="01_3.cpp" />
+    <ClCompile Include="01_5b.cpp" />
     <ClCompile Include="ShaderMaker.cpp" />
+    <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="01_3.h" />
+    <ClInclude Include="01_5a.h" />
+    <ClInclude Include="01_5b.h" />
+    <ClInclude Include="defs.h" />
     <ClInclude Include="ShaderMaker.h" />
+    <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
