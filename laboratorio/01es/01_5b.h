@@ -1,14 +1,19 @@
 /*
 * ES 5b: Adaptive Subdivision
 * 
-* Main idea: break a curve into smaller and smaller subcurves
+* Subdivide a Bézier curve by applying de Casteljau's
+* method.
+* 
+* Adaptive Subdivision:
+* "Break a curve into smaller and smaller subcurves
 * until each subcurve is sufficiently close to being a
 * straight line (Flat Test), so that rendering the
-* subcurves as straight lines gives adequate results.
+* subcurves as straight lines gives adequate results."
 * 
-* Explaination: if the straight lines are lower a given
-* threshold the line segments give the "illusion" of being
-* a curve.
+* Explaination: if the straight lines lengths are lower 
+* than a given threshold, then the line segments give
+* the "illusion" of being a curve.
+* 
 */
 
 #pragma once

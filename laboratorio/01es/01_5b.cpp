@@ -3,7 +3,7 @@
 static Point2D curveSegments[(MAX_NUM_PTS * 2) - 1];
 static int numSeg = 0;
 
-static float planaryTollerance = 0.001f; // (> 0)
+static float flatTolerance = 0.001f; // (> 0)
 
 /*
 Return the distance of a point from a segment (lineEnd - lineStart)
@@ -63,7 +63,7 @@ Give the Control Points of a curve obtained with the Adaptive Subdivision algori
 */
 static void adaptiveSubdivision(Point2D* tmpPtsArray, int numPts)
 {
-	bool isPlanar = true; // if true we consider the segment as "flat"
+	bool isFlat = true; // if true we consider the segment as "flat"
 
 	// Extract external Control Points p1 and p2: 0, N-1
 	Point2D p1 = tmpPtsArray[0];
@@ -74,14 +74,14 @@ static void adaptiveSubdivision(Point2D* tmpPtsArray, int numPts)
 	{
 		// Flat Test: Calculate distance tmpPtsArray[i] from line
 		float dist = distance(p1, pN, tmpPtsArray[i]);
-		if (dist > planaryTollerance)
+		if (dist > flatTolerance)
 		{
-			isPlanar = false;
+			isFlat = false;
 			break;
 		}
 	}
 
-	if (isPlanar)
+	if (isFlat)
 	{
 		// Draw the segment, as we consider it for the curve
 		curveSegments[numSeg] = p1;
