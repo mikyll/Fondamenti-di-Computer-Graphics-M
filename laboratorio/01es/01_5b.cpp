@@ -98,8 +98,8 @@ static void adaptiveSubdivision(Point2D* tmpPtsArray, int numPts)
 		// Divide the curve into 2
 		Point2D res[(MAX_NUM_PTS * 2) - 1];
 		int num;
-		Point2D subd_1[MAX_NUM_PTS] = { 0.0f, 0.0f };
-		Point2D subd_2[MAX_NUM_PTS] = { 0.0f, 0.0f };
+		Point2D subdLeft[MAX_NUM_PTS] = { 0.0f, 0.0f };
+		Point2D subdRight[MAX_NUM_PTS] = { 0.0f, 0.0f };
 
 		// Apply deCasteljau in t=0.5 saving CtrlPts of the 2 new curves
 		deCasteljauControlPoints(tmpPtsArray, numPts, 0.5f, res, &num);
@@ -108,16 +108,16 @@ static void adaptiveSubdivision(Point2D* tmpPtsArray, int numPts)
 		{
 			if (i < numPts)
 			{
-				subd_1[i] = res[i];
+				subdLeft[i] = res[i];
 			}
 			if (i >= numPts-1)
 			{
-				subd_2[i - numPts+1] = res[i];
+				subdRight[i - numPts+1] = res[i];
 			}
 		}
 
-		adaptiveSubdivision(subd_1, numPts);
-		adaptiveSubdivision(subd_2, numPts);
+		adaptiveSubdivision(subdLeft, numPts);
+		adaptiveSubdivision(subdRight, numPts);
 	}
 }
 

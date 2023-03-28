@@ -124,7 +124,6 @@ static void initShader()
 
 	programId = ShaderMaker::createProgram(vertexShader, fragmentShader);
 	glUseProgram(programId);
-
 }
 
 /*
@@ -284,11 +283,17 @@ static void inputKeyboard(unsigned char key, int x, int y)
 	case 's':
 		if (!drawControlSegments && !drawCurveSegments)
 		{
+			drawControlSegments = true;
+		}
+		else if (drawControlSegments && !drawCurveSegments)
+		{
+			drawControlSegments = false;
 			drawCurveSegments = true;
 		}
-		else if (!drawControlSegments && drawCurveSegments)
+		else if(!drawControlSegments && drawCurveSegments)
 		{
 			drawControlSegments = true;
+			drawCurveSegments = true;
 		}
 		else
 		{
@@ -328,7 +333,7 @@ static void specialKeyDown(int key, int x, int y)
 		std::cout << "SELECTED ALGORITHM: de Casteljau with adaptive subdivision method" << std::endl;
 		break;
 	case GLUT_KEY_F4:
-		getCurve = getCurve_cubicSegments;
+		//getCurve = getCurve_cubicSegments;
 		std::cout << "SELECTED ALGORITHM: cubic segments" << std::endl;
 		std::cout << "\tNot yet implemented." << std::endl; // TO-DO
 		break;
@@ -543,9 +548,6 @@ int main(int argc, char** argv)
 	glutInitWindowPosition(100, 100);
 	glutCreateWindow("Draw curves 2D");
 
-	// Update callback
-	glutTimerFunc(20, update, 0);
-
 	// Input callbacks
 	glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
 	glutKeyboardFunc(inputKeyboard);
@@ -555,6 +557,10 @@ int main(int argc, char** argv)
 	glutPassiveMotionFunc(inputMousePassiveMove);
 	glutMotionFunc(inputMouseDrag);
 	
+	// Update callback
+	glutTimerFunc(20, update, 0);
+
+
 	// Draw callback
 	glutDisplayFunc(drawScene);
 
