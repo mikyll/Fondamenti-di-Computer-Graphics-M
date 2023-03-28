@@ -306,7 +306,6 @@ static void specialKeyDown(int key, int x, int y)
 	case GLUT_KEY_F2:
 		getCurve = getCurve_CatmullRomSpline;
 		std::cout << "SELECTED ALGORITHM: Catmull-Rom Spline" << std::endl;
-		std::cout << "\tNot yet implemented." << std::endl; // TO-DO
 		break;
 	case GLUT_KEY_F3:
 		getCurve = getCurve_adaptiveSubdivision;
