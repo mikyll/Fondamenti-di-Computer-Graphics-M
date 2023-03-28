@@ -15,15 +15,16 @@
 *	- Press 'l' to remove the last control point.
 *	- Press 'i' to print control points.
 *	- Press 'o' to print curve points.
+*	- Press 's' to enable/disable control and/or curve segments.
 *	- Drag and drop the mouse while hovering a control point to move it.
 *	- Press escape to exit.
 * 
 *	Curves rendering:
-*	- (default) Press 'F1' to select "de Casteljau Uniform" method
-*	- Press 'F2' to select "Catmull-Rom Spline" method 
-*	- Press 'F3' to select "de Casteljau Adaptive Subdivision" method
-*	- Press 'F4' to select ""
-*	- Press 'F5' to clear control points and curve points
+*	- (default) Press 'F1' to select "de Casteljau Uniform" method.
+*	- Press 'F2' to select "Catmull-Rom Spline" method.
+*	- Press 'F3' to select "de Casteljau Adaptive Subdivision" method.
+*	- Press 'F4' to select "cubic segments" subdivision.
+*	- Press 'F5' to clear control points and curve points.
 */
 
 #include <iostream>
@@ -45,7 +46,7 @@
 #include "01_3.h"
 #include "01_5a.h"
 #include "01_5b.h"
-#include "01_5c.h"
+#include "01_5c.h" // TO-DO
 
 using namespace glm;
 
@@ -90,28 +91,28 @@ unsigned int VBO_ControlPoints;
 unsigned int VAO_CurvePoints;
 unsigned int VBO_CurvePoints;
 
-Point2D ctrlPointArray[MAX_NUM_PTS];
-Point2D curvePointArray[(MAX_NUM_PTS*2) - 1];
-
-// Current number of control polygon
-int numCtrlPts = 0;
-
-// Num of points used to render the curve
-int numCurvePts = 0;
-
 // Size of the Control Points
 float ctrlPointSize = 8.0;
+int incrementCtrlPtSize = 0;
+
+// Current control points
+Point2D ctrlPointArray[MAX_NUM_PTS];
+int numCtrlPts = 0;
+
+// Current curve points
+Point2D curvePointArray[(MAX_NUM_PTS*2) - 1];
+int numCurvePts = 0;
 
 // Index of the Control Point the mouse is hovering
 int iHoverCtrlPt = -1;
-
 // Used to detect while the user is dragging the mouse
 int dragging = 0;
 
-int incrementCtrlPtSize = 0;
-
-// Function Pointer for getting the curve
+// Function pointer for getting the curve
 static void (*getCurve)(Point2D* ctrlPts, int numCtrl, Point2D* curvePts, int* numCurve);
+
+bool drawControlSegments = true;
+bool drawCurveSegments = true;
 
 // INIT ===================================================
 static void initShader()
@@ -279,6 +280,21 @@ static void inputKeyboard(unsigned char key, int x, int y)
 		break; 
 	case 'o':
 		printCurvePoints();
+		break;
+	case 's':
+		if (!drawControlSegments && !drawCurveSegments)
+		{
+			drawCurveSegments = true;
+		}
+		else if (!drawControlSegments && drawCurveSegments)
+		{
+			drawControlSegments = true;
+		}
+		else
+		{
+			drawControlSegments = false;
+			drawCurveSegments = false;
+		}
 		break;
 	case 27: // Escape key
 		exit(0);
@@ -484,10 +500,13 @@ static void drawScene()
 	// Draw the control points CP
 	glPointSize(ctrlPointSize);
 	glDrawArrays(GL_POINTS, 0, numCtrlPts);
-	// Draw the line segments between CP
-	glLineWidth(2.0);
-	glDrawArrays(GL_LINE_STRIP, 0, numCtrlPts);
-	glBindVertexArray(0);
+	
+	if (drawControlSegments)
+	{
+		// Draw the line segments between CP
+		glLineWidth(2.0);
+		glDrawArrays(GL_LINE_STRIP, 0, numCtrlPts);
+	}
 
 	if (numCtrlPts > 1)
 	{
@@ -497,11 +516,15 @@ static void drawScene()
 		glBufferData(GL_ARRAY_BUFFER, sizeof(curvePointArray), &curvePointArray[0], GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
-		// Draw the segments that form the line
-		glLineWidth(0.5);
-		glDrawArrays(GL_LINE_STRIP, 0, numCurvePts);
-		glBindVertexArray(0);
+		
+		if (drawCurveSegments)
+		{
+			// Draw the segments that form the line
+			glLineWidth(0.5);
+			glDrawArrays(GL_LINE_STRIP, 0, numCurvePts);
+		}
 	}
+	glBindVertexArray(0);
 
 	glutSwapBuffers();
 }
