@@ -1,5 +1,7 @@
 #include "01_3.h"
 
+static Point2D deCasteljau(Point2D* points, int numPoints, float t);
+
 /*
 Given an array of points, evaluate a point of the Bézier curve in t.
 */

@@ -1,5 +1,9 @@
 #include "01_5b.h"
 
+static float distance(Point2D lineStart, Point2D lineEnd, Point2D point);
+static void deCasteljauControlPoints(Point2D* points, int numPoints, float t, Point2D* resCtrlPts, int* numRes);
+static void adaptiveSubdivision(Point2D* tmpPtsArray, int numPts);
+
 static Point2D curveSegments[(MAX_NUM_PTS * 2) - 1];
 static int numSeg = 0;
 
