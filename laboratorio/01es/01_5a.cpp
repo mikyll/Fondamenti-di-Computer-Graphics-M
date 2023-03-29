@@ -18,7 +18,7 @@ static Point2D catmullRomSpline(Point2D p0, Point2D p1, Point2D p2, Point2D p3, 
 		(-p0.y + p2.y) * t +
 		(2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t * t +
 		(-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t * t * t
-		);
+	);
 
 	return res;
 }

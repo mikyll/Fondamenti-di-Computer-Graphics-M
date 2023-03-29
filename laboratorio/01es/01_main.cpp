@@ -48,12 +48,6 @@
 #include "01_5b.h"
 #include "01_5c.h" // TO-DO
 
-using namespace glm;
-
-#define CURSOR_NORMAL GLUT_CURSOR_RIGHT_ARROW
-#define CURSOR_HOVER GLUT_CURSOR_DESTROY
-#define CURSOR_DRAG GLUT_CURSOR_CYCLE
-
 // FUNCTION DECLARATIONS ========================
 static void initShader();
 static void init();
@@ -488,7 +482,7 @@ static void update(int value)
 	}
 
 	glutPostRedisplay();
-	glutTimerFunc(20, update, 0);
+	glutTimerFunc(DELAY, update, 0);
 }
 
 // DRAW ===================================================
@@ -558,7 +552,7 @@ int main(int argc, char** argv)
 	glutMotionFunc(inputMouseDrag);
 	
 	// Update callback
-	glutTimerFunc(20, update, 0);
+	glutTimerFunc(DELAY, update, 0);
 
 
 	// Draw callback
