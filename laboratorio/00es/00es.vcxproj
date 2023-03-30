@@ -130,14 +130,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cube.cpp" />
+    <ClCompile Include="Cube.cpp" />
     <ClCompile Include="input.c" />
     <ClCompile Include="00es_main.cpp" />
     <ClCompile Include="ShaderMaker.cpp" />
     <ClCompile Include="text.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cube.h" />
+    <ClInclude Include="Cube.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="ShaderMaker.h" />
     <ClInclude Include="text.h" />

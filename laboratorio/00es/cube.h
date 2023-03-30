@@ -7,10 +7,10 @@ private:
 
 public:
 	Cube();
-	void translate();
-	void rotate();
-	void scale();
-	void setColors();
+	void Translate(float x, float y, float z);
+	void Rotate();
+	void Scale();
+	void SetColors();
 };
 
 #endif // !CUBE_H_
