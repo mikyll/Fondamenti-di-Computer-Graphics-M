@@ -125,13 +125,13 @@ Init VAOs and VBOs
 */
 static void init()
 {
-	// VAO for control polygon
+	// VAO & VBO for control polygon
 	glGenVertexArrays(1, &VAO_ControlPoints);
 	glBindVertexArray(VAO_ControlPoints);
 	glGenBuffers(1, &VBO_ControlPoints);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_ControlPoints);
 
-	// VAO for curve
+	// VAO & VBO for curve
 	glGenVertexArrays(1, &VAO_CurvePoints);
 	glBindVertexArray(VAO_CurvePoints);
 	glGenBuffers(1, &VBO_CurvePoints);
