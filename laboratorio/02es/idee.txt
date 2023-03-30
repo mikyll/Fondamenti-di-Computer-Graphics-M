@@ -1,0 +1,5 @@
+sole e luna che sorgono e tramontano seguendo un andamento con curva di bezier, e cambia il colore dello sfondo
+
+far rotolare la palla (tenere un indicatore per mostrare il verso?), per saltare tenere premuto space e mostrare un indicatore per la potenza.
+
+usare parallasse per lo sfondo

@@ -1,0 +1,9 @@
+#pragma once
+
+#include "commons.h"
+
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
+
+
+glm::vec2 lerp(glm::vec2 a, glm::vec2 b, float t);
