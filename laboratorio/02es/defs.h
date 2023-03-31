@@ -4,3 +4,5 @@
 #define WINDOW_HEIGHT 540
 
 #define DELAY 0
+
+#define PI 3.141592653589793

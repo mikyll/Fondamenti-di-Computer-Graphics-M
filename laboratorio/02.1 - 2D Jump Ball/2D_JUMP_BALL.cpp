@@ -470,7 +470,7 @@ void drawScene(void)
 	Model = translate(Model, vec3(posx - bwidth / 2, posy + bheight + distacco_da_terra, 0.0f));
 	Model = scale(Model, vec3(float(bwidth) / 2, float(bheight) / 2, 1.0));
 	glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(Model));
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glDrawArrays(GL_TRIANGLES, 0, vertices_palla / 2);
 	glBindVertexArray(0);
 
