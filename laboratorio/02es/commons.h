@@ -23,5 +23,6 @@
 
 #include "entities.h"
 #include "input.h"
+#include "figure.h"
 #include "spaceship.h"
 #include "stage.h"

@@ -132,6 +132,7 @@
   <ItemGroup>
     <ClCompile Include="02_main.cpp" />
     <ClCompile Include="entities.cpp" />
+    <ClCompile Include="figure.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="ShaderMaker.cpp" />
     <ClCompile Include="spaceship.cpp" />
@@ -142,6 +143,7 @@
     <ClInclude Include="commons.h" />
     <ClInclude Include="defs.h" />
     <ClInclude Include="entities.h" />
+    <ClInclude Include="figure.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="ShaderMaker.h" />
     <ClInclude Include="spaceship.h" />
