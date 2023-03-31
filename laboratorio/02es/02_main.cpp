@@ -1,5 +1,7 @@
 #include "stage.h"
 
+extern Input input;
+
 static unsigned int programId;
 
 unsigned int VAO;
@@ -48,8 +50,8 @@ typedef struct {
 Point2D* ball = new Point2D[numVerticesBall];*/
 
 typedef struct {
-	float x, y;
-} Point2D;
+	float x, y, z;
+} Point3D;
 
 typedef struct {
 	float r, g, b, a;
@@ -61,17 +63,18 @@ typedef struct {
 	GLuint VBO_Col; // VBO dei colori
 	int numTriangles;
 	// Vertices
-	std::vector<Point2D> vertices;
+	std::vector<Point3D> vertices;
 	std::vector<ColorRGBA> colors;
-	int numVertices;
 
 	// Modellation Matrix: Translation * Rotation * Scaling
 	glm::mat4 modelMatrix;
 	int drawMode;
+	float sizePoints;
+	float widthLines;
 } Figure;
 
-void drawBall(int numTriangles, Pointxy* ball);
-void buildPorthole(int numTriangles, Pointxy* porthole);
+
+static void buildSpaceship();
 
 std::vector<Figure> spaceship;
 
@@ -94,18 +97,7 @@ void init()
 	MatProj = glGetUniformLocation(programId, "Projection");
 	MatModel = glGetUniformLocation(programId, "Model");
 
-	//Costruzione geometria e colori del Porthole
-	buildPorthole(numTrianglesPorthole, porthole);
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, numVerticesPorthole * sizeof(Pointxy), &porthole[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(2 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glBindVertexArray(0);
+	buildSpaceship();
 
 	// set background color
 	glClearColor(1.0, 1.0, 1.0, 1.0);
@@ -140,250 +132,7 @@ static void update(int value)
 }
 
 // DRAW ===================================================
-// test
-double lerp(double a, double b, double amount) {
-	//Interpolazione lineare tra a e b secondo amount
-	return (1 - amount) * a + amount * b;
-}
 
-static void disegna_cerchio(int nTriangles, int step, glm::vec4 color_top, glm::vec4 color_bot, Pointxy* Cerchio) {
-	int i;
-	float stepA = (2 * 3.14) / nTriangles;
-
-	int comp = 0;
-	// step = 1 -> triangoli adiacenti, step = n -> triangoli distanti step l'uno dall'altro
-	for (i = 0; i < nTriangles; i += step)
-	{
-		Cerchio[comp].x = cos((double)i * stepA);
-		Cerchio[comp].y = sin((double)i * stepA);
-		Cerchio[comp].r = color_top.r;
-		Cerchio[comp].g = color_top.g;
-		Cerchio[comp].b = color_top.b;
-		Cerchio[comp].a = color_top.a;
-
-		Cerchio[comp + 1].x = cos((double)(i + 1) * stepA);
-		Cerchio[comp + 1].y = sin((double)(i + 1) * stepA);
-		Cerchio[comp + 1].r = color_top.r;
-		Cerchio[comp + 1].g = color_top.g;
-		Cerchio[comp + 1].b = color_top.b;
-		Cerchio[comp + 1].a = color_top.a;
-
-		//std::cout << "X: " << Cerchio[comp+1].x << ", Y: " << Cerchio[comp+1].y << std::endl;
-
-		Cerchio[comp + 2].x = 0.8 * cos((double)i * stepA);
-		Cerchio[comp + 2].y = 0.8 * sin((double)i * stepA);
-		Cerchio[comp + 2].r = color_bot.r;
-		Cerchio[comp + 2].g = color_bot.g;
-		Cerchio[comp + 2].b = color_bot.b;
-		Cerchio[comp + 2].a = color_bot.a;
-
-		// second
-		Cerchio[comp + 3].x = 0.8 * cos((double)(i + 1) * stepA);
-		Cerchio[comp + 3].y = 0.8 * sin((double)(i + 1) * stepA);
-		Cerchio[comp + 3].r = color_bot.r;
-		Cerchio[comp + 3].g = color_bot.g;
-		Cerchio[comp + 3].b = color_bot.b;
-		Cerchio[comp + 3].a = color_bot.a;
-
-		/*Cerchio[comp + 4].x = 0.5 * cos((double)(i)*stepA);
-		Cerchio[comp + 4].y = 0.5 * sin((double)(i)*stepA);
-		Cerchio[comp + 4].r = color_bot.r;
-		Cerchio[comp + 4].g = color_bot.g;
-		Cerchio[comp + 4].b = color_bot.b;
-		Cerchio[comp + 4].a = color_bot.a;
-
-		Cerchio[comp + 5].x = cos((double)(i + 1) * stepA);
-		Cerchio[comp + 5].y = sin((double)(i + 1) * stepA);
-		Cerchio[comp + 5].r = color_top.r;
-		Cerchio[comp + 5].g = color_top.g;
-		Cerchio[comp + 5].b = color_top.b;
-		Cerchio[comp + 5].a = color_top.a;*/
-		comp += 4;
-	}
-}
-
-static void drawCircle2D(Pointxy* circle, int numSides, float radius, ColorRGBA colorCenter, ColorRGBA colorExtern)
-{
-	std::cout << colorCenter.r << std::endl;
-
-	float stepA = (2 * 3.14) / numSides;
-
-	for (int comp = 0, i = 0; i < numSides; i++, comp += 3)
-	{
-		// External circumference (first vertex)
-		circle[comp].x = radius * cos((double)i * stepA);
-		circle[comp].y = radius * sin((double)i * stepA);
-		circle[comp].r = colorExtern.r;
-		circle[comp].g = colorExtern.g;
-		circle[comp].b = colorExtern.b;
-		circle[comp].a = colorExtern.a;
-		// External circumference (second vertex)
-		circle[comp + 1].x = radius * cos((double)(i + 1) * stepA);
-		circle[comp + 1].y = radius * sin((double)(i + 1) * stepA);
-		circle[comp + 1].r = colorExtern.r;
-		circle[comp + 1].g = colorExtern.g;
-		circle[comp + 1].b = colorExtern.b;
-		circle[comp + 1].a = colorExtern.a;
-		// Center
-		circle[comp + 2].x = cos((double)i * stepA);
-		circle[comp + 2].y = sin((double)i * stepA);
-		circle[comp + 2].r = colorCenter.r;
-		circle[comp + 2].g = colorCenter.g;
-		circle[comp + 2].b = colorCenter.b;
-		circle[comp + 2].a = colorCenter.a;
-	}
-}
-
-static void drawSemicircle(float cx, float cy, float radius, int numSides)
-{
-
-}
-
-static void buildCircle(Pointxy* circle, int numSides, int step, float radius, glm::vec4 colorExtern, glm::vec4 colorCenter)
-{
-	float stepA = (2 * PI) / numSides;
-
-	for (int comp = 0, i = 0; i < numSides; i += step, comp += 3)
-	{
-		// External circumference (first vertex)
-		circle[comp].x = radius * cos((double)i * stepA);
-		circle[comp].y = radius * sin((double)i * stepA);
-		circle[comp].r = colorExtern.r;
-		circle[comp].g = colorExtern.g;
-		circle[comp].b = colorExtern.b;
-		circle[comp].a = colorExtern.a;
-		
-		// External circumference (second vertex)
-		circle[comp + 1].x = radius * cos((double)(i + 1) * stepA);
-		circle[comp + 1].y = radius * sin((double)(i + 1) * stepA);
-		circle[comp + 1].r = colorExtern.r;
-		circle[comp + 1].g = colorExtern.g;
-		circle[comp + 1].b = colorExtern.b;
-		circle[comp + 1].a = colorExtern.a;
-		
-		// Center
-		circle[comp + 2].x = 0.0f;
-		circle[comp + 2].y = 0.0f;
-		circle[comp + 2].r = colorCenter.r;
-		circle[comp + 2].g = colorCenter.g;
-		circle[comp + 2].b = colorCenter.b;
-		circle[comp + 2].a = colorCenter.a;
-	}
-}
-
-static void buildHollowCircle(Pointxy* circle, int nTriangles, int step, float width, glm::vec4 colorExtern, glm::vec4 colorIntern)
-{
-	float stepA = (2 * PI) / nTriangles;
-
-	for (int comp = 0, i = 0; i < nTriangles; comp += 4, i += step)
-	{
-		// Extern vertices
-		circle[comp].x = cos((double)i * stepA);
-		circle[comp].y = sin((double)i * stepA);
-		circle[comp].r = colorExtern.r;
-		circle[comp].g = colorExtern.g;
-		circle[comp].b = colorExtern.b;
-		circle[comp].a = colorExtern.a;
-
-		circle[comp + 1].x = cos((double)(i + 1) * stepA);
-		circle[comp + 1].y = sin((double)(i + 1) * stepA);
-		circle[comp + 1].r = colorExtern.r;
-		circle[comp + 1].g = colorExtern.g;
-		circle[comp + 1].b = colorExtern.b;
-		circle[comp + 1].a = colorExtern.a;
-
-		// Intern vertices
-		circle[comp + 2].x = width * cos((double)i * stepA);
-		circle[comp + 2].y = width * sin((double)i * stepA);
-		circle[comp + 2].r = colorIntern.r;
-		circle[comp + 2].g = colorIntern.g;
-		circle[comp + 2].b = colorIntern.b;
-		circle[comp + 2].a = colorIntern.a;
-
-		circle[comp + 3].x = width * cos((double)(i + 1) * stepA);
-		circle[comp + 3].y = width * sin((double)(i + 1) * stepA);
-		circle[comp + 3].r = colorIntern.r;
-		circle[comp + 3].g = colorIntern.g;
-		circle[comp + 3].b = colorIntern.b;
-		circle[comp + 3].a = colorIntern.a;
-	}
-}
-
-void drawBall(int numTriangles, Pointxy* ball)
-{
-	int i, cont;
-	int vertici = 3 * numTriangles;
-
-	//Costruisco la geometria della palla ed i suoi colori
-	glm::vec4 col_rosso = { 1.0,0.0,0.0,1.0 };
-	glm::vec4 col_bottom = { 1.0, 0.8, 0.0, 1.0 };
-
-	glm::vec4 col_cyan = { 0.0, 0.8, 1.0, 0.5 };
-	glm::vec4 col_grey = { 0.6, 0.6, 0.6, 1.0 };
-	disegna_cerchio(numTriangles, 1, col_grey, col_grey, ball);
-	//drawCircle2D(ball, numTriangles, 1.0f, { 1.0,0.0,0.0,1.0 }, { 1.0, 0.8, 0.0, 1.0 });
-
-	cont = 4 * numTriangles;
-	
-	/*ball[cont] = {-1.0f, 2.0f, 0.0f, 0.0f, 1.0f, 1.0f};
-	ball[cont + 1] = { 0.0f, 2.5f, 0.0f, 0.0f, 1.0f, 1.0f };
-	ball[cont + 2] = { 1.0f, 2.0f, 0.0f, 0.0f, 1.0f, 1.0f };*/
-
-
-	//Costruisco la geometria dell'ombra ed i suoi colori.
-	/*glm::vec4 col_top = {0.49,0.49,0.49, 0.0};
-	col_bottom = { 0.0, 0.0, 0.0, 0.6 };
-	drawCircle(numTriangles, 1, col_top, col_bottom, shadow);
-
-	// Appendo a Palla la sua Ombra
-	cont = 3 * numTriangles;
-	for (i = 0; i < 3 * numTriangles; i++)
-	{
-		ball[cont + i].x = shadow[i].x;
-		ball[cont + i].y = shadow[i].y;
-		ball[cont + i].r = shadow[i].r;
-		ball[cont + i].g = shadow[i].g;
-		ball[cont + i].b = shadow[i].b;
-		ball[cont + i].a = shadow[i].a;
-	}*/
-}
-
-static void drawHull(int numTriangles, Pointxy* hull)
-{
-	// 2 curves
-}
-
-static void drawNose(Pointxy* nose)
-{
-	// triangolo rosso
-	glm::vec4 color = { 1.0f, 0.0f, 0.0f, 1.0f };
-	nose[0].x = -1.0f;
-	nose[0].y = 1.0f;
-	nose[1].x = 1.0f;
-	nose[1].y = 1.0f;
-	nose[2].x = 0.0f;
-	nose[2].y = 1.5f;
-
-	for (int i = 0; i < 3; i++)
-	{
-		nose[i].r = color.r;
-		nose[i].g = color.g;
-		nose[i].b = color.b;
-		nose[i].a = color.a;
-	}
-}
-
-static void drawFins(int numTriangles, Pointxy* fins)
-{
-	// triangoli rossi
-}
-
-static void drawPropeller(int numTriangles, Pointxy* propeller)
-{
-	// trapezio grigio
-}
-
-//////////////////////////////////////
 
 void createVAOvector(Figure* fig)
 {
@@ -392,7 +141,7 @@ void createVAOvector(Figure* fig)
 	//Genero , rendo attivo, riempio il VBO della geometria dei vertici
 	glGenBuffers(1, &fig->VBO_Geom);
 	glBindBuffer(GL_ARRAY_BUFFER, fig->VBO_Geom);
-	glBufferData(GL_ARRAY_BUFFER, fig->vertices.size() * sizeof(Point2D), fig->vertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, fig->vertices.size() * sizeof(Point3D), fig->vertices.data(), GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 	glEnableVertexAttribArray(0);
@@ -406,50 +155,266 @@ void createVAOvector(Figure* fig)
 	glEnableVertexAttribArray(1);
 }
 
-static void buildSpaceship()
+static void buildCircle(Figure* fig, float radius, int step, ColorRGBA colorExtern, ColorRGBA colorIntern)
 {
-	
-}
+	// 2 * PI = complete circle => divide by num of triangles we want to use
+	float stepA = (2 * PI) / fig->numTriangles;
 
-static void buildPorthole(int numTriangles, Pointxy* porthole)
-{
-	// draw external hollow circle (metal part)
-	glm::vec4 colorMetal = { 0.6f, 0.6f, 0.6f, 1.0f };
-	buildHollowCircle(porthole, numTriangles, 1, 0.8, colorMetal, colorMetal);
-
-	// draw internal circle (glass part)
-	Pointxy* portholeGlass = new Pointxy[3 * numTriangles];
-	glm::vec4 colorGlass = { 0.0f, 0.8f, 1.0f, 0.5f };
-	buildCircle(portholeGlass, numTriangles, 1, 0.8f, colorGlass, colorGlass);
-
-	int offset = 4 * numTriangles;
-	for (int i = 0; i < 3 * numTriangles; i++)
+	for (int i = 0; i < fig->numTriangles; i += step)
 	{
-		porthole[offset + i].x = portholeGlass[i].x;
-		porthole[offset + i].y = portholeGlass[i].y;
-		porthole[offset + i].r = portholeGlass[i].r;
-		porthole[offset + i].g = portholeGlass[i].g;
-		porthole[offset + i].b = portholeGlass[i].b;
-		porthole[offset + i].a = portholeGlass[i].a;
+		// Extern vertices
+		Point3D v0 = { radius * cos((double)i * stepA), radius * sin((double)i * stepA), 0.0f };
+		fig->vertices.push_back(v0);
+		fig->colors.push_back(colorExtern);
+
+		Point3D v1 = { radius * cos((double)(i + 1) * stepA), radius * sin((double)(i + 1) * stepA), 0.0f };
+		fig->vertices.push_back(v1);
+		fig->colors.push_back(colorExtern);
+
+		// Intern vertices
+		Point3D v2 = { 0.0f, 0.0f, 0.0f };
+		fig->vertices.push_back(v2);
+		fig->colors.push_back(colorIntern);
 	}
 }
 
+static void buildHollowCircle(Figure* fig, float radiusExtern, float radiusIntern, int step, ColorRGBA colorExtern, ColorRGBA colorIntern)
+{
+	float stepA = (2 * PI) / fig->numTriangles;
+
+	for (int i = 0; i < fig->numTriangles; i += step)
+	{
+		// Extern vertices
+		Point3D v0 = { radiusExtern * cos((double)i * stepA), radiusExtern * sin((double)i * stepA), 0.0f };
+		fig->vertices.push_back(v0);
+		fig->colors.push_back(colorExtern);
+
+		Point3D v1 = { radiusExtern * cos((double)(i + 1) * stepA), radiusExtern * sin((double)(i + 1) * stepA), 0.0f };
+		fig->vertices.push_back(v1);
+		fig->colors.push_back(colorExtern);
+
+		// Intern vertices
+		Point3D v2 = { radiusIntern * cos((double)i * stepA), radiusIntern * sin((double)i * stepA), 0.0f };
+		fig->vertices.push_back(v2);
+		fig->colors.push_back(colorIntern);
+
+		Point3D v3 = { radiusIntern * cos((double)(i + 1) * stepA), radiusIntern * sin((double)(i + 1) * stepA), 0.0f };
+		fig->vertices.push_back(v3);
+		fig->colors.push_back(colorIntern);
+	}
+}
+
+static void buildNose(Figure* fig, ColorRGBA color)
+{
+	fig->vertices.push_back({ -1.0f, 2.0f, 0.0f});
+	fig->vertices.push_back({ 1.0f, 2.0f, 0.0f });
+	fig->vertices.push_back({ 0.0f, 3.7f, 0.0f });
+
+	for (int i = 0; i < fig->vertices.size(); i++)
+	{
+		fig->colors.push_back(color);
+	}
+}
+
+static void buildLatFins(Figure* fig, ColorRGBA color)
+{
+	// Left
+	fig->vertices.push_back({ -2.8f, -3.7f, 0.0f });
+	fig->vertices.push_back({ -1.8f, -3.7f, 0.0f });
+	fig->vertices.push_back({ -1.8f, -2.0f, 0.0f });
+
+	fig->vertices.push_back({ -2.8f, -3.7f, 0.0f });
+	fig->vertices.push_back({ -1.8f, -3.7f, 0.0f });
+	fig->vertices.push_back({ -2.8f, -5.4f, 0.0f });
+
+	// Right
+	fig->vertices.push_back({ 2.8f, -3.7f, 0.0f });
+	fig->vertices.push_back({ 1.8f, -3.7f, 0.0f });
+	fig->vertices.push_back({ 1.8f, -2.0f, 0.0f });
+
+	fig->vertices.push_back({ 2.8f, -3.7f, 0.0f });
+	fig->vertices.push_back({ 1.8f, -3.7f, 0.0f });
+	fig->vertices.push_back({ 2.8f, -5.4f, 0.0f });
+
+	for (int i = 0; i < fig->vertices.size(); i++)
+	{
+		fig->colors.push_back(color);
+	}
+}
+
+static void buildCentrFin(Figure* fig, ColorRGBA color)
+{
+	fig->vertices.push_back({ 0.0f, -2.0f, 0.0f });
+	fig->vertices.push_back({ 0.0f, -5.4f, 0.0f });
+
+	for (int i = 0; i < fig->vertices.size(); i++)
+	{
+		fig->colors.push_back(color);
+	}
+}
+
+static void buildHull(Figure* fig, ColorRGBA color)
+{
+	float altezza = 6.2f;
+	int numPezzi = fig->numTriangles;
+	float dimPezzi = altezza / numPezzi;
+	float freq = PI;
+
+	for (int i = 0; i < numPezzi; i++)
+	{
+		// Extern vertices
+		Point3D v0 = {
+			-1.5f - 0.5f * cos(i / (float)numPezzi * freq),
+			-3.7f + (i * dimPezzi),
+			0.0f
+		};
+		fig->vertices.push_back(v0);
+
+		Point3D v1 = {
+			1.5f + 0.5f * cos(i / (float)numPezzi * freq),
+			-3.7f + (i * dimPezzi),
+			0.0f
+		};
+		fig->vertices.push_back(v1);
+	}
+
+
+	for (int i = 0; i < fig->vertices.size(); i++)
+	{
+		fig->colors.push_back(color);
+	}
+}
+
+static void buildPropulsor(Figure* fig, ColorRGBA colorLight, ColorRGBA colorDark)
+{
+	int i;
+
+	fig->vertices.push_back({ 1.8f, -3.7f, 0.0f });
+	fig->vertices.push_back({ -1.8f, -3.7f, 0.0f });
+	fig->vertices.push_back({ -1.6f, -4.0f, 0.0f });
+
+	fig->vertices.push_back({ -1.6f, -4.0f, 0.0f });
+	fig->vertices.push_back({ 1.6f, -4.0f, 0.0f });
+	fig->vertices.push_back({ 1.8f, -3.7f, 0.0f });
+
+	for (i = 0; i <= fig->vertices.size(); i++)
+	{
+		fig->colors.push_back(colorLight);
+	}
+
+	fig->vertices.push_back({ 1.0f, -4.0f, 0.0f });
+	fig->vertices.push_back({ -1.0f, -4.0f, 0.0f });
+	fig->vertices.push_back({ -1.2f, -4.5f, 0.0f });
+
+	fig->vertices.push_back({ -1.2f, -4.5f, 0.0f });
+	fig->vertices.push_back({ 1.2f, -4.5f, 0.0f });
+	fig->vertices.push_back({ 1.0f, -4.0f, 0.0f });
+
+	for (; i <= fig->vertices.size(); i++)
+	{
+		fig->colors.push_back(colorDark);
+	}
+}
+
+static void buildPortholeBorder(Figure* fig, ColorRGBA color)
+{
+	// draw external hollow circle (metal part)
+	buildHollowCircle(fig, 1.0f, 0.7f, 1, color, color);
+}
+
+static void buildPortholeGlass(Figure* fig, ColorRGBA color)
+{
+	// draw internal circle (glass part)
+	buildCircle(fig, 0.7f, 1, color, color);
+}
+
+static void buildSpaceship()
+{
+	glm::mat4 spaceshipMatrix = glm::mat4(1.0);
+	spaceshipMatrix = translate(spaceshipMatrix, glm::vec3(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0.0f));
+	spaceshipMatrix = scale(spaceshipMatrix, glm::vec3(40.0f, 40.0f, 0.0f));
+	spaceshipMatrix = rotate(spaceshipMatrix, (float)(30.0f * PI / 180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+	// Figure for hull
+	Figure figHull = {};
+	figHull.numTriangles = 15;
+	figHull.drawMode = GL_TRIANGLE_STRIP;
+	figHull.modelMatrix = spaceshipMatrix;
+	buildHull(&figHull, { 0.9f, 0.9f, 0.9f, 1.0f });
+	createVAOvector(&figHull);
+	spaceship.push_back(figHull);
+
+	// Figure for propulsor
+	Figure figPropulsor = {};
+	figPropulsor.drawMode = GL_TRIANGLES;
+	figPropulsor.modelMatrix = spaceshipMatrix;
+	buildPropulsor(&figPropulsor, { 0.6f, 0.6f, 0.6f, 1.0f }, { 0.4f, 0.4f, 0.4f, 1.0f }); // grey
+	createVAOvector(&figPropulsor);
+	spaceship.push_back(figPropulsor);
+
+	// Figure for nose
+	Figure figNose = {};
+	figNose.numTriangles = 1;
+	figNose.drawMode = GL_TRIANGLES;
+	figNose.modelMatrix = spaceshipMatrix;
+	buildNose(&figNose, { 1.0f, 0.0f, 0.0f, 1.0f });
+	createVAOvector(&figNose);
+	spaceship.push_back(figNose);
+
+	// Figure for lateral fins
+	Figure figLatFins = {};
+	figNose.numTriangles = 4;
+	figLatFins.drawMode = GL_TRIANGLES;
+	figLatFins.modelMatrix = spaceshipMatrix;
+	buildLatFins(&figLatFins, { 1.0f, 0.0f, 0.0f, 1.0f });
+	createVAOvector(&figLatFins);
+	spaceship.push_back(figLatFins);
+
+	// Figure for central fin
+	Figure figCentrFin = {};
+	figCentrFin.drawMode = GL_LINES;
+	figCentrFin.widthLines = 5.0f;
+	figCentrFin.modelMatrix = spaceshipMatrix;
+	buildCentrFin(&figCentrFin, { 1.0f, 0.0f, 0.0f, 1.0f });
+	createVAOvector(&figCentrFin);
+	spaceship.push_back(figCentrFin);
+	
+	// Figure for porthole border
+	Figure figPortholeBorder = {};
+	figPortholeBorder.numTriangles = 30;
+	figPortholeBorder.drawMode = GL_TRIANGLE_STRIP;
+	figPortholeBorder.modelMatrix = spaceshipMatrix;
+	buildPortholeBorder(&figPortholeBorder, { 0.6f, 0.6f, 0.6f, 1.0f }); // grey
+	createVAOvector(&figPortholeBorder);
+	spaceship.push_back(figPortholeBorder);
+
+	// Figure for porthole glass
+	Figure figPortholeGlass = {};
+	figPortholeGlass.numTriangles = 30;
+	figPortholeGlass.drawMode = GL_TRIANGLES;
+	figPortholeGlass.modelMatrix = spaceshipMatrix;
+	buildPortholeGlass(&figPortholeGlass, { 0.0f, 0.8f, 1.0f, 0.5f }); // light blue
+	createVAOvector(&figPortholeGlass);
+	spaceship.push_back(figPortholeGlass);
+}
+
+
+
 static void drawSpaceship()
 {
-
-
 	for (int i = 0; i < spaceship.size(); i++)
 	{
 		Figure fig = spaceship.at(i);
 
-		glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(Model));
-		// Border
-		glPolygonMode(GL_FRONT_AND_BACK, fig.drawMode);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, numVerticesPorthole / 3);
-		glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(Model));
-		// Glass
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glDrawArrays(GL_TRIANGLES, numVerticesPorthole / 3, numVerticesPorthole / 3);
+		glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(fig.modelMatrix));
+		glBindVertexArray(fig.VAO);
+		if (fig.sizePoints > 0.0f)
+			glPointSize(fig.sizePoints);
+		else glPointSize(1.0f);
+		if (fig.widthLines > 0.0f)
+			glLineWidth(fig.widthLines);
+		else glLineWidth(1.0f);
+		glDrawArrays(fig.drawMode, 0, fig.vertices.size());
 		glBindVertexArray(0);
 	}
 }
@@ -464,7 +429,7 @@ static void drawScene()
 	// Draw
 	
 	
-	int	distacco_da_terra = 100;
+	/*int	distacco_da_terra = 100;
 	
 	// Disegna palla (ombra+palla)
 	Model = glm::mat4(1.0);
@@ -482,6 +447,8 @@ static void drawScene()
 	Model = glm::mat4(1.0);
 	Model = glm::translate(Model, glm::vec3(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0.0f));
 	Model = glm::scale(Model, glm::vec3(float(bwidth) / 2, float(bheight) / 2, 1.0));
+
+	
 	glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(Model));
 	// Border
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -490,7 +457,9 @@ static void drawScene()
 	// Glass
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glDrawArrays(GL_TRIANGLES, numVerticesPorthole / 3, numVerticesPorthole / 3);
-	glBindVertexArray(0);
+	glBindVertexArray(0);*/
+
+	drawSpaceship();
 
 	glutSwapBuffers();
 }
@@ -506,12 +475,15 @@ int main(int argc, char** argv)
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
 
 	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-	glutInitWindowPosition(100, 100);
+	glutInitWindowPosition(10, 10);
 	glutCreateWindow("2D Animation");
 
 	// Input callbacks
+	glutKeyboardFunc(keyDown);
+	glutKeyboardUpFunc(keyUp);
 	/*glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
 	glutKeyboardFunc(inputKeyboard);
+	glutKeyboardUpFunc(inputKeyboard);
 	glutSpecialFunc(specialKeyDown);
 	glutSpecialUpFunc(specialKeyUp);
 	glutMouseFunc(inputMouseClick);
@@ -539,3 +511,36 @@ int main(int argc, char** argv)
 
 	return 0;
 }
+
+// Clessidra
+/*static void buildHull(Figure* fig, ColorRGBA color)
+{
+	float altezza = 6.2f;
+	int numPezzi = fig->numTriangles;
+	float dimPezzi = altezza / numPezzi;
+	float freq = PI;
+
+	for (int i = 0; i < numPezzi; i++)
+	{
+		// Extern vertices
+		Point3D v0 = {
+			-1.5f - 0.5f * cos(2 * (i / (float)numPezzi * freq)),
+			-3.7f + (i * dimPezzi),
+			0.0f
+		};
+		fig->vertices.push_back(v0);
+
+		Point3D v1 = {
+			1.5f + 0.5f * cos(2 * (i / (float)numPezzi * freq)),
+			-3.7f + (i * dimPezzi),
+			0.0f
+		};
+		fig->vertices.push_back(v1);
+	}
+
+
+	for (int i = 0; i < fig->vertices.size(); i++)
+	{
+		fig->colors.push_back(color);
+	}
+}*/
