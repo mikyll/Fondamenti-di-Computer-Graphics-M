@@ -54,7 +54,7 @@ void updateStars(float deltaTime)
 		stars.vertices.at(i).y -= yMovement / 5;
 	}
 
-	for (i = 0; i < numStarsBig; i++)
+	for (i = 0; i < totNumStars; i++)
 	{
 		// Wrap x
 		if (stars.vertices.at(i).x < 0.0f)
