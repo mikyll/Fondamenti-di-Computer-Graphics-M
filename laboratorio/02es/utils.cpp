@@ -31,3 +31,27 @@ float myCos(float x, float A, float B, float C, float D)
 {
 	return A * cos(B * (x - C)) + D;
 }
+
+double uniform()
+{
+	return (double)rand() / RAND_MAX;
+}
+
+float getRandomFloat(float min, float max)
+{
+	return min + (float)rand() / (float)(RAND_MAX / (max - min));
+}
+
+Point3D getRandomPoint2DinsideCircle(float xCenter, float yCenter, float radius)
+{
+	float r = radius * sqrt(uniform());
+	float theta = uniform() * PI * 2;
+
+	Point3D res = {
+		xCenter + r * radius * cos(theta),
+		yCenter + r * radius * sin(theta),
+		0.0f,
+	};
+
+	return res;
+}

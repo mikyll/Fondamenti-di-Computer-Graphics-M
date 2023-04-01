@@ -30,6 +30,7 @@ void init()
 
 	spawnSpaceship();
 	initStars();
+	initFiretrail();
 
 	// set background color
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -56,7 +57,7 @@ static void update(int value)
 	// UPDATE GAME LOGIC ----------------------------------
 	updateSpaceship(deltaTime);
 	updateStars(deltaTime);
-	
+	updateFiretrail(deltaTime);
 
 	glutPostRedisplay();
 	glutTimerFunc(DELAY, update, 0);
@@ -72,6 +73,7 @@ static void drawScene()
 
 	// DRAW SCENE OBJECTS ---------------------------------
 	drawStars();
+	drawFiretrail();
 	drawSpaceship();
 
 	glutSwapBuffers();

@@ -2,6 +2,7 @@
 
 const float maxForwardSpeed = 300.0f;
 const float maxAngularSpeed = PI * 2;
+const float minAngularSpeed = PI / 2;
 
 Entity spaceship;
 
@@ -228,27 +229,25 @@ void inputSpaceship()
 	if (!spaceship.health)
 		return;
 
+	// Deceleration
 	spaceship.forwardSpeed *= 0.95f;
 	spaceship.angularSpeed *= 0.8f;
 
+	float forwardNew = 0.0f;
+	float angularNew = 0.0f;
+
 	if (input.keyboard.keys['w'])
 	{
-		spaceship.forwardSpeed = maxForwardSpeed;
-		// TO-DO: add fire trail
+		forwardNew += maxForwardSpeed;
 	}
-	/*if (input.keyboard.keys['s'])
-	{
-		spaceship.forwardSpeed -= maxForwardSpeed;
-	}*/
 	if (input.keyboard.keys['a'])
 	{
-		spaceship.angularSpeed = maxAngularSpeed * spaceship.forwardSpeed / maxForwardSpeed;
+		angularNew += maxAngularSpeed;
 	}
 	if (input.keyboard.keys['d'])
 	{
-		spaceship.angularSpeed = -maxAngularSpeed * spaceship.forwardSpeed / maxForwardSpeed;
+		angularNew -= maxAngularSpeed;
 	}
-
 	if (input.keyboard.keys['r'])
 	{
 		spaceship.forwardSpeed = 0.0f;
@@ -258,6 +257,26 @@ void inputSpaceship()
 		spaceship.heading = PI / 2;
 	}
 
+	// Do some fancy stuff over the speed to make the movement smooth
+	spaceship.forwardSpeed = MIN(maxForwardSpeed, MAX(-maxForwardSpeed, spaceship.forwardSpeed + forwardNew));
+	spaceship.angularSpeed = forwardNew ? MIN(maxAngularSpeed, MAX(-maxAngularSpeed, spaceship.angularSpeed + angularNew))
+		: MIN(minAngularSpeed, MAX(-minAngularSpeed, spaceship.angularSpeed + angularNew));
+
+	if (spaceship.forwardSpeed > 10.0f)
+	{
+		float xSpawnCenter, ySpawnCenter;
+		xSpawnCenter = spaceship.pos.x + (spaceship.radius + 25.0f) * cos(spaceship.heading + PI);
+		ySpawnCenter = spaceship.pos.y + (spaceship.radius + 25.0f) * sin(spaceship.heading + PI);
+
+		spawnFiretrailParticles(
+			{ xSpawnCenter, ySpawnCenter, 0.0f },
+			spaceship.forwardSpeed,
+			spaceship.heading - PI,
+			15 * spaceship.forwardSpeed / maxForwardSpeed,
+			5.0f
+		);
+	}
+	
 	// TEST: Show lines
 	showLines = input.keyboard.keys['l'];
 }
@@ -294,14 +313,10 @@ void updateSpaceship(float deltaTime)
 		if (spaceship.pos.y > WINDOW_HEIGHT + spaceship.radius)
 			spaceship.pos.y -= WINDOW_HEIGHT + spaceship.radius * 2;
 
-
-		// Clamp inside window
-		/*spaceship.pos.x = MAX(0.0f, MIN(WINDOW_WIDTH, spaceship.pos.x));
-		spaceship.pos.y = MAX(0.0f, MIN(WINDOW_HEIGHT, spaceship.pos.y));*/
 	}
 }
 
-
+// DRAW ===================================================
 void drawSpaceship()
 {
 	if (!spaceship.health)
@@ -370,3 +385,7 @@ void drawSpaceship()
 	// TEST: Show lines
 	showLines = input.keyboard.keys['l'];
 }*/
+
+// Clamp inside window
+/*spaceship.pos.x = MAX(0.0f, MIN(WINDOW_WIDTH, spaceship.pos.x));
+spaceship.pos.y = MAX(0.0f, MIN(WINDOW_HEIGHT, spaceship.pos.y));*/

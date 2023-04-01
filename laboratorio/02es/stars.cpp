@@ -4,9 +4,9 @@ const int numStarsBig = 50;			// move fast
 const int numStarsMedium = 100;		// move slower than big ones
 const int numStarsSmall = 150;		// move slower than medium ones
 
-const int offsetStarsBig = numStarsBig;
-const int offsetStarsMedium = offsetStarsBig + numStarsMedium;
-const int offsetStarsSmall = offsetStarsMedium + numStarsSmall;
+const int offsetStarsBig = 0;
+const int offsetStarsMedium = numStarsBig;
+const int offsetStarsSmall = numStarsBig + numStarsMedium;
 
 const int totNumStars = numStarsBig + numStarsMedium + numStarsSmall;
 
@@ -16,8 +16,8 @@ void initStars()
 {
 	for (int i = 0; i < totNumStars; i++)
 	{
-		float xPos = (float)rand() / (float)(RAND_MAX / WINDOW_WIDTH);
-		float yPos = (float)rand() / (float)(RAND_MAX / WINDOW_HEIGHT);
+		float xPos = getRandomFloat(0.0, WINDOW_WIDTH);
+		float yPos = getRandomFloat(0.0, WINDOW_HEIGHT);
 
 		stars.vertices.push_back({ xPos, yPos, 0.0f });
 		stars.colors.push_back({ 1.0f, 1.0f, 1.0f, 1.0f});
@@ -32,17 +32,17 @@ void updateStars(float deltaTime)
 	float xMovement = cos(spaceship.heading) * spaceship.forwardSpeed * deltaTime;
 	float yMovement = sin(spaceship.heading) * spaceship.forwardSpeed * deltaTime;
 
-	for (i = 0; i < offsetStarsBig; i++)
+	for (i = 0; i < offsetStarsMedium; i++)
 	{
 		stars.vertices.at(i).x -= xMovement;
 		stars.vertices.at(i).y -= yMovement;
 	}
-	for (; i < offsetStarsMedium; i++)
+	for (; i < offsetStarsSmall; i++)
 	{
 		stars.vertices.at(i).x -= xMovement / 2;
 		stars.vertices.at(i).y -= yMovement / 2;
 	}
-	for (; i < offsetStarsSmall; i++)
+	for (; i < totNumStars; i++)
 	{
 		stars.vertices.at(i).x -= xMovement / 5;
 		stars.vertices.at(i).y -= yMovement / 5;
@@ -74,10 +74,10 @@ void drawStars()
 	glBindVertexArray(stars.VAO);
 	
 	glPointSize(4.0f);
-	glDrawArrays(GL_POINTS, 0, offsetStarsBig - 1);
+	glDrawArrays(GL_POINTS, offsetStarsBig, offsetStarsMedium);
 	glPointSize(2.5f);
-	glDrawArrays(GL_POINTS, offsetStarsBig, offsetStarsMedium - 1);
-	glPointSize(1.0f);
 	glDrawArrays(GL_POINTS, offsetStarsMedium, offsetStarsSmall);
+	glPointSize(1.0f);
+	glDrawArrays(GL_POINTS, offsetStarsSmall, totNumStars);
 	glBindVertexArray(0);
 }

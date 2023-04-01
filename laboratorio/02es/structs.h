@@ -11,6 +11,11 @@ typedef struct {
 } ColorRGBA;
 
 typedef struct {
+	float x, y, z;
+	float r, g, b, a;
+} ColoredPoint;
+
+typedef struct {
 	GLuint VAO;
 	GLuint VBO_Geom; // VBO della geometria dei vertici
 	GLuint VBO_Col; // VBO dei colori
@@ -48,7 +53,6 @@ typedef struct {
 	ColorRGBA color;
 	Point3D speed;
 	float size;
-	int health;
 } Particle;
 
 typedef struct {

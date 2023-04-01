@@ -22,9 +22,8 @@
 #include "structs.h"
 #include "utils.h"
 
-#include "entities.h"
 #include "input.h"
 #include "figure.h"
 #include "spaceship.h"
 #include "stars.h"
-#include "stage.h"
+#include "firetrail.h"

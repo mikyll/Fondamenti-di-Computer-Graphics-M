@@ -132,13 +132,11 @@
   <ItemGroup>
     <ClCompile Include="02_main.cpp" />
     <ClCompile Include="bullets.cpp" />
-    <ClCompile Include="entities.cpp" />
     <ClCompile Include="figure.cpp" />
     <ClCompile Include="firetrail.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="ShaderMaker.cpp" />
     <ClCompile Include="spaceship.cpp" />
-    <ClCompile Include="stage.cpp" />
     <ClCompile Include="stars.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
@@ -146,13 +144,11 @@
     <ClInclude Include="bullets.h" />
     <ClInclude Include="commons.h" />
     <ClInclude Include="defs.h" />
-    <ClInclude Include="entities.h" />
     <ClInclude Include="figure.h" />
     <ClInclude Include="firetrail.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="ShaderMaker.h" />
     <ClInclude Include="spaceship.h" />
-    <ClInclude Include="stage.h" />
     <ClInclude Include="stars.h" />
     <ClInclude Include="structs.h" />
     <ClInclude Include="utils.h" />
