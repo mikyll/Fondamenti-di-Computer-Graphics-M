@@ -278,8 +278,24 @@ void updateSpaceship(float deltaTime)
 		spaceship.pos.x += cos(spaceship.heading) * spaceship.forwardSpeed * deltaTime;
 		spaceship.pos.y += sin(spaceship.heading) * spaceship.forwardSpeed * deltaTime;
 
-		spaceship.pos.x = MAX(0.0f, MIN(WINDOW_WIDTH, spaceship.pos.x));
-		spaceship.pos.y = MAX(0.0f, MIN(WINDOW_HEIGHT, spaceship.pos.y));
+		
+		//std::cout << "(" << spaceship.pos.x << "," << spaceship.pos.y << ")" << std::endl;
+
+		// Wrap x
+		if (spaceship.pos.x < 0.0f)
+			spaceship.pos.x = WINDOW_WIDTH + spaceship.pos.x;
+		if (spaceship.pos.x > WINDOW_WIDTH)
+			spaceship.pos.x -= WINDOW_WIDTH;
+
+		// Wrap y
+		if (spaceship.pos.y < 0.0f)
+			spaceship.pos.y = WINDOW_HEIGHT + spaceship.pos.y;
+		if (spaceship.pos.y > WINDOW_HEIGHT)
+			spaceship.pos.y -= WINDOW_HEIGHT;
+
+
+		/*spaceship.pos.x = MAX(0.0f, MIN(WINDOW_WIDTH, spaceship.pos.x));
+		spaceship.pos.y = MAX(0.0f, MIN(WINDOW_HEIGHT, spaceship.pos.y));*/
 	}
 }
 

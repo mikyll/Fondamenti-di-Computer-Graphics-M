@@ -21,6 +21,12 @@ void createVAOvector(Figure* fig)
 	glEnableVertexAttribArray(1);
 }
 
+void updateVertices(Figure* fig)
+{
+	glBindBuffer(GL_ARRAY_BUFFER, fig->VBO_Geom);
+	glBufferData(GL_ARRAY_BUFFER, fig->vertices.size() * sizeof(Point3D), fig->vertices.data(), GL_STATIC_DRAW);
+}
+
 void buildCircle(Figure* fig, float radius, int step, ColorRGBA colorExtern, ColorRGBA colorIntern)
 {
 	// 2 * PI = complete circle => divide by num of triangles we want to use
