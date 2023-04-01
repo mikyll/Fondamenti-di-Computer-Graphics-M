@@ -208,6 +208,8 @@ void spawnSpaceship()
 	spaceship.pos.x = WINDOW_WIDTH / 2;
 	spaceship.pos.y = WINDOW_HEIGHT / 2;
 	spaceship.heading = PI / 2;
+	spaceship.scale = 20.0f;
+	spaceship.radius = 9.1f * spaceship.scale;
 	spaceship.forwardSpeed = 0.0f;
 	spaceship.angularSpeed = 0.0f;
 	spaceship.health = 3;
@@ -254,7 +256,7 @@ void inputSpaceship()
 		spaceship.heading = PI / 2;
 	}
 
-	// test
+	// TEST: Show lines
 	showLines = input.keyboard.keys['l'];
 }
 
@@ -278,22 +280,20 @@ void updateSpaceship(float deltaTime)
 		spaceship.pos.x += cos(spaceship.heading) * spaceship.forwardSpeed * deltaTime;
 		spaceship.pos.y += sin(spaceship.heading) * spaceship.forwardSpeed * deltaTime;
 
-		
-		//std::cout << "(" << spaceship.pos.x << "," << spaceship.pos.y << ")" << std::endl;
-
 		// Wrap x
-		if (spaceship.pos.x < 0.0f)
-			spaceship.pos.x = WINDOW_WIDTH + spaceship.pos.x;
-		if (spaceship.pos.x > WINDOW_WIDTH)
-			spaceship.pos.x -= WINDOW_WIDTH;
+		if (spaceship.pos.x < 0.0f - spaceship.radius / 2)
+			spaceship.pos.x += WINDOW_WIDTH + spaceship.radius;
+		if (spaceship.pos.x > WINDOW_WIDTH + spaceship.radius / 2)
+			spaceship.pos.x -= WINDOW_WIDTH + spaceship.radius;
 
 		// Wrap y
-		if (spaceship.pos.y < 0.0f)
-			spaceship.pos.y = WINDOW_HEIGHT + spaceship.pos.y;
-		if (spaceship.pos.y > WINDOW_HEIGHT)
-			spaceship.pos.y -= WINDOW_HEIGHT;
+		if (spaceship.pos.y < 0.0f - spaceship.radius / 2)
+			spaceship.pos.y += WINDOW_HEIGHT + spaceship.radius;
+		if (spaceship.pos.y > WINDOW_HEIGHT + spaceship.radius / 2)
+			spaceship.pos.y -= WINDOW_HEIGHT + spaceship.radius;
 
 
+		// Clamp inside window
 		/*spaceship.pos.x = MAX(0.0f, MIN(WINDOW_WIDTH, spaceship.pos.x));
 		spaceship.pos.y = MAX(0.0f, MIN(WINDOW_HEIGHT, spaceship.pos.y));*/
 	}
@@ -307,7 +307,7 @@ void drawSpaceship()
 
 	glm::mat4 mat = glm::mat4(1.0);
 	mat = translate(mat, glm::vec3(spaceship.pos.x, spaceship.pos.y, 0.0f));
-	mat = scale(mat, glm::vec3(20.0f, 20.0f, 0.0f));
+	mat = scale(mat, glm::vec3(spaceship.scale, spaceship.scale, 0.0f));
 	mat = rotate(mat, spaceship.heading - ((float)PI / 2), glm::vec3(0.0f, 0.0f, 1.0f));
 
 	for (int i = 0; i < spaceship.figures.size(); i++)
@@ -324,7 +324,7 @@ void drawSpaceship()
 			glLineWidth(fig->widthLines);
 		else glLineWidth(1.0f);
 
-		// test
+		// TEST: show lines
 		int mode = fig->drawMode;
 		if (showLines)
 		{
@@ -333,6 +333,7 @@ void drawSpaceship()
 			if (fig->drawMode == GL_TRIANGLE_STRIP)
 				mode = GL_LINE_STRIP;
 		}
+
 		glDrawArrays(mode, 0, fig->vertices.size());
 		glBindVertexArray(0);
 	}

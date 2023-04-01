@@ -30,6 +30,8 @@ typedef struct {
 	std::vector<Figure> figures;
 	Point3D pos;
 	float heading;
+	float radius;
+	float scale;
 	float forwardSpeed;
 	float angularSpeed;
 	int health;

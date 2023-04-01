@@ -2,11 +2,6 @@
 
 extern Entity spaceship;
 
-const float xMax = 65.0f;
-const float yMax = 35.0f;
-
-const int totNumStars = 300;
-
 const int numStarsBig = 50;			// move fast
 const int numStarsMedium = 100;		// move slower than big ones
 const int numStarsSmall = 150;		// move slower than medium ones
@@ -15,8 +10,9 @@ const int offsetStarsBig = numStarsBig;
 const int offsetStarsMedium = offsetStarsBig + numStarsMedium;
 const int offsetStarsSmall = offsetStarsMedium + numStarsSmall;
 
+const int totNumStars = numStarsBig + numStarsMedium + numStarsSmall;
+
 Figure stars;
-//std::vector<Star> positions;
 
 void initStars()
 {
@@ -58,13 +54,13 @@ void updateStars(float deltaTime)
 	{
 		// Wrap x
 		if (stars.vertices.at(i).x < 0.0f)
-			stars.vertices.at(i).x = WINDOW_WIDTH + stars.vertices.at(i).x;
+			stars.vertices.at(i).x += WINDOW_WIDTH;
 		if (stars.vertices.at(i).x > WINDOW_WIDTH)
 			stars.vertices.at(i).x -= WINDOW_WIDTH;
 
 		// Wrap y
 		if (stars.vertices.at(i).y < 0.0f)
-			stars.vertices.at(i).y = WINDOW_HEIGHT + stars.vertices.at(i).y;
+			stars.vertices.at(i).y += WINDOW_HEIGHT;
 		if (stars.vertices.at(i).y > WINDOW_HEIGHT)
 			stars.vertices.at(i).y -= WINDOW_HEIGHT;
 	}
@@ -75,8 +71,6 @@ void updateStars(float deltaTime)
 void drawStars()
 {
 	glm::mat4 mat = glm::mat4(1.0);
-	//mat = scale(mat, glm::vec3(5.0, 5.0, 0.0f));
-	//mat = translate(mat, glm::vec3(spaceship.pos.x, spaceship.pos.y, 0.0f));
 
 	glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(mat));
 	glBindVertexArray(stars.VAO);
