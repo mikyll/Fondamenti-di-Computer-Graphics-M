@@ -1,6 +1,6 @@
 #include "figure.h"
 
-void createVAOvector(Figure* fig)
+void createFigureVAO(Figure* fig)
 {
 	glGenVertexArrays(1, &fig->VAO);
 	glBindVertexArray(fig->VAO);
@@ -21,7 +21,7 @@ void createVAOvector(Figure* fig)
 	glEnableVertexAttribArray(1);
 }
 
-void updateVertices(Figure* fig)
+void updateFigureVertices(Figure* fig)
 {
 	glBindBuffer(GL_ARRAY_BUFFER, fig->VBO_Geom);
 	glBufferData(GL_ARRAY_BUFFER, fig->vertices.size() * sizeof(Point3D), fig->vertices.data(), GL_STATIC_DRAW);

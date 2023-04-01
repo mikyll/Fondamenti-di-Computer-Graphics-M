@@ -39,5 +39,21 @@ typedef struct {
 
 typedef struct {
 	Point3D pos;
-	int type;
+	ColorRGBA col;
+	float size;
 } Star;
+
+typedef struct {
+	Point3D pos;
+	ColorRGBA color;
+	Point3D speed;
+	float size;
+	int health;
+} Particle;
+
+typedef struct {
+	GLuint VAO;
+	GLuint VBO_Geom; // VBO della geometria dei vertici
+	GLuint VBO_Col; // VBO dei colori
+	std::vector<Particle> particles;
+} Firetrail;

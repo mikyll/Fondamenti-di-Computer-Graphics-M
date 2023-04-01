@@ -19,8 +19,8 @@
 
 // Personal libraries
 #include "defs.h"
-#include "utils.h"
 #include "structs.h"
+#include "utils.h"
 
 #include "entities.h"
 #include "input.h"

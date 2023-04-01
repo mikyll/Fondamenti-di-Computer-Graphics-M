@@ -146,7 +146,7 @@ void buildSpaceship()
 	figHull.drawMode = GL_TRIANGLE_STRIP;
 	figHull.modelMatrix = spaceshipMatrix;
 	buildHull(&figHull, { 0.9f, 0.9f, 0.9f, 1.0f });
-	createVAOvector(&figHull);
+	createFigureVAO(&figHull);
 	spaceship.figures.push_back(figHull);
 
 	// Figure for propulsor
@@ -154,7 +154,7 @@ void buildSpaceship()
 	figPropulsor.drawMode = GL_TRIANGLES;
 	figPropulsor.modelMatrix = spaceshipMatrix;
 	buildPropulsor(&figPropulsor, { 0.6f, 0.6f, 0.6f, 1.0f }, { 0.4f, 0.4f, 0.4f, 1.0f }); // grey
-	createVAOvector(&figPropulsor);
+	createFigureVAO(&figPropulsor);
 	spaceship.figures.push_back(figPropulsor);
 
 	// Figure for nose
@@ -163,7 +163,7 @@ void buildSpaceship()
 	figNose.drawMode = GL_TRIANGLES;
 	figNose.modelMatrix = spaceshipMatrix;
 	buildNose(&figNose, { 1.0f, 0.0f, 0.0f, 1.0f });
-	createVAOvector(&figNose);
+	createFigureVAO(&figNose);
 	spaceship.figures.push_back(figNose);
 
 	// Figure for lateral fins
@@ -172,7 +172,7 @@ void buildSpaceship()
 	figLatFins.drawMode = GL_TRIANGLES;
 	figLatFins.modelMatrix = spaceshipMatrix;
 	buildLatFins(&figLatFins, { 1.0f, 0.0f, 0.0f, 1.0f });
-	createVAOvector(&figLatFins);
+	createFigureVAO(&figLatFins);
 	spaceship.figures.push_back(figLatFins);
 
 	// Figure for central fin
@@ -181,7 +181,7 @@ void buildSpaceship()
 	figCentrFin.widthLines = 5.0f;
 	figCentrFin.modelMatrix = spaceshipMatrix;
 	buildCentrFin(&figCentrFin, { 1.0f, 0.0f, 0.0f, 1.0f });
-	createVAOvector(&figCentrFin);
+	createFigureVAO(&figCentrFin);
 	spaceship.figures.push_back(figCentrFin);
 
 	// Figure for porthole border
@@ -190,7 +190,7 @@ void buildSpaceship()
 	figPortholeBorder.drawMode = GL_TRIANGLE_STRIP;
 	figPortholeBorder.modelMatrix = spaceshipMatrix;
 	buildPortholeBorder(&figPortholeBorder, { 0.6f, 0.6f, 0.6f, 1.0f }); // grey
-	createVAOvector(&figPortholeBorder);
+	createFigureVAO(&figPortholeBorder);
 	spaceship.figures.push_back(figPortholeBorder);
 
 	// Figure for porthole glass
@@ -198,8 +198,8 @@ void buildSpaceship()
 	figPortholeGlass.numTriangles = 30;
 	figPortholeGlass.drawMode = GL_TRIANGLES;
 	figPortholeGlass.modelMatrix = spaceshipMatrix;
-	buildPortholeGlass(&figPortholeGlass, { 0.0f, 0.8f, 1.0f, 0.5f }); // light blue
-	createVAOvector(&figPortholeGlass);
+	buildPortholeGlass(&figPortholeGlass, { 0.0f, 0.8f, 1.0f, 0.5f }); // light blue (transparent)
+	createFigureVAO(&figPortholeGlass);
 	spaceship.figures.push_back(figPortholeGlass);
 }
 
@@ -209,7 +209,8 @@ void spawnSpaceship()
 	spaceship.pos.y = WINDOW_HEIGHT / 2;
 	spaceship.heading = PI / 2;
 	spaceship.scale = 20.0f;
-	spaceship.radius = 9.1f * spaceship.scale;
+	Point3D p1 = { 0.0f, 0.0f, 0.0f }, p2 = { 0.0f, 3.7f };
+	spaceship.radius = distance(p1, p2) * spaceship.scale;
 	spaceship.forwardSpeed = 0.0f;
 	spaceship.angularSpeed = 0.0f;
 	spaceship.health = 3;
@@ -227,24 +228,25 @@ void inputSpaceship()
 	if (!spaceship.health)
 		return;
 
-	spaceship.forwardSpeed = 0.0f;
-	spaceship.angularSpeed = 0.0f;
+	spaceship.forwardSpeed *= 0.95f;
+	spaceship.angularSpeed *= 0.8f;
 
 	if (input.keyboard.keys['w'])
 	{
-		spaceship.forwardSpeed += maxForwardSpeed;
+		spaceship.forwardSpeed = maxForwardSpeed;
+		// TO-DO: add fire trail
 	}
-	if (input.keyboard.keys['s'])
+	/*if (input.keyboard.keys['s'])
 	{
 		spaceship.forwardSpeed -= maxForwardSpeed;
-	}
+	}*/
 	if (input.keyboard.keys['a'])
 	{
-		spaceship.angularSpeed += maxAngularSpeed;
+		spaceship.angularSpeed = maxAngularSpeed * spaceship.forwardSpeed / maxForwardSpeed;
 	}
 	if (input.keyboard.keys['d'])
 	{
-		spaceship.angularSpeed -= maxAngularSpeed;
+		spaceship.angularSpeed = -maxAngularSpeed * spaceship.forwardSpeed / maxForwardSpeed;
 	}
 
 	if (input.keyboard.keys['r'])
@@ -281,16 +283,16 @@ void updateSpaceship(float deltaTime)
 		spaceship.pos.y += sin(spaceship.heading) * spaceship.forwardSpeed * deltaTime;
 
 		// Wrap x
-		if (spaceship.pos.x < 0.0f - spaceship.radius / 2)
-			spaceship.pos.x += WINDOW_WIDTH + spaceship.radius;
-		if (spaceship.pos.x > WINDOW_WIDTH + spaceship.radius / 2)
-			spaceship.pos.x -= WINDOW_WIDTH + spaceship.radius;
+		if (spaceship.pos.x < 0.0f - spaceship.radius)
+			spaceship.pos.x += WINDOW_WIDTH + spaceship.radius * 2;
+		if (spaceship.pos.x > WINDOW_WIDTH + spaceship.radius)
+			spaceship.pos.x -= WINDOW_WIDTH + spaceship.radius * 2;
 
 		// Wrap y
-		if (spaceship.pos.y < 0.0f - spaceship.radius / 2)
-			spaceship.pos.y += WINDOW_HEIGHT + spaceship.radius;
-		if (spaceship.pos.y > WINDOW_HEIGHT + spaceship.radius / 2)
-			spaceship.pos.y -= WINDOW_HEIGHT + spaceship.radius;
+		if (spaceship.pos.y < 0.0f - spaceship.radius)
+			spaceship.pos.y += WINDOW_HEIGHT + spaceship.radius * 2;
+		if (spaceship.pos.y > WINDOW_HEIGHT + spaceship.radius)
+			spaceship.pos.y -= WINDOW_HEIGHT + spaceship.radius * 2;
 
 
 		// Clamp inside window
@@ -325,16 +327,46 @@ void drawSpaceship()
 		else glLineWidth(1.0f);
 
 		// TEST: show lines
-		int mode = fig->drawMode;
-		if (showLines)
-		{
-			if (fig->drawMode == GL_TRIANGLES)
-				mode = GL_LINES;
-			if (fig->drawMode == GL_TRIANGLE_STRIP)
-				mode = GL_LINE_STRIP;
-		}
+		int mode = showLines ? GL_LINE_STRIP : fig->drawMode;
 
 		glDrawArrays(mode, 0, fig->vertices.size());
 		glBindVertexArray(0);
 	}
 }
+
+
+// DIFFERENT INPUT
+/*void inputSpaceship()
+{
+	if (!spaceship.health)
+		return;
+
+	spaceship.forwardSpeed = 0.0f;
+	spaceship.angularSpeed = 0.0f;
+
+	if (input.keyboard.keys['w'])
+	{
+		spaceship.forwardSpeed = maxForwardSpeed;
+		// TO-DO: add fire trail
+	}
+	if (input.keyboard.keys['a'])
+	{
+		spaceship.angularSpeed = maxAngularSpeed;
+	}
+	if (input.keyboard.keys['d'])
+	{
+		spaceship.angularSpeed = -maxAngularSpeed;
+	}
+
+	if (input.keyboard.keys['r'])
+	{
+		spaceship.forwardSpeed = 0.0f;
+		spaceship.angularSpeed = 0.0f;
+		spaceship.pos.x = WINDOW_WIDTH / 2;
+		spaceship.pos.y = WINDOW_HEIGHT / 2;
+		spaceship.heading = PI / 2;
+	}
+
+	// TEST: Show lines
+	showLines = input.keyboard.keys['l'];
+}*/

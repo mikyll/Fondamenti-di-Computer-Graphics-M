@@ -1,7 +1,5 @@
 #include "stars.h"
 
-extern Entity spaceship;
-
 const int numStarsBig = 50;			// move fast
 const int numStarsMedium = 100;		// move slower than big ones
 const int numStarsSmall = 150;		// move slower than medium ones
@@ -24,7 +22,7 @@ void initStars()
 		stars.vertices.push_back({ xPos, yPos, 0.0f });
 		stars.colors.push_back({ 1.0f, 1.0f, 1.0f, 1.0f});
 	}
-	createVAOvector(&stars);
+	createFigureVAO(&stars);
 }
 
 void updateStars(float deltaTime)
@@ -65,7 +63,7 @@ void updateStars(float deltaTime)
 			stars.vertices.at(i).y -= WINDOW_HEIGHT;
 	}
 
-	updateVertices(&stars);
+	updateFigureVertices(&stars);
 }
 
 void drawStars()

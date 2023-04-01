@@ -1,11 +1,6 @@
 #include "commons.h"
 
-
-
 static unsigned int programId;
-
-unsigned int VAO;
-unsigned int VBO;
 
 float deltaTime = 0.0f;
 unsigned long timeSinceStart; // milliseconds from glutInit() call
@@ -13,12 +8,6 @@ unsigned long timeSinceStart; // milliseconds from glutInit() call
 unsigned int MatProj, MatModel;
 
 glm::mat4 Projection;  //Matrice di proiezione
-
-
-extern std::vector<Figure> spaceship;
-extern float heading;
-
-extern float xPos, yPos;
 
 // INIT ===================================================
 void initShader()

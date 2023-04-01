@@ -12,6 +12,11 @@ glm::vec2 lerp(glm::vec2 a, glm::vec2 b, float t)
 	return res;
 }
 
+float distance(Point3D p1, Point3D p2)
+{
+	return sqrt(pow(p2.x - p1.x, 2) + pow(p2.y - p1.y, 2) + pow(p2.z - p1.z, 2));
+}
+
 /*
 Cosin function:
 
@@ -22,7 +27,7 @@ B: horizontal stretch
 C: x position
 D: y position
 */
-static float myCos(float x, float A, float B, float C, float D)
+float myCos(float x, float A, float B, float C, float D)
 {
 	return A * cos(B * (x - C)) + D;
 }

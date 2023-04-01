@@ -134,6 +134,7 @@
     <ClCompile Include="bullets.cpp" />
     <ClCompile Include="entities.cpp" />
     <ClCompile Include="figure.cpp" />
+    <ClCompile Include="firetrail.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="ShaderMaker.cpp" />
     <ClCompile Include="spaceship.cpp" />
@@ -147,6 +148,7 @@
     <ClInclude Include="defs.h" />
     <ClInclude Include="entities.h" />
     <ClInclude Include="figure.h" />
+    <ClInclude Include="firetrail.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="ShaderMaker.h" />
     <ClInclude Include="spaceship.h" />

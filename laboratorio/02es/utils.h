@@ -7,3 +7,4 @@
 
 
 glm::vec2 lerp(glm::vec2 a, glm::vec2 b, float t);
+float distance(Point3D p1, Point3D p2);
