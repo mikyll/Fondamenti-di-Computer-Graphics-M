@@ -1,6 +1,6 @@
 #include "commons.h"
 
-extern Input input;
+
 
 static unsigned int programId;
 
@@ -16,7 +16,9 @@ glm::mat4 Projection;  //Matrice di proiezione
 
 
 extern std::vector<Figure> spaceship;
-float heading = 0;
+extern float heading;
+
+extern float xPos, yPos;
 
 // INIT ===================================================
 void initShader()
@@ -43,24 +45,6 @@ void init()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
-
-// INPUT ==================================================
-static void doSpaceShipInput()
-{
-	if (input.keyboard.keys['a'])
-	{
-		heading += 180.0f * deltaTime;
-		if (heading >= 360.0f)
-			heading = 0.0f;
-	}
-	if (input.keyboard.keys['d'])
-	{
-		heading -= 180.0f * deltaTime;
-		if (heading < 0.0f)
-			heading = 359.0f;
-	}
-}
-
 // UPDATE =================================================
 static void update(int value)
 {
@@ -76,52 +60,18 @@ static void update(int value)
 	// Update elapsed time (for next frame)
 	timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
 
-	// Update game logic
-	doSpaceShipInput();
+	// INPUT PROCESSING -----------------------------------
+	inputSpaceship();
+
+	// UPDATE GAME LOGIC ----------------------------------
+	updateSpaceship(deltaTime);
 	
-	
-	
-	// Test
-	//std::cout << "DeltaTime: " << deltaTime << ", FPS: " << (1.0f / deltaTime) << std::endl;
 
 	glutPostRedisplay();
 	glutTimerFunc(DELAY, update, 0);
 }
 
 // DRAW ===================================================
-
-
-
-
-
-
-
-
-static void drawSpaceship()
-{
-	glm::mat4 mat = glm::mat4(1.0);
-	mat = translate(mat, glm::vec3(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0.0f));
-	mat = scale(mat, glm::vec3(20.0f, 20.0f, 0.0f));
-	mat = rotate(mat, (float)(heading * PI / 180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-	for (int i = 0; i < spaceship.size(); i++)
-	{
-		Figure* fig = &spaceship.at(i);
-		fig->modelMatrix = mat;
-
-		glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(mat));
-		glBindVertexArray(fig->VAO);
-		if (fig->sizePoints > 0.0f)
-			glPointSize(fig->sizePoints);
-		else glPointSize(1.0f);
-		if (fig->widthLines > 0.0f)
-			glLineWidth(fig->widthLines);
-		else glLineWidth(1.0f);
-		glDrawArrays(fig->drawMode, 0, fig->vertices.size());
-		glBindVertexArray(0);
-	}
-}
-
 static void drawScene()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -129,7 +79,7 @@ static void drawScene()
 	glUniformMatrix4fv(MatProj, 1, GL_FALSE, value_ptr(Projection));
 	
 
-	// Draw
+	// DRAW SCENE OBJECTS ---------------------------------
 	drawSpaceship();
 
 	glutSwapBuffers();

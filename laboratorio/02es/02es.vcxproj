@@ -131,6 +131,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="02_main.cpp" />
+    <ClCompile Include="bullet.cpp" />
     <ClCompile Include="entities.cpp" />
     <ClCompile Include="figure.cpp" />
     <ClCompile Include="input.cpp" />
@@ -140,6 +141,7 @@
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="bullet.h" />
     <ClInclude Include="commons.h" />
     <ClInclude Include="defs.h" />
     <ClInclude Include="entities.h" />

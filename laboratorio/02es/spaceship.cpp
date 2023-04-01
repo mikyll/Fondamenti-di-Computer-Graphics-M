@@ -1,6 +1,18 @@
 #include "spaceship.h"
 
+const float maxForwardSpeed = 300.0f;
+const float maxAngularSpeed = PI * 2;
+
+extern Input input;
+
 std::vector<Figure> spaceship;
+
+float xPos = WINDOW_WIDTH / 2, yPos = WINDOW_HEIGHT / 2;
+float heading = PI / 2;
+
+
+float forwardSpeed = 0.0f;
+float angularSpeed = 0.0f;
 
 // BUILD ==================================================
 static void buildNose(Figure* fig, ColorRGBA color)
@@ -210,14 +222,80 @@ void fire()
 {
 
 }
+// INPUT ==================================================
+void inputSpaceship()
+{
+	forwardSpeed = 0.0f;
+	angularSpeed = 0.0f;
+
+	if (input.keyboard.keys['w'])
+	{
+		forwardSpeed += maxForwardSpeed;
+	}
+	if (input.keyboard.keys['s'])
+	{
+		forwardSpeed -= maxForwardSpeed;
+	}
+	if (input.keyboard.keys['a'])
+	{
+		angularSpeed += maxAngularSpeed;
+	}
+	if (input.keyboard.keys['d'])
+	{
+		angularSpeed -= maxAngularSpeed;
+	}
+}
 
 // UPDATE =================================================
-void updateSpaceship()
+void updateSpaceship(float deltaTime)
 {
-	
+	if (angularSpeed != 0.0f)
+	{
+		heading += angularSpeed * deltaTime;
+		if (heading > 2 * PI)
+			heading -= 2 * PI;
+		if (heading < 0.0f)
+			heading += 2 * PI;
+	}
+
+	if (forwardSpeed != 0.0f)
+	{
+		xPos += cos(heading) * forwardSpeed * deltaTime;
+		yPos += sin(heading) * forwardSpeed * deltaTime;
+
+		if (xPos <= 0.0f)
+			xPos = 0.0f;
+		if (xPos >= WINDOW_WIDTH)
+			xPos = WINDOW_WIDTH;
+		if (yPos <= 0.0f)
+			yPos = 0.0f;
+		if (yPos >= WINDOW_HEIGHT)
+			yPos = WINDOW_HEIGHT;
+	}
 }
+
 
 void drawSpaceship()
 {
+	glm::mat4 mat = glm::mat4(1.0);
+	mat = translate(mat, glm::vec3(xPos, yPos, 0.0f));
+	mat = scale(mat, glm::vec3(20.0f, 20.0f, 0.0f));
+	mat = rotate(mat, heading - ((float)PI / 2), glm::vec3(0.0f, 0.0f, 1.0f));
 
+	for (int i = 0; i < spaceship.size(); i++)
+	{
+		Figure* fig = &spaceship.at(i);
+		fig->modelMatrix = mat;
+
+		glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(mat));
+		glBindVertexArray(fig->VAO);
+		if (fig->sizePoints > 0.0f)
+			glPointSize(fig->sizePoints);
+		else glPointSize(1.0f);
+		if (fig->widthLines > 0.0f)
+			glLineWidth(fig->widthLines);
+		else glLineWidth(1.0f);
+		glDrawArrays(fig->drawMode, 0, fig->vertices.size());
+		glBindVertexArray(0);
+	}
 }
