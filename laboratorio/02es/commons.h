@@ -20,9 +20,11 @@
 // Personal libraries
 #include "defs.h"
 #include "utils.h"
+#include "structs.h"
 
 #include "entities.h"
 #include "input.h"
 #include "figure.h"
 #include "spaceship.h"
+#include "stars.h"
 #include "stage.h"

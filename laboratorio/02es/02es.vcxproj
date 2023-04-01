@@ -131,17 +131,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="02_main.cpp" />
-    <ClCompile Include="bullet.cpp" />
+    <ClCompile Include="bullets.cpp" />
     <ClCompile Include="entities.cpp" />
     <ClCompile Include="figure.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="ShaderMaker.cpp" />
     <ClCompile Include="spaceship.cpp" />
     <ClCompile Include="stage.cpp" />
+    <ClCompile Include="stars.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="bullet.h" />
+    <ClInclude Include="bullets.h" />
     <ClInclude Include="commons.h" />
     <ClInclude Include="defs.h" />
     <ClInclude Include="entities.h" />
@@ -150,6 +151,8 @@
     <ClInclude Include="ShaderMaker.h" />
     <ClInclude Include="spaceship.h" />
     <ClInclude Include="stage.h" />
+    <ClInclude Include="stars.h" />
+    <ClInclude Include="structs.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

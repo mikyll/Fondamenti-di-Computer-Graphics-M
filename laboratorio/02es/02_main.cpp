@@ -39,7 +39,8 @@ void init()
 	MatProj = glGetUniformLocation(programId, "Projection");
 	MatModel = glGetUniformLocation(programId, "Model");
 
-	buildSpaceship();
+	spawnSpaceship();
+	initStars();
 
 	// set background color
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -65,6 +66,7 @@ static void update(int value)
 
 	// UPDATE GAME LOGIC ----------------------------------
 	updateSpaceship(deltaTime);
+	updateStars(deltaTime);
 	
 
 	glutPostRedisplay();
@@ -80,6 +82,7 @@ static void drawScene()
 	
 
 	// DRAW SCENE OBJECTS ---------------------------------
+	drawStars();
 	drawSpaceship();
 
 	glutSwapBuffers();
@@ -102,15 +105,6 @@ int main(int argc, char** argv)
 	// Input callbacks
 	glutKeyboardFunc(keyDown);
 	glutKeyboardUpFunc(keyUp);
-	/*glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
-	glutKeyboardFunc(inputKeyboard);
-	glutKeyboardUpFunc(inputKeyboard);
-	glutSpecialFunc(specialKeyDown);
-	glutSpecialUpFunc(specialKeyUp);
-	glutMouseFunc(inputMouseClick);
-	glutPassiveMotionFunc(inputMousePassiveMove);
-	glutMotionFunc(inputMouseDrag);
-	*/
 
 	// Update callback
 	timeSinceStart = glutGet(GLUT_ELAPSED_TIME);

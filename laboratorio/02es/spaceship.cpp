@@ -3,16 +3,11 @@
 const float maxForwardSpeed = 300.0f;
 const float maxAngularSpeed = PI * 2;
 
+Entity spaceship;
+
 extern Input input;
 
-std::vector<Figure> spaceship;
-
-float xPos = WINDOW_WIDTH / 2, yPos = WINDOW_HEIGHT / 2;
-float heading = PI / 2;
-
-
-float forwardSpeed = 0.0f;
-float angularSpeed = 0.0f;
+bool showLines = false;
 
 // BUILD ==================================================
 static void buildNose(Figure* fig, ColorRGBA color)
@@ -152,7 +147,7 @@ void buildSpaceship()
 	figHull.modelMatrix = spaceshipMatrix;
 	buildHull(&figHull, { 0.9f, 0.9f, 0.9f, 1.0f });
 	createVAOvector(&figHull);
-	spaceship.push_back(figHull);
+	spaceship.figures.push_back(figHull);
 
 	// Figure for propulsor
 	Figure figPropulsor = {};
@@ -160,7 +155,7 @@ void buildSpaceship()
 	figPropulsor.modelMatrix = spaceshipMatrix;
 	buildPropulsor(&figPropulsor, { 0.6f, 0.6f, 0.6f, 1.0f }, { 0.4f, 0.4f, 0.4f, 1.0f }); // grey
 	createVAOvector(&figPropulsor);
-	spaceship.push_back(figPropulsor);
+	spaceship.figures.push_back(figPropulsor);
 
 	// Figure for nose
 	Figure figNose = {};
@@ -169,7 +164,7 @@ void buildSpaceship()
 	figNose.modelMatrix = spaceshipMatrix;
 	buildNose(&figNose, { 1.0f, 0.0f, 0.0f, 1.0f });
 	createVAOvector(&figNose);
-	spaceship.push_back(figNose);
+	spaceship.figures.push_back(figNose);
 
 	// Figure for lateral fins
 	Figure figLatFins = {};
@@ -178,7 +173,7 @@ void buildSpaceship()
 	figLatFins.modelMatrix = spaceshipMatrix;
 	buildLatFins(&figLatFins, { 1.0f, 0.0f, 0.0f, 1.0f });
 	createVAOvector(&figLatFins);
-	spaceship.push_back(figLatFins);
+	spaceship.figures.push_back(figLatFins);
 
 	// Figure for central fin
 	Figure figCentrFin = {};
@@ -187,7 +182,7 @@ void buildSpaceship()
 	figCentrFin.modelMatrix = spaceshipMatrix;
 	buildCentrFin(&figCentrFin, { 1.0f, 0.0f, 0.0f, 1.0f });
 	createVAOvector(&figCentrFin);
-	spaceship.push_back(figCentrFin);
+	spaceship.figures.push_back(figCentrFin);
 
 	// Figure for porthole border
 	Figure figPortholeBorder = {};
@@ -196,7 +191,7 @@ void buildSpaceship()
 	figPortholeBorder.modelMatrix = spaceshipMatrix;
 	buildPortholeBorder(&figPortholeBorder, { 0.6f, 0.6f, 0.6f, 1.0f }); // grey
 	createVAOvector(&figPortholeBorder);
-	spaceship.push_back(figPortholeBorder);
+	spaceship.figures.push_back(figPortholeBorder);
 
 	// Figure for porthole glass
 	Figure figPortholeGlass = {};
@@ -205,86 +200,103 @@ void buildSpaceship()
 	figPortholeGlass.modelMatrix = spaceshipMatrix;
 	buildPortholeGlass(&figPortholeGlass, { 0.0f, 0.8f, 1.0f, 0.5f }); // light blue
 	createVAOvector(&figPortholeGlass);
-	spaceship.push_back(figPortholeGlass);
+	spaceship.figures.push_back(figPortholeGlass);
 }
 
 void spawnSpaceship()
 {
+	spaceship.pos.x = WINDOW_WIDTH / 2;
+	spaceship.pos.y = WINDOW_HEIGHT / 2;
+	spaceship.heading = PI / 2;
+	spaceship.forwardSpeed = 0.0f;
+	spaceship.angularSpeed = 0.0f;
+	spaceship.health = 3;
 
+	buildSpaceship();
 }
 
 void destroySpaceship()
 {
 
 }
-
-void fire()
-{
-
-}
 // INPUT ==================================================
 void inputSpaceship()
 {
-	forwardSpeed = 0.0f;
-	angularSpeed = 0.0f;
+	if (!spaceship.health)
+		return;
+
+	spaceship.forwardSpeed = 0.0f;
+	spaceship.angularSpeed = 0.0f;
 
 	if (input.keyboard.keys['w'])
 	{
-		forwardSpeed += maxForwardSpeed;
+		spaceship.forwardSpeed += maxForwardSpeed;
 	}
 	if (input.keyboard.keys['s'])
 	{
-		forwardSpeed -= maxForwardSpeed;
+		spaceship.forwardSpeed -= maxForwardSpeed;
 	}
 	if (input.keyboard.keys['a'])
 	{
-		angularSpeed += maxAngularSpeed;
+		spaceship.angularSpeed += maxAngularSpeed;
 	}
 	if (input.keyboard.keys['d'])
 	{
-		angularSpeed -= maxAngularSpeed;
+		spaceship.angularSpeed -= maxAngularSpeed;
 	}
+
+	if (input.keyboard.keys['r'])
+	{
+		spaceship.forwardSpeed = 0.0f;
+		spaceship.angularSpeed = 0.0f;
+		spaceship.pos.x = WINDOW_WIDTH / 2;
+		spaceship.pos.y = WINDOW_HEIGHT / 2;
+		spaceship.heading = PI / 2;
+	}
+
+	// test
+	showLines = input.keyboard.keys['l'];
 }
 
 // UPDATE =================================================
 void updateSpaceship(float deltaTime)
 {
-	if (angularSpeed != 0.0f)
+	if (!spaceship.health)
+		return;
+
+	if (spaceship.angularSpeed != 0.0f)
 	{
-		heading += angularSpeed * deltaTime;
-		if (heading > 2 * PI)
-			heading -= 2 * PI;
-		if (heading < 0.0f)
-			heading += 2 * PI;
+		spaceship.heading += spaceship.angularSpeed * deltaTime;
+		if (spaceship.heading > 2 * PI)
+			spaceship.heading -= 2 * PI;
+		if (spaceship.heading < 0.0f)
+			spaceship.heading += 2 * PI;
 	}
 
-	if (forwardSpeed != 0.0f)
+	if (spaceship.forwardSpeed != 0.0f)
 	{
-		xPos += cos(heading) * forwardSpeed * deltaTime;
-		yPos += sin(heading) * forwardSpeed * deltaTime;
+		spaceship.pos.x += cos(spaceship.heading) * spaceship.forwardSpeed * deltaTime;
+		spaceship.pos.y += sin(spaceship.heading) * spaceship.forwardSpeed * deltaTime;
 
-		if (xPos <= 0.0f)
-			xPos = 0.0f;
-		if (xPos >= WINDOW_WIDTH)
-			xPos = WINDOW_WIDTH;
-		if (yPos <= 0.0f)
-			yPos = 0.0f;
-		if (yPos >= WINDOW_HEIGHT)
-			yPos = WINDOW_HEIGHT;
+		spaceship.pos.x = MAX(0.0f, MIN(WINDOW_WIDTH, spaceship.pos.x));
+		spaceship.pos.y = MAX(0.0f, MIN(WINDOW_HEIGHT, spaceship.pos.y));
 	}
 }
 
 
 void drawSpaceship()
 {
-	glm::mat4 mat = glm::mat4(1.0);
-	mat = translate(mat, glm::vec3(xPos, yPos, 0.0f));
-	mat = scale(mat, glm::vec3(20.0f, 20.0f, 0.0f));
-	mat = rotate(mat, heading - ((float)PI / 2), glm::vec3(0.0f, 0.0f, 1.0f));
+	if (!spaceship.health)
+		return;
 
-	for (int i = 0; i < spaceship.size(); i++)
+	glm::mat4 mat = glm::mat4(1.0);
+	mat = translate(mat, glm::vec3(spaceship.pos.x, spaceship.pos.y, 0.0f));
+	mat = scale(mat, glm::vec3(20.0f, 20.0f, 0.0f));
+	mat = rotate(mat, spaceship.heading - ((float)PI / 2), glm::vec3(0.0f, 0.0f, 1.0f));
+
+	for (int i = 0; i < spaceship.figures.size(); i++)
 	{
-		Figure* fig = &spaceship.at(i);
+		Figure* fig = &spaceship.figures.at(i);
 		fig->modelMatrix = mat;
 
 		glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(mat));
@@ -295,7 +307,17 @@ void drawSpaceship()
 		if (fig->widthLines > 0.0f)
 			glLineWidth(fig->widthLines);
 		else glLineWidth(1.0f);
-		glDrawArrays(fig->drawMode, 0, fig->vertices.size());
+
+		// test
+		int mode = fig->drawMode;
+		if (showLines)
+		{
+			if (fig->drawMode == GL_TRIANGLES)
+				mode = GL_LINES;
+			if (fig->drawMode == GL_TRIANGLE_STRIP)
+				mode = GL_LINE_STRIP;
+		}
+		glDrawArrays(mode, 0, fig->vertices.size());
 		glBindVertexArray(0);
 	}
 }

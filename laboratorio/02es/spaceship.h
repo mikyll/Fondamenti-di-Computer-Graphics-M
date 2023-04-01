@@ -2,11 +2,10 @@
 
 #include "commons.h"
 
-typedef struct Entity Spaceship;
+//typedef struct Entity Spaceship;
 
 void spawnSpaceship();
 void destroySpaceship();
-void fire();
 void inputSpaceship();
 void updateSpaceship(float deltaTime);
 void drawSpaceship();
