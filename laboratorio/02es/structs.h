@@ -17,8 +17,8 @@ typedef struct {
 
 typedef struct {
 	GLuint VAO;
-	GLuint VBO_Geom; // VBO della geometria dei vertici
-	GLuint VBO_Col; // VBO dei colori
+	GLuint VBO_Geom;	// VBO vertices geometry
+	GLuint VBO_Col;		// VBO vertices colors
 	int numTriangles;
 	// Vertices
 	std::vector<Point3D> vertices;
