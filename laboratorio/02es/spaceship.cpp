@@ -312,13 +312,6 @@ static void buildSpaceship()
 	buildPortholeGlass(&figPortholeGlass, { 0.0f, 0.8f, 1.0f, 0.3f }); // light blue (transparent)
 	createFigureVAO(&figPortholeGlass);
 	spaceship.figures.push_back(figPortholeGlass);
-
-	for (int i = 0; i < spaceship.figures.size(); i++)
-	{
-		glm::mat4 mat = glm::mat4(1.0f);
-		if(spaceship.figures.at(i).modelMatrix != mat)
-			std::cout << "OK" << i << std::endl;
-	}
 }
 
 void spawnSpaceship()
