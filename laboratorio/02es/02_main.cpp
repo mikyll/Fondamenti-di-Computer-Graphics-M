@@ -14,12 +14,11 @@ void initShader()
 {
 	GLenum ErrorCheckValue = glGetError();
 
-	char* vertexShader = (char*)"vertexShader_C_M.glsl";
-	char* fragmentShader = (char*)"fragmentShader_C_M.glsl";
+	char* vertexShader = (char*)"resources/shaders/vertexShader_C_M.glsl";
+	char* fragmentShader = (char*)"resources/shaders/fragmentShader_C_M.glsl";
 
 	programId = ShaderMaker::createProgram(vertexShader, fragmentShader);
 	glUseProgram(programId);
-
 }
 
 void init()
@@ -31,6 +30,7 @@ void init()
 	spawnSpaceship();
 	initStars();
 	initFiretrail();
+	//initAsteroids();
 
 	// set background color
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -75,6 +75,7 @@ static void drawScene()
 	drawStars();
 	drawFiretrail();
 	drawSpaceship();
+	//drawAsteroids();
 
 	glutSwapBuffers();
 }
