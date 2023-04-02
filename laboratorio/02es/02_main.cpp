@@ -117,36 +117,3 @@ int main(int argc, char** argv)
 
 	return 0;
 }
-
-// Clessidra
-/*static void buildHull(Figure* fig, ColorRGBA color)
-{
-	float altezza = 6.2f;
-	int numPezzi = fig->numTriangles;
-	float dimPezzi = altezza / numPezzi;
-	float freq = PI;
-
-	for (int i = 0; i < numPezzi; i++)
-	{
-		// Extern vertices
-		Point3D v0 = {
-			-1.5f - 0.5f * cos(2 * (i / (float)numPezzi * freq)),
-			-3.7f + (i * dimPezzi),
-			0.0f
-		};
-		fig->vertices.push_back(v0);
-
-		Point3D v1 = {
-			1.5f + 0.5f * cos(2 * (i / (float)numPezzi * freq)),
-			-3.7f + (i * dimPezzi),
-			0.0f
-		};
-		fig->vertices.push_back(v1);
-	}
-
-
-	for (int i = 0; i < fig->vertices.size(); i++)
-	{
-		fig->colors.push_back(color);
-	}
-}*/

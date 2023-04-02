@@ -25,6 +25,7 @@ void initStars()
 	createFigureVAO(&stars);
 }
 
+// UPDATE =================================================
 void updateStars(float deltaTime)
 {
 	int i;
@@ -66,6 +67,7 @@ void updateStars(float deltaTime)
 	updateFigureVertices(&stars);
 }
 
+// DRAW ===================================================
 void drawStars()
 {
 	glm::mat4 mat = glm::mat4(1.0);
