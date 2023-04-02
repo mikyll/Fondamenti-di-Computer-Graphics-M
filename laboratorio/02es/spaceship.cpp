@@ -169,7 +169,7 @@ void buildSpaceship()
 
 	// Figure for lateral fins
 	Figure figLatFins = {};
-	figNose.numTriangles = 4;
+	figLatFins.numTriangles = 4;
 	figLatFins.drawMode = GL_TRIANGLES;
 	figLatFins.modelMatrix = spaceshipMatrix;
 	buildLatFins(&figLatFins, { 1.0f, 0.0f, 0.0f, 1.0f });

@@ -2,8 +2,6 @@
 
 #include "commons.h"
 
-//typedef struct Entity Spaceship;
-
 void spawnSpaceship();
 void destroySpaceship();
 void inputSpaceship();
