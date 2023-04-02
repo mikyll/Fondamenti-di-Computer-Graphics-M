@@ -8,6 +8,4 @@ void inputSpaceship();
 void updateSpaceship(float deltaTime);
 void drawSpaceship();
 
-void buildSpaceship();
-
 extern unsigned int MatProj, MatModel;

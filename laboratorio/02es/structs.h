@@ -16,6 +16,7 @@ typedef struct {
 } ColoredPoint;
 
 typedef struct {
+	int id;
 	GLuint VAO;
 	GLuint VBO_Geom;	// VBO vertices geometry
 	GLuint VBO_Col;		// VBO vertices colors
@@ -33,6 +34,7 @@ typedef struct {
 
 typedef struct {
 	std::vector<Figure> figures;
+	glm::mat4 modelMatrix;
 	Point3D pos;
 	float heading;
 	float radius;

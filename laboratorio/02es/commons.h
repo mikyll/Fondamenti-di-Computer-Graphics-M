@@ -27,3 +27,4 @@
 #include "spaceship.h"
 #include "stars.h"
 #include "firetrail.h"
+#include "asteroids.h"

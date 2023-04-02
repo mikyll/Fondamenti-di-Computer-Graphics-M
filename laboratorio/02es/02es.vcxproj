@@ -131,6 +131,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="02_main.cpp" />
+    <ClCompile Include="asteroids.cpp" />
     <ClCompile Include="bullets.cpp" />
     <ClCompile Include="figure.cpp" />
     <ClCompile Include="firetrail.cpp" />
@@ -141,6 +142,7 @@
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="asteroids.h" />
     <ClInclude Include="bullets.h" />
     <ClInclude Include="commons.h" />
     <ClInclude Include="defs.h" />

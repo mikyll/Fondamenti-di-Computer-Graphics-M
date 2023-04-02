@@ -35,13 +35,13 @@ void updateStars(float deltaTime)
 
 	for (i = 0; i < offsetStarsMedium; i++)
 	{
-		stars.vertices.at(i).x -= xMovement;
-		stars.vertices.at(i).y -= yMovement;
+		stars.vertices.at(i).x -= xMovement / 1.5;
+		stars.vertices.at(i).y -= yMovement / 1.5;
 	}
 	for (; i < offsetStarsSmall; i++)
 	{
-		stars.vertices.at(i).x -= xMovement / 2;
-		stars.vertices.at(i).y -= yMovement / 2;
+		stars.vertices.at(i).x -= xMovement / 3;
+		stars.vertices.at(i).y -= yMovement / 3;
 	}
 	for (; i < totNumStars; i++)
 	{

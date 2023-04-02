@@ -27,50 +27,76 @@ void updateFigureVertices(Figure* fig)
 	glBufferData(GL_ARRAY_BUFFER, fig->vertices.size() * sizeof(Point3D), fig->vertices.data(), GL_STATIC_DRAW);
 }
 
-void buildCircle(Figure* fig, float radius, int step, ColorRGBA colorExtern, ColorRGBA colorIntern)
+void buildCircle(Figure* fig, Point3D center, float radius, int step, ColorRGBA colorExtern, ColorRGBA colorIntern)
 {
-	// 2 * PI = complete circle => divide by num of triangles we want to use
-	float stepA = (2 * PI) / fig->numTriangles;
+	// PI * 2 = complete circle => divide by num of triangles we want to use
+	float stepA = (PI * 2) / fig->numTriangles;
 
 	for (int i = 0; i < fig->numTriangles; i += step)
 	{
 		// Extern vertices
-		Point3D v0 = { radius * cos((double)i * stepA), radius * sin((double)i * stepA), 0.0f };
+		Point3D v0 = { center.x + radius * cos((double)i * stepA), center.y + radius * sin((double)i * stepA), 0.0f };
 		fig->vertices.push_back(v0);
 		fig->colors.push_back(colorExtern);
 
-		Point3D v1 = { radius * cos((double)(i + 1) * stepA), radius * sin((double)(i + 1) * stepA), 0.0f };
+		Point3D v1 = { center.x + radius * cos((double)(i + 1) * stepA), center.y + radius * sin((double)(i + 1) * stepA), 0.0f };
 		fig->vertices.push_back(v1);
 		fig->colors.push_back(colorExtern);
 
 		// Intern vertices
-		Point3D v2 = { 0.0f, 0.0f, 0.0f };
+		Point3D v2 = center;
 		fig->vertices.push_back(v2);
 		fig->colors.push_back(colorIntern);
 	}
 }
 
-void buildHollowCircle(Figure* fig, float radiusExtern, float radiusIntern, int step, ColorRGBA colorExtern, ColorRGBA colorIntern)
+void buildSemiCircle(Figure* fig, Point3D center, float radius, float startAngle, int step, ColorRGBA colorExtern, ColorRGBA colorIntern)
 {
-	float stepA = (2 * PI) / fig->numTriangles;
+	// PI = half circle => divide by num of triangles we want to use
+	float stepA = (PI * 2) / fig->numTriangles;
 
 	for (int i = 0; i < fig->numTriangles; i += step)
 	{
+		float t0 = (float)i * stepA + startAngle;
+		float t1 = (float)(i+1) * stepA + startAngle;
+
 		// Extern vertices
-		Point3D v0 = { radiusExtern * cos((double)i * stepA), radiusExtern * sin((double)i * stepA), 0.0f };
+		Point3D v0 = { center.x + radius * cos(t0), center.y + radius * sin(t0), 0.0f };
 		fig->vertices.push_back(v0);
 		fig->colors.push_back(colorExtern);
 
-		Point3D v1 = { radiusExtern * cos((double)(i + 1) * stepA), radiusExtern * sin((double)(i + 1) * stepA), 0.0f };
+		Point3D v1 = { center.x + radius * cos(t1), center.y + radius * sin(t1), 0.0f };
 		fig->vertices.push_back(v1);
 		fig->colors.push_back(colorExtern);
 
 		// Intern vertices
-		Point3D v2 = { radiusIntern * cos((double)i * stepA), radiusIntern * sin((double)i * stepA), 0.0f };
+		Point3D v2 = center;
+		fig->vertices.push_back(v2);
+		fig->colors.push_back(colorIntern);
+	}
+}
+
+void buildHollowCircle(Figure* fig, Point3D center, float radiusExtern, float radiusIntern, int step, ColorRGBA colorExtern, ColorRGBA colorIntern)
+{
+	float stepA = (PI * 2) / fig->numTriangles;
+
+	for (int i = 0; i < fig->numTriangles; i += step)
+	{
+		// Extern vertices
+		Point3D v0 = { center.x + radiusExtern * cos((double)i * stepA), center.y + radiusExtern * sin((double)i * stepA), 0.0f };
+		fig->vertices.push_back(v0);
+		fig->colors.push_back(colorExtern);
+
+		Point3D v1 = { center.x + radiusExtern * cos((double)(i + 1) * stepA), center.y + radiusExtern * sin((double)(i + 1) * stepA), 0.0f };
+		fig->vertices.push_back(v1);
+		fig->colors.push_back(colorExtern);
+
+		// Intern vertices
+		Point3D v2 = { center.x + radiusIntern * cos((double)i * stepA), center.y + radiusIntern * sin((double)i * stepA), 0.0f };
 		fig->vertices.push_back(v2);
 		fig->colors.push_back(colorIntern);
 
-		Point3D v3 = { radiusIntern * cos((double)(i + 1) * stepA), radiusIntern * sin((double)(i + 1) * stepA), 0.0f };
+		Point3D v3 = { center.x + radiusIntern * cos((double)(i + 1) * stepA), center.y + radiusIntern * sin((double)(i + 1) * stepA), 0.0f };
 		fig->vertices.push_back(v3);
 		fig->colors.push_back(colorIntern);
 	}
