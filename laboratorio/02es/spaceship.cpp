@@ -272,7 +272,7 @@ void inputSpaceship()
 			{ xSpawnCenter, ySpawnCenter, 0.0f },
 			spaceship.forwardSpeed,
 			spaceship.heading - PI,
-			15 * spaceship.forwardSpeed / maxForwardSpeed,
+			20 * spaceship.forwardSpeed / maxForwardSpeed,
 			5.0f
 		);
 	}
@@ -349,7 +349,6 @@ void drawSpaceship()
 	}
 }
 
-
 // DIFFERENT INPUT
 /*void inputSpaceship()
 {
@@ -361,16 +360,16 @@ void drawSpaceship()
 
 	if (input.keyboard.keys['w'])
 	{
-		spaceship.forwardSpeed = maxForwardSpeed;
+		spaceship.forwardSpeed += maxForwardSpeed;
 		// TO-DO: add fire trail
 	}
 	if (input.keyboard.keys['a'])
 	{
-		spaceship.angularSpeed = maxAngularSpeed;
+		spaceship.angularSpeed += maxAngularSpeed;
 	}
 	if (input.keyboard.keys['d'])
 	{
-		spaceship.angularSpeed = -maxAngularSpeed;
+		spaceship.angularSpeed -= maxAngularSpeed;
 	}
 
 	if (input.keyboard.keys['r'])
@@ -382,10 +381,11 @@ void drawSpaceship()
 		spaceship.heading = PI / 2;
 	}
 
+	// Clamp inside window
+	//spaceship.pos.x = MAX(0.0f, MIN(WINDOW_WIDTH, spaceship.pos.x));
+	//spaceship.pos.y = MAX(0.0f, MIN(WINDOW_HEIGHT, spaceship.pos.y));
+
 	// TEST: Show lines
 	showLines = input.keyboard.keys['l'];
 }*/
 
-// Clamp inside window
-/*spaceship.pos.x = MAX(0.0f, MIN(WINDOW_WIDTH, spaceship.pos.x));
-spaceship.pos.y = MAX(0.0f, MIN(WINDOW_HEIGHT, spaceship.pos.y));*/

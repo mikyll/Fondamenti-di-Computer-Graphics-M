@@ -2,7 +2,8 @@
 
 Firetrail firetrail;
 
-const float decreaseFactor = 0.95f;
+const float speedDecreaseFactor = 0.95f;
+const float alphaDecreaseFactor = 2.5f;
 
 std::vector<Point3D> points;
 std::vector<ColorRGBA> colors;
@@ -31,19 +32,19 @@ void spawnFiretrailParticles(Point3D pStart, float speed, float heading, int num
 		// Calculate the speed component (x,y,z) from polar coordinates (speed, heading)
 		p.speed = { cos(heading) * speed, sin(heading) * speed, 0.0f };
 
-		p.pos = getRandomPoint2DinsideCircle(pStart.x, pStart.y, circleRadius);
-		float greenComponent = getRandomFloat(0.0f, 1.0f);
-		p.color = { 1.0f, (float)i / num, 0.0f, 1.0f};
+		// Spawn a particle in a random point inside a circle (the probability decreases moving away from the center)
+		p.pos = getRandomPoint2DinsideCircle(pStart.x, pStart.y, MIN(circleRadius, circleRadius * ((i + 1.0f) / num)));
+		
+		float greenComponent = getRandomFloat(0.0f, 1.0f - ((i + 1.0f) / num / 4));
+		p.color = { 1.0f, greenComponent, 0.0f, 1.0f};
 
 		firetrail.particles.push_back(p);
 	}
 }
 
+// UPDATE =================================================
 void updateFiretrail(float deltaTime)
 {
-	//glBindBuffer(GL_ARRAY_BUFFER, fig->VBO_Geom);
-	//glBufferData(GL_ARRAY_BUFFER, fig->vertices.size() * sizeof(Point3D), fig->vertices.data(), GL_STATIC_DRAW);
-
 	points.clear();
 	colors.clear();
 
@@ -51,13 +52,13 @@ void updateFiretrail(float deltaTime)
 	{
 		Particle p = firetrail.particles.at(i);
 		
-		p.speed.x *= decreaseFactor;
-		p.speed.y *= decreaseFactor;
+		p.speed.x *= speedDecreaseFactor;
+		p.speed.y *= speedDecreaseFactor;
 
 		p.pos.x += firetrail.particles.at(i).speed.x * deltaTime;
 		p.pos.y += firetrail.particles.at(i).speed.y * deltaTime;
-
-		p.color.a -= 0.5f * deltaTime;
+		
+		p.color.a -= alphaDecreaseFactor * deltaTime;
 
 		if (p.color.a <= 0.0f)
 		{
@@ -84,6 +85,7 @@ void updateFiretrail(float deltaTime)
 	glEnableVertexAttribArray(1);
 }
 
+// DRAW ===================================================
 void drawFiretrail()
 {
 	glm::mat4 mat = glm::mat4(1.0);

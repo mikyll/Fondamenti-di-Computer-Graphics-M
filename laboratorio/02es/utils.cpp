@@ -39,6 +39,9 @@ double uniform()
 
 float getRandomFloat(float min, float max)
 {
+	if (min >= max)
+		return 0.0f;
+
 	return min + (float)rand() / (float)(RAND_MAX / (max - min));
 }
 
