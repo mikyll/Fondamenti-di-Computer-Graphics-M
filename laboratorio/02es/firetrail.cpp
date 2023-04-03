@@ -1,12 +1,8 @@
 #include "firetrail.h"
 
-Firetrail firetrail;
-
-const float speedDecreaseFactor = 0.95f;
-const float alphaDecreaseFactor = 2.5f;
-
-std::vector<Point3D> points;
-std::vector<ColorRGBA> colors;
+static Firetrail firetrail;
+static std::vector<Point3D> vertices;
+static std::vector<ColorRGBA> colors;
 
 void initFiretrail()
 {
@@ -16,10 +12,17 @@ void initFiretrail()
 	// Vertices
 	glGenBuffers(1, &firetrail.VBO_Geom);
 	glBindBuffer(GL_ARRAY_BUFFER, firetrail.VBO_Geom);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Point3D), vertices.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(0);
+
 
 	// Colors
 	glGenBuffers(1, &firetrail.VBO_Col);
-	glBindBuffer(GL_ARRAY_BUFFER, firetrail.VBO_Geom);
+	glBindBuffer(GL_ARRAY_BUFFER, firetrail.VBO_Col);
+	glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(ColorRGBA), colors.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(1);
 }
 
 void spawnFiretrailParticles(Point3D pStart, float speed, float heading, int num, float circleRadius)
@@ -45,20 +48,20 @@ void spawnFiretrailParticles(Point3D pStart, float speed, float heading, int num
 // UPDATE =================================================
 void updateFiretrail(float deltaTime)
 {
-	points.clear();
+	vertices.clear();
 	colors.clear();
 
 	for (int i = 0; i < firetrail.particles.size(); i++)
 	{
 		Particle p = firetrail.particles.at(i);
 		
-		p.speed.x *= speedDecreaseFactor;
-		p.speed.y *= speedDecreaseFactor;
+		p.speed.x *= SPEED_DECREASE_FACTOR;
+		p.speed.y *= SPEED_DECREASE_FACTOR;
 
 		p.pos.x += firetrail.particles.at(i).speed.x * deltaTime;
 		p.pos.y += firetrail.particles.at(i).speed.y * deltaTime;
 		
-		p.color.a -= alphaDecreaseFactor * deltaTime;
+		p.color.a -= ALPHA_DECREASE_FACTOR * deltaTime;
 
 		if (p.color.a <= 0.0f)
 		{
@@ -67,22 +70,18 @@ void updateFiretrail(float deltaTime)
 		else
 		{
 			firetrail.particles.at(i) = p;
-			points.push_back(p.pos);
+			vertices.push_back(p.pos);
 			colors.push_back(p.color);
 		}
 	}
 
 	// Vertices
 	glBindBuffer(GL_ARRAY_BUFFER, firetrail.VBO_Geom);
-	glBufferData(GL_ARRAY_BUFFER, points.size() * sizeof(Point3D), points.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Point3D), (void*)0);
-	glEnableVertexAttribArray(0);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Point3D), vertices.data(), GL_STATIC_DRAW);
 	
 	// Colors
 	glBindBuffer(GL_ARRAY_BUFFER, firetrail.VBO_Col);
 	glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(ColorRGBA), colors.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(ColorRGBA), (void*)0);
-	glEnableVertexAttribArray(1);
 }
 
 // DRAW ===================================================
@@ -98,7 +97,7 @@ void drawFiretrail()
 	glBindVertexArray(firetrail.VAO);
 
 	glPointSize(3.0);
-	glDrawArrays(GL_POINTS, 0, points.size());
+	glDrawArrays(GL_POINTS, 0, vertices.size());
 	glBindVertexArray(0);
 
 	glDisable(GL_BLEND);
