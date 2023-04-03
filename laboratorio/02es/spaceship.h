@@ -9,3 +9,6 @@ void updateSpaceship(float deltaTime);
 void drawSpaceship();
 
 extern unsigned int MatProj, MatModel;
+extern bool running;
+
+extern bool showColliders;

@@ -482,7 +482,7 @@ static void update(int value)
 	}
 
 	glutPostRedisplay();
-	glutTimerFunc(DELAY, update, 0);
+	glutTimerFunc(UPDATE_DELAY, update, 0);
 }
 
 // DRAW ===================================================
@@ -552,7 +552,7 @@ int main(int argc, char** argv)
 	glutMotionFunc(inputMouseDrag);
 	
 	// Update callback
-	glutTimerFunc(DELAY, update, 0);
+	glutTimerFunc(UPDATE_DELAY, update, 0);
 
 
 	// Draw callback

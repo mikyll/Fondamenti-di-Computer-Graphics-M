@@ -2,12 +2,15 @@
 
 static unsigned int programId;
 
-float deltaTime = 0.0f;
-unsigned long timeSinceStart; // milliseconds from glutInit() call
-
 unsigned int MatProj, MatModel;
 
 glm::mat4 Projection;  //Matrice di proiezione
+
+// Game Loop variables
+float deltaTime = 0.0f;
+unsigned long timeSinceStart; // milliseconds from glutInit() call
+
+bool running = true;
 
 // INIT ===================================================
 void initShader()
@@ -30,7 +33,7 @@ void init()
 	spawnSpaceship();
 	initStars();
 	initFiretrail();
-	//initAsteroids();
+	initAsteroids();
 
 	// set background color
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -55,13 +58,16 @@ static void update(int value)
 	inputSpaceship();
 
 	// UPDATE GAME LOGIC ----------------------------------
-	updateSpaceship(deltaTime);
-	updateAsteroids(deltaTime);
-	updateStars(deltaTime);
-	updateFiretrail(deltaTime);
+	if (running)
+	{
+		updateSpaceship(deltaTime);
+		updateAsteroids(deltaTime);
+		updateStars(deltaTime);
+		updateFiretrail(deltaTime);
+	}
 
 	glutPostRedisplay();
-	glutTimerFunc(DELAY, update, 0);
+	glutTimerFunc(UPDATE_DELAY, update, 0);
 }
 
 // DRAW ===================================================
@@ -76,7 +82,7 @@ static void drawScene()
 	drawStars();
 	drawFiretrail();
 	drawSpaceship();
-	//drawAsteroids();
+	drawAsteroids();
 
 	glutSwapBuffers();
 }
@@ -101,7 +107,7 @@ int main(int argc, char** argv)
 
 	// Update callback
 	timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
-	glutTimerFunc(DELAY, update, 0);
+	glutTimerFunc(UPDATE_DELAY, update, 0);
 
 	// Draw callback
 	glutDisplayFunc(drawScene);

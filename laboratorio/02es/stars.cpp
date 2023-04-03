@@ -1,25 +1,35 @@
 #include "stars.h"
 
-const int numStarsBig = 50;			// move fast
-const int numStarsMedium = 100;		// move slower than big ones
-const int numStarsSmall = 150;		// move slower than medium ones
-
-const int offsetStarsBig = 0;
-const int offsetStarsMedium = numStarsBig;
-const int offsetStarsSmall = numStarsBig + numStarsMedium;
-
-const int totNumStars = numStarsBig + numStarsMedium + numStarsSmall;
-
 Figure stars;
+
+//static Starfield starfield;
+
+/*void initStarsNew()
+{
+	starfield = {};
+	starfield.modelMatrix = glm::mat4(1.0f);
+
+	for (int i = offsetStarsNear; i < numStarsNear; i++)
+	{
+		// to-do
+	}
+
+	for (int i = offsetStarsMiddle; i < numStarsMiddle; i++)
+	{
+		// to-do
+	}
+
+	for (int i = offsetStarsFar; i < numStarsFar; i++)
+	{
+		// to-do
+	}
+}*/
 
 void initStars()
 {
-	for (int i = 0; i < totNumStars; i++)
+	for (int i = 0; i < NUM_TOT_STARS; i++)
 	{
-		float xPos = getRandomFloat(0.0, WINDOW_WIDTH);
-		float yPos = getRandomFloat(0.0, WINDOW_HEIGHT);
-
-		stars.vertices.push_back({ xPos, yPos, 0.0f });
+		stars.vertices.push_back(getRandomPoint2DinsideRectangle(0.0f, 0.0f, WINDOW_WIDTH, WINDOW_HEIGHT));
 		stars.colors.push_back({ 1.0f, 1.0f, 1.0f, 1.0f});
 	}
 	createFigureVAO(&stars);
@@ -33,23 +43,23 @@ void updateStars(float deltaTime)
 	float xMovement = cos(spaceship.heading) * spaceship.forwardSpeed * deltaTime;
 	float yMovement = sin(spaceship.heading) * spaceship.forwardSpeed * deltaTime;
 
-	for (i = 0; i < offsetStarsMedium; i++)
+	for (i = 0; i < STAR_OFFSET_MIDDLE; i++)
 	{
 		stars.vertices.at(i).x -= xMovement / 1.5;
 		stars.vertices.at(i).y -= yMovement / 1.5;
 	}
-	for (; i < offsetStarsSmall; i++)
+	for (; i < STAR_OFFSET_FAR; i++)
 	{
 		stars.vertices.at(i).x -= xMovement / 3;
 		stars.vertices.at(i).y -= yMovement / 3;
 	}
-	for (; i < totNumStars; i++)
+	for (; i < NUM_TOT_STARS; i++)
 	{
 		stars.vertices.at(i).x -= xMovement / 5;
 		stars.vertices.at(i).y -= yMovement / 5;
 	}
 
-	for (i = 0; i < totNumStars; i++)
+	for (i = 0; i < NUM_TOT_STARS; i++)
 	{
 		// Wrap x
 		if (stars.vertices.at(i).x < 0.0f)
@@ -76,10 +86,10 @@ void drawStars()
 	glBindVertexArray(stars.VAO);
 	
 	glPointSize(4.0f);
-	glDrawArrays(GL_POINTS, offsetStarsBig, offsetStarsMedium);
+	glDrawArrays(GL_POINTS, STAR_OFFSET_NEAR, STAR_OFFSET_MIDDLE);
 	glPointSize(2.5f);
-	glDrawArrays(GL_POINTS, offsetStarsMedium, offsetStarsSmall);
+	glDrawArrays(GL_POINTS, STAR_OFFSET_MIDDLE, STAR_OFFSET_FAR);
 	glPointSize(1.0f);
-	glDrawArrays(GL_POINTS, offsetStarsSmall, totNumStars);
+	glDrawArrays(GL_POINTS, STAR_OFFSET_FAR, NUM_TOT_STARS);
 	glBindVertexArray(0);
 }

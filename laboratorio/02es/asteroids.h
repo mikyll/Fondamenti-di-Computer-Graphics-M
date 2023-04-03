@@ -7,3 +7,5 @@ void updateAsteroids(float deltaTime);
 void drawAsteroids();
 
 extern unsigned int MatProj, MatModel;
+
+extern Entity spaceship;

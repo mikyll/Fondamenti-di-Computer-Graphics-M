@@ -20,7 +20,6 @@ typedef struct {
 	GLuint VAO;
 	GLuint VBO_Geom;	// VBO vertices geometry
 	GLuint VBO_Col;		// VBO vertices colors
-	int numTriangles;
 	// Vertices
 	std::vector<Point3D> vertices;
 	std::vector<ColorRGBA> colors;
@@ -46,12 +45,6 @@ typedef struct {
 
 typedef struct {
 	Point3D pos;
-	ColorRGBA col;
-	float size;
-} Star;
-
-typedef struct {
-	Point3D pos;
 	ColorRGBA color;
 	Point3D speed;
 	float size;
@@ -63,3 +56,13 @@ typedef struct {
 	GLuint VBO_Col; // VBO dei colori
 	std::vector<Particle> particles;
 } Firetrail;
+
+typedef struct {
+	Figure figure;
+	Point3D pos;
+	Point3D speed;
+	float heading;
+	float radius;
+	int type;
+	float scale;
+} Asteroid;

@@ -45,6 +45,17 @@ float getRandomFloat(float min, float max)
 	return min + (float)rand() / (float)(RAND_MAX / (max - min));
 }
 
+Point3D getRandomPoint2DinsideRectangle(float xMin, float yMin, float xMax, float yMax)
+{
+	Point3D res = {
+		getRandomFloat(xMin, xMax),
+		getRandomFloat(yMin, yMax),
+		0.0f,
+	};
+
+	return res;
+}
+
 Point3D getRandomPoint2DinsideCircle(float xCenter, float yCenter, float radius)
 {
 	float r = radius * sqrt(uniform());
@@ -57,4 +68,9 @@ Point3D getRandomPoint2DinsideCircle(float xCenter, float yCenter, float radius)
 	};
 
 	return res;
+}
+
+bool isColliding(Point3D pos1, float radius1, Point3D pos2, float radius2)
+{
+	return distance(pos1, pos2) < radius1 + radius2;
 }

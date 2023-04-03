@@ -27,12 +27,12 @@ void updateFigureVertices(Figure* fig)
 	glBufferData(GL_ARRAY_BUFFER, fig->vertices.size() * sizeof(Point3D), fig->vertices.data(), GL_STATIC_DRAW);
 }
 
-void buildCircle(Figure* fig, Point3D center, float radius, int step, ColorRGBA colorExtern, ColorRGBA colorIntern)
+void buildCircle(Figure* fig, Point3D center, float radius, int numTriangles, ColorRGBA colorExtern, ColorRGBA colorIntern)
 {
 	// PI * 2 = complete circle => divide by num of triangles we want to use
-	float stepA = (PI * 2) / fig->numTriangles;
+	float stepA = (PI * 2) / numTriangles;
 
-	for (int i = 0; i < fig->numTriangles; i += step)
+	for (int i = 0; i < numTriangles; i ++)
 	{
 		// Extern vertices
 		Point3D v0 = { center.x + radius * cos((double)i * stepA), center.y + radius * sin((double)i * stepA), 0.0f };
@@ -50,12 +50,12 @@ void buildCircle(Figure* fig, Point3D center, float radius, int step, ColorRGBA 
 	}
 }
 
-void buildSemiCircle(Figure* fig, Point3D center, float radius, float startAngle, int step, ColorRGBA colorExtern, ColorRGBA colorIntern)
+void buildSemiCircle(Figure* fig, Point3D center, float radius, float startAngle, int numTriangles, ColorRGBA colorExtern, ColorRGBA colorIntern)
 {
 	// PI = half circle => divide by num of triangles we want to use
-	float stepA = (PI * 2) / fig->numTriangles;
+	float stepA = (PI * 2) / numTriangles;
 
-	for (int i = 0; i < fig->numTriangles; i += step)
+	for (int i = 0; i < numTriangles; i++)
 	{
 		float t0 = (float)i * stepA + startAngle;
 		float t1 = (float)(i+1) * stepA + startAngle;
@@ -76,11 +76,11 @@ void buildSemiCircle(Figure* fig, Point3D center, float radius, float startAngle
 	}
 }
 
-void buildHollowCircle(Figure* fig, Point3D center, float radiusExtern, float radiusIntern, int step, ColorRGBA colorExtern, ColorRGBA colorIntern)
+void buildHollowCircle(Figure* fig, Point3D center, float radiusExtern, float radiusIntern, int numTriangles, ColorRGBA colorExtern, ColorRGBA colorIntern)
 {
-	float stepA = (PI * 2) / fig->numTriangles;
+	float stepA = (PI * 2) / numTriangles;
 
-	for (int i = 0; i < fig->numTriangles; i += step)
+	for (int i = 0; i < numTriangles; i++)
 	{
 		// Extern vertices
 		Point3D v0 = { center.x + radiusExtern * cos((double)i * stepA), center.y + radiusExtern * sin((double)i * stepA), 0.0f };
@@ -99,5 +99,19 @@ void buildHollowCircle(Figure* fig, Point3D center, float radiusExtern, float ra
 		Point3D v3 = { center.x + radiusIntern * cos((double)(i + 1) * stepA), center.y + radiusIntern * sin((double)(i + 1) * stepA), 0.0f };
 		fig->vertices.push_back(v3);
 		fig->colors.push_back(colorIntern);
+	}
+}
+
+void buildCircumference(Figure* fig, Point3D center, float radius, int numSegments, ColorRGBA color)
+{
+	// PI * 2 = complete circle => divide by num of triangles we want to use
+	float stepA = (PI * 2) / numSegments;
+
+	for (int i = 0; i <= numSegments; i++)
+	{
+		// Extern vertices
+		Point3D v0 = { center.x + radius * cos((double)i * stepA), center.y + radius * sin((double)i * stepA), 0.0f };
+		fig->vertices.push_back(v0);
+		fig->colors.push_back(color);
 	}
 }

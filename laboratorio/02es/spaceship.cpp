@@ -9,14 +9,7 @@ float originalRadius;
 bool showLines = false;
 bool openPorthole = false;
 
-enum {
-	HULL,
-	NOSE,
-	FIN,
-	PROPULSOR,
-	ASTRONAUT,
-	PORTHOLE,
-};
+static Figure collider;
 
 // BUILD ==================================================
 static void buildNose(Figure* fig, ColorRGBA color)
@@ -68,10 +61,9 @@ static void buildCentrFin(Figure* fig, ColorRGBA color)
 	}
 }
 
-static void buildHull(Figure* fig, ColorRGBA color)
+static void buildHull(Figure* fig, int numPieces, ColorRGBA color)
 {
 	float height = 6.2f;
-	int numPieces = fig->numTriangles;
 	float dimPieces = height / numPieces;
 	float freq = PI;
 
@@ -102,8 +94,6 @@ static void buildHull(Figure* fig, ColorRGBA color)
 
 static void buildPropulsor(Figure* fig, ColorRGBA colorLight, ColorRGBA colorDark)
 {
-	int i;
-
 	fig->vertices.push_back({ 1.8f, -3.7f, 0.0f });
 	fig->vertices.push_back({ -1.8f, -3.7f, 0.0f });
 	fig->vertices.push_back({ -1.6f, -4.0f, 0.0f });
@@ -112,7 +102,7 @@ static void buildPropulsor(Figure* fig, ColorRGBA colorLight, ColorRGBA colorDar
 	fig->vertices.push_back({ 1.6f, -4.0f, 0.0f });
 	fig->vertices.push_back({ 1.8f, -3.7f, 0.0f });
 
-	for (i = 0; i <= fig->vertices.size(); i++)
+	for (int i = 0; i <= fig->vertices.size(); i++)
 	{
 		fig->colors.push_back(colorLight);
 	}
@@ -125,7 +115,7 @@ static void buildPropulsor(Figure* fig, ColorRGBA colorLight, ColorRGBA colorDar
 	fig->vertices.push_back({ 1.2f, -4.5f, 0.0f });
 	fig->vertices.push_back({ 1.0f, -4.0f, 0.0f });
 
-	for (; i <= fig->vertices.size(); i++)
+	for (int i = fig->colors.size(); i <= fig->vertices.size(); i++)
 	{
 		fig->colors.push_back(colorDark);
 	}
@@ -133,26 +123,26 @@ static void buildPropulsor(Figure* fig, ColorRGBA colorLight, ColorRGBA colorDar
 
 static void buildAstronautCabinIntern(Figure* fig, ColorRGBA color)
 {
-	buildCircle(fig, { 0.0f, 0.0f, 0.0f }, 0.9f, 1, color, color);
+	buildCircle(fig, { 0.0f, 0.0f, 0.0f }, 0.9f, 30, color, color);
 }
 
 static void buildAstronautCabinBorder(Figure* fig, ColorRGBA color)
 {
-	buildHollowCircle(fig, { 0.0f, 0.0f, 0.0f }, 1.2f, 0.8f, 1, color, color);
+	buildHollowCircle(fig, { 0.0f, 0.0f, 0.0f }, 1.2f, 0.8f, 30, color, color);
 }
 
 static void buildAstronautSuit(Figure* fig)
 {
-	fig->numTriangles += 15;
+	int numTriangles = 15;
 
 	// PI -> half a circle
-	float stepA = PI / fig->numTriangles;
+	float stepA = PI / numTriangles;
 
 	Point3D center = { 0.0f, 0.0f, 0.0f };
 	float radius = 0.5f;
 
 	fig->vertices.push_back(center);
-	for (int i = 0; i <= fig->numTriangles; i++)
+	for (int i = 0; i <= numTriangles; i++)
 	{
 		float t = (float)i * stepA + PI * 2;
 		fig->vertices.push_back({ center.x + radius * cos(t), center.y + radius * sin(t), 0.0f });
@@ -175,17 +165,17 @@ static void buildAstronautSuit(Figure* fig)
 
 static void buildAstronautVisor(Figure* fig)
 {
-	fig->numTriangles += 15;
+	int numTriangles = 15;
 
 	// PI -> half a circle
-	float stepA = PI / fig->numTriangles;
+	float stepA = PI / numTriangles;
 
 	float radius = 0.25f;
 	Point3D center = { -radius * 1.8, 0.0f, 0.0f };
 	
 	// Left semicircle
 	fig->vertices.push_back(center);
-	for (int i = 0; i <= fig->numTriangles; i++)
+	for (int i = 0; i <= numTriangles; i++)
 	{
 		float t = (float)i * stepA + PI * 0.5f;
 		fig->vertices.push_back({ center.x + radius * cos(t), center.y + radius * sin(t), 0.0f });
@@ -203,7 +193,7 @@ static void buildAstronautVisor(Figure* fig)
 	// Right semicircle
 	fig->vertices.push_back(center);
 	fig->vertices.push_back(center);
-	for (int i = 0; i <= fig->numTriangles; i++)
+	for (int i = 0; i <= numTriangles; i++)
 	{
 		float t = (float)i * stepA + PI * 1.5f;
 		fig->vertices.push_back({ center.x + radius * cos(t), center.y + radius * sin(t), 0.0f });
@@ -219,29 +209,28 @@ static void buildAstronautVisor(Figure* fig)
 static void buildPortholeBorder(Figure* fig, ColorRGBA color)
 {
 	// draw external hollow circle (metal part)
-	buildHollowCircle(fig, { 0.0f, 0.0f, 0.0f },  1.0f, 0.8f, 1, color, color);
+	buildHollowCircle(fig, { 0.0f, 0.0f, 0.0f },  1.0f, 0.8f, 30, color, color);
 }
 
 static void buildPortholeGlass(Figure* fig, ColorRGBA color)
 {
 	// draw internal circle (glass part)
-	buildCircle(fig, { 0.0f, 0.0f, 0.0f }, 0.8f, 1, color, color);
+	buildCircle(fig, { 0.0f, 0.0f, 0.0f }, 0.8f, 30, color, color);
 }
 
 static void buildSpaceship()
 {
 	// Figure for hull
 	Figure figHull = {};
-	figHull.id = HULL;
-	figHull.numTriangles = 15;
+	figHull.id = SPACESHIP_HULL;
 	figHull.drawMode = GL_TRIANGLE_STRIP;
-	buildHull(&figHull, { 0.9f, 0.9f, 0.9f, 1.0f });
+	buildHull(&figHull, 15, { 0.9f, 0.9f, 0.9f, 1.0f });
 	createFigureVAO(&figHull);
 	spaceship.figures.push_back(figHull);
 
 	// Figure for propulsor
 	Figure figPropulsor = {};
-	figPropulsor.id = PROPULSOR;
+	figPropulsor.id = SPACESHIP_PROPULSOR;
 	figPropulsor.drawMode = GL_TRIANGLES;
 	buildPropulsor(&figPropulsor, { 0.6f, 0.6f, 0.6f, 1.0f }, { 0.4f, 0.4f, 0.4f, 1.0f }); // grey
 	createFigureVAO(&figPropulsor);
@@ -249,8 +238,7 @@ static void buildSpaceship()
 
 	// Figure for nose
 	Figure figNose = {};
-	figNose.id = NOSE;
-	figNose.numTriangles = 1;
+	figNose.id = SPACESHIP_NOSE;
 	figNose.drawMode = GL_TRIANGLES;
 	buildNose(&figNose, { 1.0f, 0.0f, 0.0f, 1.0f });
 	createFigureVAO(&figNose);
@@ -258,8 +246,7 @@ static void buildSpaceship()
 
 	// Figure for lateral fins
 	Figure figLatFins = {};
-	figLatFins.id = FIN;
-	figLatFins.numTriangles = 4;
+	figLatFins.id = SPACESHIP_FIN;
 	figLatFins.drawMode = GL_TRIANGLES;
 	buildLatFins(&figLatFins, { 1.0f, 0.0f, 0.0f, 1.0f });
 	createFigureVAO(&figLatFins);
@@ -267,7 +254,7 @@ static void buildSpaceship()
 
 	// Figure for central fin
 	Figure figCentrFin = {};
-	figCentrFin.id = FIN;
+	figCentrFin.id = SPACESHIP_FIN;
 	figCentrFin.drawMode = GL_LINES;
 	figCentrFin.widthLines = 5.0f;
 	buildCentrFin(&figCentrFin, { 1.0f, 0.0f, 0.0f, 1.0f });
@@ -276,8 +263,7 @@ static void buildSpaceship()
 
 	// Figure for astronaut cabin intern
 	Figure figAstronautCabinIntern = {};
-	figAstronautCabinIntern.id = HULL;
-	figAstronautCabinIntern.numTriangles = 30;
+	figAstronautCabinIntern.id = SPACESHIP_HULL;
 	figAstronautCabinIntern.drawMode = GL_TRIANGLES;
 	buildAstronautCabinIntern(&figAstronautCabinIntern, { 0.3f, 0.3f, 0.3f, 1.0f });
 	createFigureVAO(&figAstronautCabinIntern);
@@ -285,7 +271,7 @@ static void buildSpaceship()
 
 	// Figure for astronaut suit
 	Figure figAstronautSuit = {};
-	figAstronautSuit.id = ASTRONAUT;
+	figAstronautSuit.id = SPACESHIP_ASTRONAUT;
 	figAstronautSuit.drawMode = GL_TRIANGLE_FAN;
 	figAstronautSuit.modelMatrix = glm::mat4(1.0f);
 	figAstronautSuit.modelMatrix = rotate(figAstronautSuit.modelMatrix, (float)PI / 2, glm::vec3(0.0f, 0.0f, 1.0f));
@@ -295,7 +281,7 @@ static void buildSpaceship()
 
 	// Figure for astronaut visor
 	Figure figAstronautVisor = {};
-	figAstronautVisor.id = ASTRONAUT;
+	figAstronautVisor.id = SPACESHIP_ASTRONAUT;
 	figAstronautVisor.drawMode = GL_TRIANGLE_FAN;
 	figAstronautVisor.modelMatrix = glm::mat4(1.0f);
 	figAstronautVisor.modelMatrix = rotate(figAstronautVisor.modelMatrix, (float)PI / 2, glm::vec3(0.0f, 0.0f, 1.0f));
@@ -305,8 +291,7 @@ static void buildSpaceship()
 
 	// Figure for astronaut cabin border
 	Figure figAstronautCabinBorder = {};
-	figAstronautCabinBorder.id = HULL;
-	figAstronautCabinBorder.numTriangles = 30;
+	figAstronautCabinBorder.id = SPACESHIP_HULL;
 	figAstronautCabinBorder.drawMode = GL_TRIANGLE_STRIP;
 	buildAstronautCabinBorder(&figAstronautCabinBorder, { 0.9f, 0.9f, 0.9f, 1.0f });
 	createFigureVAO(&figAstronautCabinBorder);
@@ -314,8 +299,7 @@ static void buildSpaceship()
 
 	// Figure for porthole border
 	Figure figPortholeBorder = {};
-	figPortholeBorder.id = PORTHOLE;
-	figPortholeBorder.numTriangles = 30;
+	figPortholeBorder.id = SPACESHIP_PORTHOLE;
 	figPortholeBorder.drawMode = GL_TRIANGLE_STRIP;
 	buildPortholeBorder(&figPortholeBorder, { 0.6f, 0.6f, 0.6f, 1.0f }); // grey
 	createFigureVAO(&figPortholeBorder);
@@ -323,12 +307,17 @@ static void buildSpaceship()
 
 	// Figure for porthole glass
 	Figure figPortholeGlass = {};
-	figPortholeGlass.id = PORTHOLE;
-	figPortholeGlass.numTriangles = 30;
+	figPortholeGlass.id = SPACESHIP_PORTHOLE;
 	figPortholeGlass.drawMode = GL_TRIANGLES;
 	buildPortholeGlass(&figPortholeGlass, { 0.0f, 0.8f, 1.0f, 0.3f }); // light blue (transparent)
 	createFigureVAO(&figPortholeGlass);
 	spaceship.figures.push_back(figPortholeGlass);
+
+	// Collider
+	collider = {};
+	collider.drawMode = GL_LINE_STRIP;
+	buildCircumference(&collider, { 0.0f, 0.0f, 0.0f }, 1.9f, 15, { 1.0f, 1.0f, 0.0f, 1.0f });
+	createFigureVAO(&collider);
 }
 
 void spawnSpaceship()
@@ -361,9 +350,6 @@ void inputSpaceship()
 	if (!spaceship.health)
 		return;
 
-	spaceship.scale = SPACESHIP_SCALE;
-	spaceship.radius = originalRadius;
-
 	// Deceleration
 	spaceship.forwardSpeed *= SPACESHIP_FORWARD_DECELERATION;
 	spaceship.angularSpeed *= SPACESHIP_ANGULAR_DECELERATION;
@@ -393,8 +379,10 @@ void inputSpaceship()
 	}
 	if (input.keyboard.keys['b'])
 	{
-		spaceship.scale *= 2;
-		spaceship.radius *= 2;
+		input.keyboard.keys['b'] = 0;
+		
+		spaceship.scale = spaceship.scale == SPACESHIP_SCALE ? SPACESHIP_SCALE * 4 : SPACESHIP_SCALE;
+		spaceship.radius = spaceship.radius == originalRadius ? originalRadius * 4 : originalRadius;
 	}
 
 	// Do some fancy stuff over the speed to make the movement smooth
@@ -402,6 +390,39 @@ void inputSpaceship()
 		MAX(-SPACESHIP_MAX_FORWARD_SPEED, spaceship.forwardSpeed + forwardNew));
 	spaceship.angularSpeed = forwardNew ? MIN(SPACESHIP_MAX_ANGULAR_SPEED, MAX(-SPACESHIP_MAX_ANGULAR_SPEED, spaceship.angularSpeed + angularNew))
 		: MIN(SPACESHIP_MIN_ANGULAR_SPEED, MAX(-SPACESHIP_MIN_ANGULAR_SPEED, spaceship.angularSpeed + angularNew));
+	
+	// TEST: Show lines
+	if (input.keyboard.keys['l'])
+	{
+		input.keyboard.keys['l'] = 0;
+
+		showLines = !showLines;
+	}
+	if (input.keyboard.keys['o'])
+	{
+		input.keyboard.keys['o'] = 0;
+
+		openPorthole = !openPorthole;
+	}
+	if (input.keyboard.keys['p'])
+	{
+		input.keyboard.keys['p'] = 0;
+
+		running = !running;
+	}
+	if (input.keyboard.keys['c'])
+	{
+		input.keyboard.keys['c'] = 0;
+
+		showColliders = !showColliders;
+	}
+}
+
+// UPDATE =================================================
+void updateSpaceship(float deltaTime)
+{
+	if (!spaceship.health)
+		return;
 
 	// Spawn firetrail only if the speed is greater than a threshold
 	if (spaceship.forwardSpeed > 10.0f)
@@ -415,20 +436,9 @@ void inputSpaceship()
 			spaceship.forwardSpeed,
 			spaceship.heading - PI,
 			20.0f * (spaceship.forwardSpeed / SPACESHIP_MAX_FORWARD_SPEED) * (spaceship.radius / originalRadius),
-			5.0f * (spaceship.radius / originalRadius)
+			5.0f
 		);
 	}
-	
-	// TEST: Show lines
-	showLines = input.keyboard.keys['l'];
-	openPorthole = input.keyboard.keys['p'];
-}
-
-// UPDATE =================================================
-void updateSpaceship(float deltaTime)
-{
-	if (!spaceship.health)
-		return;
 
 	if (spaceship.angularSpeed != 0.0f)
 	{
@@ -476,13 +486,15 @@ void drawSpaceship()
 	{
 		Figure* fig = &spaceship.figures.at(i);
 		
-		if (fig->id == ASTRONAUT)
+		// If the figure represents the astronaut: keep rotation straight up
+		if (fig->id == SPACESHIP_ASTRONAUT)
 		{
 			glm::mat4 tmpMat = spaceship.modelMatrix;
 			tmpMat = rotate(tmpMat, -spaceship.heading + ((float)PI / 2), glm::vec3(0.0f, 0.0f, 1.0f));
 			glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(tmpMat));
 		}
-		else if (fig->id == PORTHOLE && openPorthole)
+		// If the figure represents the porthole open/close (rotate on y)
+		else if (fig->id == SPACESHIP_PORTHOLE && openPorthole)
 		{
 			glm::mat4 tmpMat = spaceship.modelMatrix;
 			tmpMat = translate(tmpMat, glm::vec3(0.75f, 0.0f, 0.0f));
@@ -506,4 +518,83 @@ void drawSpaceship()
 		glBindVertexArray(0);
 	}
 	glDisable(GL_BLEND);
+
+	if (showColliders)
+	{
+		glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(spaceship.modelMatrix));
+		glBindVertexArray(collider.VAO);
+		glDrawArrays(collider.drawMode, 0, collider.vertices.size());
+		glBindVertexArray(0);
+	}
 }
+
+/*
+// MADNESS INPUT
+void inputSpaceship()
+{
+	if (!spaceship.health)
+		return;
+
+	// Deceleration
+	spaceship.forwardSpeed *= SPACESHIP_FORWARD_DECELERATION;
+	spaceship.angularSpeed *= SPACESHIP_ANGULAR_DECELERATION;
+
+	spaceship.scale = SPACESHIP_SCALE;
+	spaceship.radius = originalRadius;
+
+	float forwardNew = 0.0f;
+	float angularNew = 0.0f;
+
+	if (input.keyboard.keys['w'])
+	{
+		spaceship.forwardSpeed += SPACESHIP_MAX_FORWARD_SPEED;
+	}
+	if (input.keyboard.keys['a'])
+	{
+		spaceship.angularSpeed += SPACESHIP_MAX_ANGULAR_SPEED;
+	}
+	if (input.keyboard.keys['d'])
+	{
+		spaceship.angularSpeed -= SPACESHIP_MAX_ANGULAR_SPEED;
+	}
+	if (input.keyboard.keys['r'])
+	{
+		spaceship.forwardSpeed = 0.0f;
+		spaceship.angularSpeed = 0.0f;
+		spaceship.pos.x = WINDOW_WIDTH / 2;
+		spaceship.pos.y = WINDOW_HEIGHT / 2;
+		spaceship.heading = PI / 2;
+	}
+	if (input.keyboard.keys['b'])
+	{
+		spaceship.scale *= 2;
+		spaceship.radius *= 2;
+	}
+
+	// Do some fancy stuff over the speed to make the movement smooth
+	//spaceship.forwardSpeed = MIN(SPACESHIP_MAX_FORWARD_SPEED,
+	//	MAX(-SPACESHIP_MAX_FORWARD_SPEED, spaceship.forwardSpeed + forwardNew));
+	//spaceship.angularSpeed = forwardNew ? MIN(SPACESHIP_MAX_ANGULAR_SPEED, MAX(-SPACESHIP_MAX_ANGULAR_SPEED, spaceship.angularSpeed + angularNew))
+	//	: MIN(SPACESHIP_MIN_ANGULAR_SPEED, MAX(-SPACESHIP_MIN_ANGULAR_SPEED, spaceship.angularSpeed + angularNew));
+
+	// Spawn firetrail only if the speed is greater than a threshold
+	if (spaceship.forwardSpeed > 10.0f)
+	{
+		float xSpawnCenter, ySpawnCenter;
+		xSpawnCenter = spaceship.pos.x + (spaceship.radius + spaceship.scale * 1.25f) * cos(spaceship.heading + PI);
+		ySpawnCenter = spaceship.pos.y + (spaceship.radius + spaceship.scale * 1.25f) * sin(spaceship.heading + PI);
+
+		spawnFiretrailParticles(
+			{ xSpawnCenter, ySpawnCenter, 0.0f },
+			spaceship.forwardSpeed,
+			spaceship.heading - PI,
+			20.0f * (spaceship.forwardSpeed / SPACESHIP_MAX_FORWARD_SPEED) * (spaceship.radius / originalRadius),
+			5.0f * (spaceship.radius / originalRadius)
+		);
+	}
+
+	// TEST: Show lines
+	showLines = input.keyboard.keys['l'];
+	openPorthole = input.keyboard.keys['p'];
+}
+*/
