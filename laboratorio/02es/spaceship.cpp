@@ -4,7 +4,10 @@ Entity spaceship;
 
 extern Input input;
 
+float originalRadius;
+
 bool showLines = false;
+bool openPorthole = false;
 
 enum {
 	HULL,
@@ -128,9 +131,14 @@ static void buildPropulsor(Figure* fig, ColorRGBA colorLight, ColorRGBA colorDar
 	}
 }
 
-static void buildAstronautCabin(Figure* fig, ColorRGBA color)
+static void buildAstronautCabinIntern(Figure* fig, ColorRGBA color)
 {
 	buildCircle(fig, { 0.0f, 0.0f, 0.0f }, 0.9f, 1, color, color);
+}
+
+static void buildAstronautCabinBorder(Figure* fig, ColorRGBA color)
+{
+	buildHollowCircle(fig, { 0.0f, 0.0f, 0.0f }, 1.2f, 0.8f, 1, color, color);
 }
 
 static void buildAstronautSuit(Figure* fig)
@@ -153,11 +161,11 @@ static void buildAstronautSuit(Figure* fig)
 
 	fig->vertices.push_back({center.x - radius, center.y, 0.0f});
 	fig->vertices.push_back({ center.x + radius, center.y, 0.0f });
-	fig->vertices.push_back({ center.x + radius, center.y - radius * 1.6f, 0.0f });
+	fig->vertices.push_back({ center.x + radius, center.y - radius * 2.0f, 0.0f });
 
 	fig->vertices.push_back({ center.x - radius, center.y, 0.0f });
-	fig->vertices.push_back({ center.x - radius, center.y - radius * 1.6f, 0.0f });
-	fig->vertices.push_back({ center.x + radius, center.y - radius * 1.6f, 0.0f });
+	fig->vertices.push_back({ center.x - radius, center.y - radius * 2.0f, 0.0f });
+	fig->vertices.push_back({ center.x + radius, center.y - radius * 2.0f, 0.0f });
 
 	for (int i = 0; i < fig->vertices.size(); i++)
 	{
@@ -266,14 +274,14 @@ static void buildSpaceship()
 	createFigureVAO(&figCentrFin);
 	spaceship.figures.push_back(figCentrFin);
 
-	// Figure for astronaut cabin
-	Figure figAstronautCabin = {};
-	figAstronautCabin.id = HULL;
-	figAstronautCabin.numTriangles = 30;
-	figAstronautCabin.drawMode = GL_TRIANGLES;
-	buildAstronautCabin(&figAstronautCabin, { 0.3f, 0.3f, 0.3f, 1.0f });
-	createFigureVAO(&figAstronautCabin);
-	spaceship.figures.push_back(figAstronautCabin);
+	// Figure for astronaut cabin intern
+	Figure figAstronautCabinIntern = {};
+	figAstronautCabinIntern.id = HULL;
+	figAstronautCabinIntern.numTriangles = 30;
+	figAstronautCabinIntern.drawMode = GL_TRIANGLES;
+	buildAstronautCabinIntern(&figAstronautCabinIntern, { 0.3f, 0.3f, 0.3f, 1.0f });
+	createFigureVAO(&figAstronautCabinIntern);
+	spaceship.figures.push_back(figAstronautCabinIntern);
 
 	// Figure for astronaut suit
 	Figure figAstronautSuit = {};
@@ -294,6 +302,15 @@ static void buildSpaceship()
 	buildAstronautVisor(&figAstronautVisor);
 	createFigureVAO(&figAstronautVisor);
 	spaceship.figures.push_back(figAstronautVisor);
+
+	// Figure for astronaut cabin border
+	Figure figAstronautCabinBorder = {};
+	figAstronautCabinBorder.id = HULL;
+	figAstronautCabinBorder.numTriangles = 30;
+	figAstronautCabinBorder.drawMode = GL_TRIANGLE_STRIP;
+	buildAstronautCabinBorder(&figAstronautCabinBorder, { 0.9f, 0.9f, 0.9f, 1.0f });
+	createFigureVAO(&figAstronautCabinBorder);
+	spaceship.figures.push_back(figAstronautCabinBorder);
 
 	// Figure for porthole border
 	Figure figPortholeBorder = {};
@@ -325,8 +342,8 @@ void spawnSpaceship()
 	spaceship.heading = PI / 2;
 	spaceship.scale = SPACESHIP_SCALE;
 	spaceship.modelMatrix = spaceshipMatrix;
-	Point3D p1 = { 0.0f, 0.0f, 0.0f }, p2 = { 0.0f, 3.7f };
-	spaceship.radius = distance(p1, p2) * spaceship.scale;
+	Point3D p1 = { 0.0f, 0.0f, 0.0f }, p2 = { 0.0f, 3.7f, 0.0f };
+	spaceship.radius = originalRadius = distance(p1, p2) * spaceship.scale;
 	spaceship.forwardSpeed = 0.0f;
 	spaceship.angularSpeed = 0.0f;
 	spaceship.health = 3;
@@ -345,6 +362,7 @@ void inputSpaceship()
 		return;
 
 	spaceship.scale = SPACESHIP_SCALE;
+	spaceship.radius = originalRadius;
 
 	// Deceleration
 	spaceship.forwardSpeed *= SPACESHIP_FORWARD_DECELERATION;
@@ -375,7 +393,8 @@ void inputSpaceship()
 	}
 	if (input.keyboard.keys['b'])
 	{
-		spaceship.scale = SPACESHIP_SCALE * 2;
+		spaceship.scale *= 2;
+		spaceship.radius *= 2;
 	}
 
 	// Do some fancy stuff over the speed to make the movement smooth
@@ -384,23 +403,25 @@ void inputSpaceship()
 	spaceship.angularSpeed = forwardNew ? MIN(SPACESHIP_MAX_ANGULAR_SPEED, MAX(-SPACESHIP_MAX_ANGULAR_SPEED, spaceship.angularSpeed + angularNew))
 		: MIN(SPACESHIP_MIN_ANGULAR_SPEED, MAX(-SPACESHIP_MIN_ANGULAR_SPEED, spaceship.angularSpeed + angularNew));
 
+	// Spawn firetrail only if the speed is greater than a threshold
 	if (spaceship.forwardSpeed > 10.0f)
 	{
 		float xSpawnCenter, ySpawnCenter;
-		xSpawnCenter = spaceship.pos.x + (spaceship.radius + 25.0f) * cos(spaceship.heading + PI);
-		ySpawnCenter = spaceship.pos.y + (spaceship.radius + 25.0f) * sin(spaceship.heading + PI);
+		xSpawnCenter = spaceship.pos.x + (spaceship.radius + spaceship.scale * 1.25f) * cos(spaceship.heading + PI);
+		ySpawnCenter = spaceship.pos.y + (spaceship.radius + spaceship.scale * 1.25f) * sin(spaceship.heading + PI);
 
 		spawnFiretrailParticles(
 			{ xSpawnCenter, ySpawnCenter, 0.0f },
 			spaceship.forwardSpeed,
 			spaceship.heading - PI,
-			20.0f * spaceship.forwardSpeed / SPACESHIP_MAX_FORWARD_SPEED,
-			5.0f
+			20.0f * (spaceship.forwardSpeed / SPACESHIP_MAX_FORWARD_SPEED) * (spaceship.radius / originalRadius),
+			5.0f * (spaceship.radius / originalRadius)
 		);
 	}
 	
 	// TEST: Show lines
 	showLines = input.keyboard.keys['l'];
+	openPorthole = input.keyboard.keys['p'];
 }
 
 // UPDATE =================================================
@@ -434,7 +455,6 @@ void updateSpaceship(float deltaTime)
 			spaceship.pos.y += WINDOW_HEIGHT + spaceship.radius * 2;
 		if (spaceship.pos.y > WINDOW_HEIGHT + spaceship.radius)
 			spaceship.pos.y -= WINDOW_HEIGHT + spaceship.radius * 2;
-
 	}
 }
 
@@ -460,6 +480,13 @@ void drawSpaceship()
 		{
 			glm::mat4 tmpMat = spaceship.modelMatrix;
 			tmpMat = rotate(tmpMat, -spaceship.heading + ((float)PI / 2), glm::vec3(0.0f, 0.0f, 1.0f));
+			glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(tmpMat));
+		}
+		else if (fig->id == PORTHOLE && openPorthole)
+		{
+			glm::mat4 tmpMat = spaceship.modelMatrix;
+			tmpMat = translate(tmpMat, glm::vec3(0.75f, 0.0f, 0.0f));
+			tmpMat = rotate(tmpMat, (float)PI / 2.2f, glm::vec3(0.0f, 1.0f, 0.0f));
 			glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(tmpMat));
 		}
 		else glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(spaceship.modelMatrix));
