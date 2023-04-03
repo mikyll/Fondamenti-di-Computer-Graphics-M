@@ -1,6 +1,6 @@
 #include "bullets.h"
 
-void buildBullet()
+static void buildBullet()
 {
 
 }

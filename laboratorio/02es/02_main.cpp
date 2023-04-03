@@ -56,6 +56,7 @@ static void update(int value)
 
 	// UPDATE GAME LOGIC ----------------------------------
 	updateSpaceship(deltaTime);
+	updateAsteroids(deltaTime);
 	updateStars(deltaTime);
 	updateFiretrail(deltaTime);
 

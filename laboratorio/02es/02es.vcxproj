@@ -149,6 +149,7 @@
     <ClInclude Include="figure.h" />
     <ClInclude Include="firetrail.h" />
     <ClInclude Include="input.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="ShaderMaker.h" />
     <ClInclude Include="spaceship.h" />
     <ClInclude Include="stars.h" />
