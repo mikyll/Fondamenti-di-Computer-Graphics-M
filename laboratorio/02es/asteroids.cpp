@@ -172,7 +172,7 @@ void spawnAsteroid(Point3D pos, Point3D speed, int type, float size)
 	asteroid.pos = pos;
 	asteroid.speed = speed;
 	asteroid.heading = getRandomFloat(0.0f, PI * 2);
-	asteroid.radius = ASTEROID_RADIUS_BASE * size;
+	asteroid.radius = ASTEROID_RADIUS_BASE * ASTEROID_SCALE_BASE * size;
 	asteroid.type = type;
 	asteroid.scale = ASTEROID_SCALE_BASE * size;
 	asteroid.figure.drawMode = GL_TRIANGLE_FAN;

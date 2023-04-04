@@ -316,7 +316,7 @@ static void buildSpaceship()
 	// Collider
 	collider = {};
 	collider.drawMode = GL_LINE_STRIP;
-	buildCircumference(&collider, { 0.0f, 0.0f, 0.0f }, 1.9f, 15, { 1.0f, 1.0f, 0.0f, 1.0f });
+	buildCircumference(&collider, { 0.0f, 0.0f, 0.0f }, originalRadius, 15, { 1.0f, 1.0f, 0.0f, 1.0f });
 	createFigureVAO(&collider);
 }
 
@@ -525,6 +525,10 @@ void drawSpaceship()
 
 	if (showColliders)
 	{
+		spaceship.modelMatrix = glm::mat4(1.0);
+		spaceship.modelMatrix = translate(spaceship.modelMatrix, glm::vec3(spaceship.pos.x, spaceship.pos.y, 0.0f));
+		spaceship.modelMatrix = rotate(spaceship.modelMatrix, spaceship.heading - ((float)PI / 2), glm::vec3(0.0f, 0.0f, 1.0f));
+		
 		glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(spaceship.modelMatrix));
 		glBindVertexArray(collider.VAO);
 		glDrawArrays(collider.drawMode, 0, collider.vertices.size());

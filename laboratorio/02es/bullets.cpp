@@ -78,12 +78,11 @@ void updateBullets(float deltaTime)
 		std::cout << "Distance: " << distance(p.pos, asteroids.at(0).pos) << std::endl;
 
 		// TO-DO: FIX Check collisions
-		/*for (int j = 0; j < asteroids.size(); j++)
+		for (int j = 0; j < asteroids.size(); j++)
 		{
 			Asteroid asteroid = asteroids.at(j);
 
-			Point3D pTmp = { asteroid.pos.x * ASTEROID_RADIUS_BASE * asteroid.scale, asteroid.pos.y * ASTEROID_RADIUS_BASE * asteroid.scale, 0.0f };
-			if (isColliding(p.pos, BULLET_RADIUS, asteroid.pos, asteroid.radius * ASTEROID_RADIUS_BASE))
+			if (isColliding(p.pos, BULLET_RADIUS, asteroid.pos, asteroid.radius))
 			{
 				weapon.particles.erase(weapon.particles.begin() + i);
 				asteroids.erase(asteroids.begin() + j);
@@ -101,10 +100,9 @@ void updateBullets(float deltaTime)
 					//speed.x = -speed.x;
 					//speed.y = -speed.y;
 					//spawnAsteroid(asteroid.pos, speed, (int)getRandomFloat(1.0f, 3.999999f), (asteroid.scale / ASTEROID_SCALE_BASE) - 0.5f);
-					
 				}
 			}
-		}*/
+		}
 	}
 
 	// Vertices
