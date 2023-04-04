@@ -11,9 +11,10 @@ float deltaTime = 0.0f;
 unsigned long timeSinceStart; // milliseconds from glutInit() call
 
 bool running = true;
+bool gameOver = false;
 
 // INIT ===================================================
-void initShader()
+static void initShader()
 {
 	GLenum ErrorCheckValue = glGetError();
 
@@ -24,7 +25,7 @@ void initShader()
 	glUseProgram(programId);
 }
 
-void init()
+static void init()
 {
 	Projection = glm::ortho(0.0f, float(WINDOW_WIDTH), 0.0f, float(WINDOW_HEIGHT));
 	MatProj = glGetUniformLocation(programId, "Projection");
@@ -38,6 +39,14 @@ void init()
 
 	// set background color
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+static void endGame(int value)
+{
+	std::cout << "GAME OVER" << std::endl;
+	glutExit();
+
+	return;
 }
 
 // UPDATE =================================================
@@ -59,13 +68,19 @@ static void update(int value)
 	inputSpaceship();
 
 	// UPDATE GAME LOGIC ----------------------------------
-	if (running)
+	if (running && !gameOver)
 	{
 		updateSpaceship(deltaTime);
 		updateAsteroids(deltaTime);
 		updateBullets(deltaTime);
 		updateStars(deltaTime);
 		updateFiretrail(deltaTime);
+	}
+	if (gameOver)
+	{
+		glutPostRedisplay();
+		glutTimerFunc(1000, endGame, 0);
+		return;
 	}
 
 	glutPostRedisplay();

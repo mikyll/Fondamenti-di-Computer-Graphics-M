@@ -220,6 +220,15 @@ static void addCollider(Point3D pos, float radius, ColorRGBA color)
 
 void updateAsteroids(float deltaTime)
 {
+	if (asteroids.size() == 0)
+	{
+		gameOver = true;
+
+		std::cout << "CONGRATUATIONS, YOU HAVE DESTROYED ALL THE ASTEROIDS!!!" << std::endl << std::endl;
+
+		return;
+	}
+
 	for (int i = 0; i < asteroids.size(); i++)
 	{
 		Asteroid asteroid = asteroids.at(i);
@@ -240,11 +249,16 @@ void updateAsteroids(float deltaTime)
 		if (asteroid.pos.y > WINDOW_HEIGHT + asteroid.radius)
 			asteroid.pos.y -= WINDOW_HEIGHT + asteroid.radius * 2;
 		
-		// check collision
-		// Test, TO-DO: make it better & break asteroid
+		// Check collision with spaceship
 		if (isColliding(asteroid.pos, asteroid.radius, spaceship.pos, spaceship.radius))
 		{
-			std::cout << "COLLISION " << glutGet(GLUT_ELAPSED_TIME) << std::endl;
+			gameOver = true;
+
+			// test
+			//std::cout << "COLLISION " << glutGet(GLUT_ELAPSED_TIME) << std::endl;
+			std::cout << "SPACESHIP DESTROYED, YOU LOST!" << std::endl << std::endl;
+			
+			return;
 		}
 
 		glm::mat4 mat = glm::mat4(1.0);

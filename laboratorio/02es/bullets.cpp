@@ -74,11 +74,7 @@ void updateBullets(float deltaTime)
 			colors.push_back(p.color);
 		}
 		
-		std::cout << "Asteroid: (" << asteroids.at(0).pos.x << "," << asteroids.at(0).pos.y << ")" << std::endl;
-		std::cout << "Bullet: (" << p.pos.x << "," << p.pos.y << ")" << std::endl;
-		std::cout << "Distance: " << distance(p.pos, asteroids.at(0).pos) << std::endl;
-
-		// TO-DO: FIX Check collisions
+		// Collision with asteroid
 		for (int j = 0; j < asteroids.size() && !collide; j++)
 		{
 			Asteroid asteroid = asteroids.at(j);
