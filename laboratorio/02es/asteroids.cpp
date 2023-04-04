@@ -4,7 +4,6 @@ std::vector<Asteroid> asteroids;
 
 static std::vector<Figure> colliders;
 
-static void spawnAsteroid(Point3D pos, Point3D speed, int type, float size);
 static void addCollider(Point3D pos, float radius, ColorRGBA color);
 
 bool showColliders = false;
@@ -162,7 +161,6 @@ void initAsteroids()
 			0.0f
 		};
 		spawnAsteroid(pos, speed, (int)getRandomFloat(1.0f, 3.999999f), ASTEROID_BIG_FACTOR);
-		addCollider(pos, ASTEROID_RADIUS_BASE * ASTEROID_BIG_FACTOR, { 1.0f, 1.0f, 0.0f, 1.0f });
 	}
 }
 
@@ -201,6 +199,14 @@ void spawnAsteroid(Point3D pos, Point3D speed, int type, float size)
 
 	createFigureVAO(&asteroid.figure);
 	asteroids.push_back(asteroid);
+
+	addCollider(asteroid.pos, ASTEROID_RADIUS_BASE * ASTEROID_BIG_FACTOR, { 1.0f, 1.0f, 0.0f, 1.0f });
+}
+
+void destroyAsteroid(int i)
+{
+	asteroids.erase(asteroids.begin() + i);
+	colliders.erase(colliders.begin() + i);
 }
 
 static void addCollider(Point3D pos, float radius, ColorRGBA color)

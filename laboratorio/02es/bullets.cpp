@@ -54,7 +54,8 @@ void updateBullets(float deltaTime)
 	vertices.clear();
 	colors.clear();
 
-	for (int i = 0; i < weapon.particles.size(); i++)
+	bool collide = false;
+	for (int i = 0; i < weapon.particles.size() && !collide; i++)
 	{
 		Particle p = weapon.particles.at(i);
 
@@ -78,14 +79,16 @@ void updateBullets(float deltaTime)
 		std::cout << "Distance: " << distance(p.pos, asteroids.at(0).pos) << std::endl;
 
 		// TO-DO: FIX Check collisions
-		for (int j = 0; j < asteroids.size(); j++)
+		for (int j = 0; j < asteroids.size() && !collide; j++)
 		{
 			Asteroid asteroid = asteroids.at(j);
 
 			if (isColliding(p.pos, BULLET_RADIUS, asteroid.pos, asteroid.radius))
 			{
+				collide = true;
+
 				weapon.particles.erase(weapon.particles.begin() + i);
-				asteroids.erase(asteroids.begin() + j);
+				destroyAsteroid(j);
 
 				if (asteroid.scale / ASTEROID_SCALE_BASE > 0.5f)
 				{
@@ -96,10 +99,10 @@ void updateBullets(float deltaTime)
 					};
 					
 					// spawn 2 smaller asteroids
-					//spawnAsteroid(asteroid.pos, speed, (int)getRandomFloat(1.0f, 3.999999f), (asteroid.scale / ASTEROID_SCALE_BASE) - 0.5f);
-					//speed.x = -speed.x;
-					//speed.y = -speed.y;
-					//spawnAsteroid(asteroid.pos, speed, (int)getRandomFloat(1.0f, 3.999999f), (asteroid.scale / ASTEROID_SCALE_BASE) - 0.5f);
+					spawnAsteroid(asteroid.pos, speed, (int)getRandomFloat(1.0f, 3.999999f), (asteroid.scale / ASTEROID_SCALE_BASE) - 0.5f);
+					speed.x = -speed.x;
+					speed.y = -speed.y;
+					spawnAsteroid(asteroid.pos, speed, (int)getRandomFloat(1.0f, 3.999999f), (asteroid.scale / ASTEROID_SCALE_BASE) - 0.5f);
 				}
 			}
 		}

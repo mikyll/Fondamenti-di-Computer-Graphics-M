@@ -2,29 +2,6 @@
 
 Figure stars;
 
-//static Starfield starfield;
-
-/*void initStarsNew()
-{
-	starfield = {};
-	starfield.modelMatrix = glm::mat4(1.0f);
-
-	for (int i = offsetStarsNear; i < numStarsNear; i++)
-	{
-		// to-do
-	}
-
-	for (int i = offsetStarsMiddle; i < numStarsMiddle; i++)
-	{
-		// to-do
-	}
-
-	for (int i = offsetStarsFar; i < numStarsFar; i++)
-	{
-		// to-do
-	}
-}*/
-
 void initStars()
 {
 	for (int i = 0; i < NUM_TOT_STARS; i++)
