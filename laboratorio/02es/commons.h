@@ -28,3 +28,4 @@
 #include "stars.h"
 #include "firetrail.h"
 #include "asteroids.h"
+#include "bullets.h"

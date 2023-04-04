@@ -369,6 +369,10 @@ void inputSpaceship()
 	{
 		angularNew -= SPACESHIP_MAX_ANGULAR_SPEED;
 	}
+	if (input.keyboard.keys[' '])
+	{
+		fireBullet(spaceship.pos.x, spaceship.pos.y, spaceship.heading);
+	}
 	if (input.keyboard.keys['r'])
 	{
 		spaceship.forwardSpeed = 0.0f;
@@ -376,13 +380,6 @@ void inputSpaceship()
 		spaceship.pos.x = WINDOW_WIDTH / 2;
 		spaceship.pos.y = WINDOW_HEIGHT / 2;
 		spaceship.heading = PI / 2;
-	}
-	if (input.keyboard.keys['b'])
-	{
-		input.keyboard.keys['b'] = 0;
-		
-		spaceship.scale = spaceship.scale == SPACESHIP_SCALE ? SPACESHIP_SCALE * 4 : SPACESHIP_SCALE;
-		spaceship.radius = spaceship.radius == originalRadius ? originalRadius * 4 : originalRadius;
 	}
 
 	// Do some fancy stuff over the speed to make the movement smooth
@@ -397,6 +394,13 @@ void inputSpaceship()
 		input.keyboard.keys['l'] = 0;
 
 		showLines = !showLines;
+	}
+	if (input.keyboard.keys['b'])
+	{
+		input.keyboard.keys['b'] = 0;
+
+		spaceship.scale = spaceship.scale == SPACESHIP_SCALE ? SPACESHIP_SCALE * 4 : SPACESHIP_SCALE;
+		spaceship.radius = spaceship.radius == originalRadius ? originalRadius * 4 : originalRadius;
 	}
 	if (input.keyboard.keys['o'])
 	{

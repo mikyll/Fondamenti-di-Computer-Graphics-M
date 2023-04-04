@@ -6,6 +6,8 @@ static std::vector<ColorRGBA> colors;
 
 void initFiretrail()
 {
+	firetrail = {};
+
 	glGenVertexArrays(1, &firetrail.VAO);
 	glBindVertexArray(firetrail.VAO);
 	
@@ -15,7 +17,6 @@ void initFiretrail()
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Point3D), vertices.data(), GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 	glEnableVertexAttribArray(0);
-
 
 	// Colors
 	glGenBuffers(1, &firetrail.VBO_Col);

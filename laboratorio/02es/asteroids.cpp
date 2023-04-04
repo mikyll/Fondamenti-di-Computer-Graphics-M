@@ -1,6 +1,6 @@
 #include "asteroids.h"
 
-static std::vector<Asteroid> asteroids;
+std::vector<Asteroid> asteroids;
 
 static std::vector<Figure> colliders;
 
@@ -166,7 +166,7 @@ void initAsteroids()
 	}
 }
 
-static void spawnAsteroid(Point3D pos, Point3D speed, int type, float size)
+void spawnAsteroid(Point3D pos, Point3D speed, int type, float size)
 {
 	Asteroid asteroid = {};
 	asteroid.pos = pos;

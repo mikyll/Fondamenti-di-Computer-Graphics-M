@@ -34,6 +34,7 @@ void init()
 	initStars();
 	initFiretrail();
 	initAsteroids();
+	initBullets();
 
 	// set background color
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -62,6 +63,7 @@ static void update(int value)
 	{
 		updateSpaceship(deltaTime);
 		updateAsteroids(deltaTime);
+		updateBullets(deltaTime);
 		updateStars(deltaTime);
 		updateFiretrail(deltaTime);
 	}
@@ -81,8 +83,9 @@ static void drawScene()
 	// DRAW SCENE OBJECTS ---------------------------------
 	drawStars();
 	drawFiretrail();
-	drawSpaceship();
 	drawAsteroids();
+	drawSpaceship();
+	drawBullets();
 
 	glutSwapBuffers();
 }

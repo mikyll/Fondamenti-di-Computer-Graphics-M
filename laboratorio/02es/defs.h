@@ -7,7 +7,7 @@
 
 #define PI	3.141592653589793
 
-// Spaceship
+// SPACESHIP ==============================================
 #define SPACESHIP_SCALE	10.0f
 
 #define SPACESHIP_MAX_FORWARD_SPEED	300.0f
@@ -26,7 +26,7 @@ enum {
 	SPACESHIP_PORTHOLE,
 };
 
-// Stars
+// STARS ==================================================
 #define NUM_STARS_NEAR		50
 #define NUM_STARS_MIDDLE	100
 #define NUM_STARS_FAR		150
@@ -36,11 +36,11 @@ enum {
 #define	STAR_OFFSET_MIDDLE	(0 + NUM_STARS_NEAR)
 #define STAR_OFFSET_FAR		(NUM_STARS_NEAR + NUM_STARS_MIDDLE)
 
-// Firetrail
+// FIRETRAIL ==============================================
 #define SPEED_DECREASE_FACTOR	SPACESHIP_FORWARD_DECELERATION
 #define ALPHA_DECREASE_FACTOR	2.5f
 
-// Asteroids
+// ASTEROIDS ==============================================
 static enum {
 	ASTEROID_1 =	1,
 	ASTEROID_2 =	2,
@@ -55,3 +55,9 @@ static enum {
 #define ASTEROID_SMALL_FACTOR	0.5f
 
 #define NUM_ASTEROIDS	5
+
+// BULLETS ================================================
+#define BULLET_RADIUS		5.0f
+#define BULLET_MAX_SPEED	650.0f
+
+#define BULLET_RELOAD_COOLDOWN	2.0f
