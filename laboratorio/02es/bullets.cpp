@@ -57,35 +57,39 @@ void updateBullets(float deltaTime)
 	bool collide = false;
 	for (int i = 0; i < weapon.particles.size() && !collide; i++)
 	{
-		Particle p = weapon.particles.at(i);
+		// i-th bullet
+		Particle bullet = weapon.particles.at(i);
 
-		p.pos.x += p.speed.x * deltaTime;
-		p.pos.y += p.speed.y * deltaTime;
+		bullet.pos.x += bullet.speed.x * deltaTime;
+		bullet.pos.y += bullet.speed.y * deltaTime;
 
-		if (p.pos.x < 0.0f || p.pos.x > WINDOW_WIDTH ||
-			p.pos.y < 0.0f || p.pos.y > WINDOW_HEIGHT)
+		if (bullet.pos.x < 0.0f || bullet.pos.x > WINDOW_WIDTH ||
+			bullet.pos.y < 0.0f || bullet.pos.y > WINDOW_HEIGHT)
 		{
 			weapon.particles.erase(weapon.particles.begin() + i);
+			continue;
 		}
 		else
 		{
-			weapon.particles.at(i) = p;
-			vertices.push_back(p.pos);
-			colors.push_back(p.color);
+			weapon.particles.at(i) = bullet;
+			vertices.push_back(bullet.pos);
+			colors.push_back(bullet.color);
 		}
 		
-		// Collision with asteroid
+		// Bullet i-th is colliding with an asteroid
 		for (int j = 0; j < asteroids.size() && !collide; j++)
 		{
 			Asteroid asteroid = asteroids.at(j);
 
-			if (isColliding(p.pos, BULLET_RADIUS, asteroid.pos, asteroid.radius))
+			if (isColliding(bullet.pos, BULLET_RADIUS, asteroid.pos, asteroid.radius))
 			{
 				collide = true;
 
+				// Delete i-th bullet & j-th asteroid
 				weapon.particles.erase(weapon.particles.begin() + i);
 				destroyAsteroid(j);
 
+				// If the asteroid wasn't of tipe "SMALL" -> spawn 2 smaller asteroids
 				if (asteroid.scale / ASTEROID_SCALE_BASE > 0.5f)
 				{
 					Point3D speed = {
@@ -94,7 +98,7 @@ void updateBullets(float deltaTime)
 						0.0f
 					};
 					
-					// spawn 2 smaller asteroids
+					// Spawn 2 smaller asteroids
 					spawnAsteroid(asteroid.pos, speed, (int)getRandomFloat(1.0f, 3.999999f), (asteroid.scale / ASTEROID_SCALE_BASE) - 0.5f);
 					speed.x = -speed.x;
 					speed.y = -speed.y;
