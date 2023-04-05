@@ -33,6 +33,7 @@ typedef struct {
 	Figure figure;
 	Point3D pos;
 	float radius;
+	ColorRGBA color;
 } CircleCollider;
 
 typedef struct {

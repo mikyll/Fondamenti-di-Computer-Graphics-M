@@ -4,6 +4,7 @@ void createCircleCollider(CircleCollider* collider, Point3D pos, float radius, C
 {
 	collider->pos = pos;
 	collider->radius = radius;
+	collider->color = color;
 	collider->figure.drawMode = GL_LINE_STRIP;
 	buildCircumference(&collider->figure, { 0.0f, 0.0f, 0.0f }, radius, COLLIDER_NUM_SEGMENTS, color);
 	createFigureVAO(&collider->figure);
@@ -12,7 +13,15 @@ void createCircleCollider(CircleCollider* collider, Point3D pos, float radius, C
 void updateCircleCollider(CircleCollider* collider, Point3D newPos, float newRadius)
 {
 	collider->pos = newPos;
-	collider->radius = newRadius;
+	
+	if (collider->radius != newRadius)
+	{
+		collider->radius = newRadius;
+		collider->figure = {};
+		collider->figure.drawMode = GL_LINE_STRIP;
+		buildCircumference(&collider->figure, { 0.0f, 0.0f, 0.0f }, newRadius, COLLIDER_NUM_SEGMENTS, collider->color);
+		createFigureVAO(&collider->figure);
+	}
 }
 
 void drawCircleCollider(CircleCollider collider, float heading)

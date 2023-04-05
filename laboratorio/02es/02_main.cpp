@@ -6,6 +6,8 @@ unsigned int MatProj, MatModel;
 
 glm::mat4 Projection;  //Matrice di proiezione
 
+extern Input input;
+
 // Game Loop variables
 float deltaTime = 0.0f;
 unsigned long timeSinceStart; // milliseconds from glutInit() call
@@ -41,12 +43,35 @@ static void init()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
+static void printControls()
+{
+	std::cout << "CONTROLS ==============================" << std::endl;
+	std::cout << "  W     - move forward" << std::endl;
+	std::cout << "  A/D   - rotate left/right" << std::endl;
+	std::cout << "  SPACE - fire bullet" << std::endl << std::endl;
+	std::cout << "  P     - toggle pause game" << std::endl;
+	std::cout << "  R     - reset spaceship position" << std::endl;
+	std::cout << "  C     - toggle colliders" << std::endl;
+	std::cout << "  B     - toggle big spaceship" << std::endl;
+	std::cout << "  L     - toggle render using only lines" << std::endl << std::endl;
+	std::cout << "  ESC   - quit" << std::endl;
+	std::cout << "=======================================" << std::endl << std::endl;
+}
+
 static void endGame(int value)
 {
 	std::cout << "GAME OVER" << std::endl;
 	glutExit();
 
 	exit(0);
+}
+
+static void inputApplication()
+{
+	if (input.keyboard.keys[27])
+	{
+		endGame(0);
+	}
 }
 
 // UPDATE =================================================
@@ -65,6 +90,7 @@ static void update(int value)
 	timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
 
 	// INPUT PROCESSING -----------------------------------
+	inputApplication();
 	inputSpaceship();
 
 	// UPDATE GAME LOGIC ----------------------------------
@@ -111,16 +137,7 @@ static void drawScene()
 // MAIN ===================================================
 int main(int argc, char** argv)
 {
-	// Print controls
-	std::cout << "CONTROLS" << std::endl;
-	std::cout << "  W     - move forward" << std::endl;
-	std::cout << "  A/D   - rotate left/right" << std::endl;
-	std::cout << "  SPACE - fire bullet" << std::endl;
-	std::cout << "  P     - toggle pause game" << std::endl;
-	std::cout << "  R     - reset spaceship position" << std::endl;
-	std::cout << "  C     - toggle colliders" << std::endl;
-	std::cout << "  B     - toggle big spaceship" << std::endl;
-	std::cout << "  L     - toggle render using only lines" << std::endl;
+	printControls();
 
 	glutInit(&argc, argv);
 	
@@ -131,7 +148,7 @@ int main(int argc, char** argv)
 
 	glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 	glutInitWindowPosition(10, 10);
-	glutCreateWindow("2D Animation");
+	glutCreateWindow("2D Asteroids");
 
 	// Input callbacks
 	glutKeyboardFunc(keyDown);

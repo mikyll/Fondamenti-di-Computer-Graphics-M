@@ -218,7 +218,7 @@ void updateAsteroids(float deltaTime)
 	{
 		Asteroid asteroid = asteroids.at(i);
 
-		// update asteroid position
+		// Update asteroid position
 		asteroid.pos.x += asteroid.speed.x * deltaTime;
 		asteroid.pos.y += asteroid.speed.y * deltaTime;
 
@@ -248,7 +248,7 @@ void updateAsteroids(float deltaTime)
 			
 			return;
 		}
-
+		
 		asteroids.at(i) = asteroid;
 	}
 }

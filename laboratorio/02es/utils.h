@@ -13,3 +13,5 @@ float getRandomFloat(float min, float max);
 
 Point3D getRandomPoint2DinsideRectangle(float xMin, float yMin, float xMax, float yMax);
 Point3D getRandomPoint2DinsideCircle(float xCenter, float yCenter, float radius);
+
+bool isEqualColorRGBA(ColorRGBA color1, ColorRGBA color2);

@@ -64,4 +64,4 @@ enum {
 
 // COLLIDERS ==============================================
 #define COLLIDER_COLOR			{ 1.0f, 1.0f, 0.0f, 1.0f }
-#define COLLIDER_NUM_SEGMENTS	15
+#define COLLIDER_NUM_SEGMENTS	30
