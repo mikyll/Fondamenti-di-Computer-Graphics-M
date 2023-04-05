@@ -12,4 +12,5 @@ extern unsigned int MatProj, MatModel;
 
 extern Entity spaceship;
 
+extern bool showLines;
 extern bool gameOver;

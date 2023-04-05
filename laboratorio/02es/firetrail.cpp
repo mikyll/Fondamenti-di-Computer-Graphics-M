@@ -88,10 +88,6 @@ void updateFiretrail(float deltaTime)
 // DRAW ===================================================
 void drawFiretrail()
 {
-	glm::mat4 mat = glm::mat4(1.0);
-
-	glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(mat));
-	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

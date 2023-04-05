@@ -281,7 +281,7 @@ void drawAsteroids()
 		glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(fig->modelMatrix));
 		glBindVertexArray(fig->VAO);
 
-		glDrawArrays(fig->drawMode, 0, fig->vertices.size());
+		glDrawArrays(showLines ? GL_LINE_STRIP : fig->drawMode, 0, fig->vertices.size());
 		glBindVertexArray(0);
 
 		// Colliders

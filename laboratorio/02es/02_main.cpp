@@ -46,7 +46,7 @@ static void endGame(int value)
 	std::cout << "GAME OVER" << std::endl;
 	glutExit();
 
-	return;
+	exit(0);
 }
 
 // UPDATE =================================================
@@ -68,19 +68,22 @@ static void update(int value)
 	inputSpaceship();
 
 	// UPDATE GAME LOGIC ----------------------------------
-	if (running && !gameOver)
+	if (running)
 	{
 		updateSpaceship(deltaTime);
-		updateAsteroids(deltaTime);
-		updateBullets(deltaTime);
-		updateStars(deltaTime);
 		updateFiretrail(deltaTime);
+		updateStars(deltaTime);
+		
+		if (!gameOver)
+		{
+			updateAsteroids(deltaTime);
+			updateBullets(deltaTime);
+		}
 	}
 	if (gameOver)
 	{
 		glutPostRedisplay();
-		glutTimerFunc(1000, endGame, 0);
-		return;
+		glutTimerFunc(3000, endGame, 0);
 	}
 
 	glutPostRedisplay();
@@ -108,6 +111,17 @@ static void drawScene()
 // MAIN ===================================================
 int main(int argc, char** argv)
 {
+	// Print controls
+	std::cout << "CONTROLS" << std::endl;
+	std::cout << "  W     - move forward" << std::endl;
+	std::cout << "  A/D   - rotate left/right" << std::endl;
+	std::cout << "  SPACE - fire bullet" << std::endl;
+	std::cout << "  P     - toggle pause game" << std::endl;
+	std::cout << "  R     - reset spaceship position" << std::endl;
+	std::cout << "  C     - toggle colliders" << std::endl;
+	std::cout << "  B     - toggle big spaceship" << std::endl;
+	std::cout << "  L     - toggle render using only lines" << std::endl;
+
 	glutInit(&argc, argv);
 	
 	glutInitContextVersion(4, 0);
@@ -136,8 +150,8 @@ int main(int argc, char** argv)
 	initShader();
 	init();
 
-	glEnable(GL_BLEND);
-	glEnable(GL_ALPHA_TEST);
+	glutSetCursor(GLUT_CURSOR_NONE);
+
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glutMainLoop();
 
