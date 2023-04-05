@@ -3,6 +3,4 @@ Repository per il corso di Fondamenti di Computer Graphics M
 
 
 ## Setup
-
-### Windows
-#### Visual Studio
+Vedi [setup.md](./setup.md)
