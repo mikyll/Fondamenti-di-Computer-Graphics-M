@@ -10,7 +10,7 @@ void drawAsteroids();
 
 extern unsigned int MatProj, MatModel;
 
-extern Entity spaceship;
+extern Spaceship spaceship;
 
 extern bool showLines;
 extern bool gameOver;

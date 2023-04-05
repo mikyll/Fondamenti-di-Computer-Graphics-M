@@ -24,16 +24,20 @@ typedef struct {
 	std::vector<Point3D> vertices;
 	std::vector<ColorRGBA> colors;
 
-	// Modellation Matrix: Translation * Rotation * Scaling
-	glm::mat4 modelMatrix;
 	int drawMode;
 	float sizePoints;
 	float widthLines;
 } Figure;
 
 typedef struct {
+	Figure figure;
+	Point3D pos;
+	float radius;
+} CircleCollider;
+
+typedef struct {
 	std::vector<Figure> figures;
-	glm::mat4 modelMatrix;
+	CircleCollider collider;
 	Point3D pos;
 	float heading;
 	float radius;
@@ -41,7 +45,7 @@ typedef struct {
 	float forwardSpeed;
 	float angularSpeed;
 	int health;
-} Entity;
+} Spaceship;
 
 typedef struct {
 	Point3D pos;
@@ -59,6 +63,7 @@ typedef struct {
 
 typedef struct {
 	Figure figure;
+	CircleCollider collider;
 	Point3D pos;
 	Point3D speed;
 	float heading;

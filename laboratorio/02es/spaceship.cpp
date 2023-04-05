@@ -1,15 +1,13 @@
 #include "spaceship.h"
 
-Entity spaceship;
-
 extern Input input;
+
+Spaceship spaceship;
 
 float originalRadius;
 
 bool showLines = false;
 bool openPorthole = false;
-
-static Figure collider;
 
 // BUILD ==================================================
 static void buildNose(Figure* fig, ColorRGBA color)
@@ -273,8 +271,6 @@ static void buildSpaceship()
 	Figure figAstronautSuit = {};
 	figAstronautSuit.id = SPACESHIP_ASTRONAUT;
 	figAstronautSuit.drawMode = GL_TRIANGLE_FAN;
-	figAstronautSuit.modelMatrix = glm::mat4(1.0f);
-	figAstronautSuit.modelMatrix = rotate(figAstronautSuit.modelMatrix, (float)PI / 2, glm::vec3(0.0f, 0.0f, 1.0f));
 	buildAstronautSuit(&figAstronautSuit);
 	createFigureVAO(&figAstronautSuit);
 	spaceship.figures.push_back(figAstronautSuit);
@@ -283,8 +279,6 @@ static void buildSpaceship()
 	Figure figAstronautVisor = {};
 	figAstronautVisor.id = SPACESHIP_ASTRONAUT;
 	figAstronautVisor.drawMode = GL_TRIANGLE_FAN;
-	figAstronautVisor.modelMatrix = glm::mat4(1.0f);
-	figAstronautVisor.modelMatrix = rotate(figAstronautVisor.modelMatrix, (float)PI / 2, glm::vec3(0.0f, 0.0f, 1.0f));
 	buildAstronautVisor(&figAstronautVisor);
 	createFigureVAO(&figAstronautVisor);
 	spaceship.figures.push_back(figAstronautVisor);
@@ -312,32 +306,25 @@ static void buildSpaceship()
 	buildPortholeGlass(&figPortholeGlass, { 0.0f, 0.8f, 1.0f, 0.3f }); // light blue (transparent)
 	createFigureVAO(&figPortholeGlass);
 	spaceship.figures.push_back(figPortholeGlass);
-
-	// Collider
-	collider = {};
-	collider.drawMode = GL_LINE_STRIP;
-	buildCircumference(&collider, { 0.0f, 0.0f, 0.0f }, originalRadius, 15, { 1.0f, 1.0f, 0.0f, 1.0f });
-	createFigureVAO(&collider);
 }
 
 void spawnSpaceship()
 {
-	glm::mat4 spaceshipMatrix = glm::mat4(1.0);
-	spaceshipMatrix = translate(spaceshipMatrix, glm::vec3(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 0.0f));
-	spaceshipMatrix = scale(spaceshipMatrix, glm::vec3(SPACESHIP_SCALE, SPACESHIP_SCALE, 0.0f));
-
 	spaceship.pos.x = WINDOW_WIDTH / 2;
 	spaceship.pos.y = WINDOW_HEIGHT / 2;
 	spaceship.heading = PI / 2;
 	spaceship.scale = SPACESHIP_SCALE;
-	spaceship.modelMatrix = spaceshipMatrix;
 	Point3D p1 = { 0.0f, 0.0f, 0.0f }, p2 = { 0.0f, 3.7f, 0.0f };
 	spaceship.radius = originalRadius = distance(p1, p2) * spaceship.scale;
 	spaceship.forwardSpeed = 0.0f;
 	spaceship.angularSpeed = 0.0f;
 	spaceship.health = 3;
 
+	// Build graphics for the spaceship
 	buildSpaceship();
+
+	// Collider
+	createCircleCollider(&spaceship.collider, spaceship.pos, spaceship.radius, COLLIDER_COLOR);
 }
 
 void destroySpaceship()
@@ -470,6 +457,9 @@ void updateSpaceship(float deltaTime)
 		if (spaceship.pos.y > WINDOW_HEIGHT + spaceship.radius)
 			spaceship.pos.y -= WINDOW_HEIGHT + spaceship.radius * 2;
 	}
+
+	// Update collider
+	updateCircleCollider(&spaceship.collider, spaceship.pos, spaceship.radius);
 }
 
 // DRAW ===================================================
@@ -478,10 +468,10 @@ void drawSpaceship()
 	if (!spaceship.health)
 		return;
 
-	spaceship.modelMatrix = glm::mat4(1.0);
-	spaceship.modelMatrix = translate(spaceship.modelMatrix, glm::vec3(spaceship.pos.x, spaceship.pos.y, 0.0f));
-	spaceship.modelMatrix = scale(spaceship.modelMatrix, glm::vec3(spaceship.scale, spaceship.scale, 0.0f));
-	spaceship.modelMatrix = rotate(spaceship.modelMatrix, spaceship.heading - ((float)PI / 2), glm::vec3(0.0f, 0.0f, 1.0f));
+	glm::mat4 modelMatrix = glm::mat4(1.0);
+	modelMatrix = translate(modelMatrix, glm::vec3(spaceship.pos.x, spaceship.pos.y, 0.0f));
+	modelMatrix = scale(modelMatrix, glm::vec3(spaceship.scale, spaceship.scale, 0.0f));
+	modelMatrix = rotate(modelMatrix, spaceship.heading - ((float)PI / 2), glm::vec3(0.0f, 0.0f, 1.0f));
 	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -493,19 +483,19 @@ void drawSpaceship()
 		// If the figure represents the astronaut: keep rotation straight up
 		if (fig->id == SPACESHIP_ASTRONAUT)
 		{
-			glm::mat4 tmpMat = spaceship.modelMatrix;
+			glm::mat4 tmpMat = modelMatrix;
 			tmpMat = rotate(tmpMat, -spaceship.heading + ((float)PI / 2), glm::vec3(0.0f, 0.0f, 1.0f));
 			glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(tmpMat));
 		}
 		// If the figure represents the porthole open/close (rotate on y)
 		else if (fig->id == SPACESHIP_PORTHOLE && openPorthole)
 		{
-			glm::mat4 tmpMat = spaceship.modelMatrix;
+			glm::mat4 tmpMat = modelMatrix;
 			tmpMat = translate(tmpMat, glm::vec3(0.75f, 0.0f, 0.0f));
 			tmpMat = rotate(tmpMat, (float)PI / 2.2f, glm::vec3(0.0f, 1.0f, 0.0f));
 			glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(tmpMat));
 		}
-		else glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(spaceship.modelMatrix));
+		else glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(modelMatrix));
 
 		glBindVertexArray(fig->VAO);
 		if (fig->sizePoints > 0.0f)
@@ -523,16 +513,10 @@ void drawSpaceship()
 	}
 	glDisable(GL_BLEND);
 
+	// Draw collider
 	if (showColliders)
 	{
-		spaceship.modelMatrix = glm::mat4(1.0);
-		spaceship.modelMatrix = translate(spaceship.modelMatrix, glm::vec3(spaceship.pos.x, spaceship.pos.y, 0.0f));
-		spaceship.modelMatrix = rotate(spaceship.modelMatrix, spaceship.heading - ((float)PI / 2), glm::vec3(0.0f, 0.0f, 1.0f));
-		
-		glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(spaceship.modelMatrix));
-		glBindVertexArray(collider.VAO);
-		glDrawArrays(collider.drawMode, 0, collider.vertices.size());
-		glBindVertexArray(0);
+		drawCircleCollider(spaceship.collider, spaceship.heading);
 	}
 }
 

@@ -8,4 +8,4 @@ void drawStars();
 
 extern unsigned int MatProj, MatModel;
 
-extern Entity spaceship;
+extern Spaceship spaceship;

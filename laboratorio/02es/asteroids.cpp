@@ -2,10 +2,6 @@
 
 std::vector<Asteroid> asteroids;
 
-static std::vector<Figure> colliders;
-
-static void addCollider(Point3D pos, float radius, ColorRGBA color);
-
 bool showColliders = false;
 
 static void buildAsteroid1(Figure* fig)
@@ -170,9 +166,9 @@ void spawnAsteroid(Point3D pos, Point3D speed, int type, float size)
 	asteroid.pos = pos;
 	asteroid.speed = speed;
 	asteroid.heading = getRandomFloat(0.0f, PI * 2);
-	asteroid.radius = ASTEROID_RADIUS_BASE * ASTEROID_SCALE_BASE * size;
-	asteroid.type = type;
 	asteroid.scale = ASTEROID_SCALE_BASE * size;
+	asteroid.radius = ASTEROID_RADIUS_BASE * asteroid.scale;
+	asteroid.type = type;
 	asteroid.figure.drawMode = GL_TRIANGLE_FAN;
 
 	switch (type)
@@ -198,24 +194,13 @@ void spawnAsteroid(Point3D pos, Point3D speed, int type, float size)
 	}
 
 	createFigureVAO(&asteroid.figure);
+	createCircleCollider(&asteroid.collider, asteroid.pos, asteroid.radius, COLLIDER_COLOR);
 	asteroids.push_back(asteroid);
-
-	addCollider(asteroid.pos, ASTEROID_RADIUS_BASE * ASTEROID_BIG_FACTOR, { 1.0f, 1.0f, 0.0f, 1.0f });
 }
 
 void destroyAsteroid(int i)
 {
 	asteroids.erase(asteroids.begin() + i);
-	colliders.erase(colliders.begin() + i);
-}
-
-static void addCollider(Point3D pos, float radius, ColorRGBA color)
-{
-	Figure f = {};
-	f.drawMode = GL_LINE_STRIP;
-	buildCircumference(&f, { 0.0f, 0.0f, 0.0f }, 1.9f, 15, { 1.0f, 1.0f, 0.0f, 1.0f });
-	createFigureVAO(&f);
-	colliders.push_back(f);
 }
 
 void updateAsteroids(float deltaTime)
@@ -249,8 +234,11 @@ void updateAsteroids(float deltaTime)
 		if (asteroid.pos.y > WINDOW_HEIGHT + asteroid.radius)
 			asteroid.pos.y -= WINDOW_HEIGHT + asteroid.radius * 2;
 		
+		// Update collider
+		updateCircleCollider(&asteroid.collider, asteroid.pos, asteroid.radius);
+
 		// Check collision with spaceship
-		if (isColliding(asteroid.pos, asteroid.radius, spaceship.pos, spaceship.radius))
+		if (isCollidingCircle(asteroid.collider, spaceship.collider))
 		{
 			gameOver = true;
 
@@ -261,13 +249,6 @@ void updateAsteroids(float deltaTime)
 			return;
 		}
 
-		glm::mat4 mat = glm::mat4(1.0);
-		mat = translate(mat, glm::vec3(asteroid.pos.x, asteroid.pos.y, 0.0f));
-		mat = rotate(mat, asteroid.heading, glm::vec3(0.0f, 0.0f, 1.0f));
-		mat = scale(mat, glm::vec3(asteroid.scale, asteroid.scale, 0.0f));
-
-		asteroid.figure.modelMatrix = mat;
-
 		asteroids.at(i) = asteroid;
 	}
 }
@@ -276,22 +257,24 @@ void drawAsteroids()
 {
 	for (int i = 0; i < asteroids.size(); i++)
 	{
-		Figure* fig = &asteroids.at(i).figure;
+		Asteroid* asteroid = &asteroids.at(i);
+		Figure* fig = &asteroid->figure;
 
-		glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(fig->modelMatrix));
+		glm::mat4 mat = glm::mat4(1.0);
+		mat = translate(mat, glm::vec3(asteroid->pos.x, asteroid->pos.y, 0.0f));
+		mat = rotate(mat, asteroid->heading, glm::vec3(0.0f, 0.0f, 1.0f));
+		mat = scale(mat, glm::vec3(asteroid->scale, asteroid->scale, 0.0f));
+
+		glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(mat));
 		glBindVertexArray(fig->VAO);
 
 		glDrawArrays(showLines ? GL_LINE_STRIP : fig->drawMode, 0, fig->vertices.size());
 		glBindVertexArray(0);
 
-		// Colliders
+		// Draw collider
 		if (showColliders)
 		{
-			fig = &colliders.at(i);
-			glBindVertexArray(fig->VAO);
-
-			glDrawArrays(fig->drawMode, 0, fig->vertices.size());
-			glBindVertexArray(0);
+			drawCircleCollider(asteroid->collider, asteroid->heading);
 		}
 	}
 }

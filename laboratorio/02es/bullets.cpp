@@ -81,7 +81,7 @@ void updateBullets(float deltaTime)
 		{
 			Asteroid asteroid = asteroids.at(j);
 
-			if (isColliding(bullet.pos, BULLET_RADIUS, asteroid.pos, asteroid.radius))
+			if (isColliding(asteroid.collider, bullet.pos, BULLET_RADIUS))
 			{
 				collide = true;
 

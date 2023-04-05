@@ -24,6 +24,7 @@
 
 #include "input.h"
 #include "figure.h"
+#include "colliders.h"
 #include "spaceship.h"
 #include "stars.h"
 #include "firetrail.h"

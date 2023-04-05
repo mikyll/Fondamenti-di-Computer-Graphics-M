@@ -133,6 +133,7 @@
     <ClCompile Include="02_main.cpp" />
     <ClCompile Include="asteroids.cpp" />
     <ClCompile Include="bullets.cpp" />
+    <ClCompile Include="colliders.cpp" />
     <ClCompile Include="figure.cpp" />
     <ClCompile Include="firetrail.cpp" />
     <ClCompile Include="input.cpp" />
@@ -144,6 +145,7 @@
   <ItemGroup>
     <ClInclude Include="asteroids.h" />
     <ClInclude Include="bullets.h" />
+    <ClInclude Include="colliders.h" />
     <ClInclude Include="commons.h" />
     <ClInclude Include="defs.h" />
     <ClInclude Include="figure.h" />
