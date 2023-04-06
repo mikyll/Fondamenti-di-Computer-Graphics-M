@@ -140,7 +140,7 @@ void drawScene()
 
 void doInput()
 {
-	if (input.keyboard.specialKeys[GLUT_KEY_LEFT])
+	if (input.specialKeys[GLUT_KEY_LEFT])
 	{
 		if (mode > 0 && enableLeft)
 		{
@@ -150,7 +150,7 @@ void doInput()
 	}
 	else enableLeft = 1;
 
-	if (input.keyboard.specialKeys[GLUT_KEY_RIGHT])
+	if (input.specialKeys[GLUT_KEY_RIGHT])
 	{
 		if (mode < GL_POLYGON && enableRight)
 		{
@@ -160,7 +160,7 @@ void doInput()
 	}
 	else enableRight = 1;
 
-	if (input.keyboard.specialKeys[GLUT_KEY_UP])
+	if (input.specialKeys[GLUT_KEY_UP])
 	{
 		if (mode == GL_POINTS)
 		{
@@ -174,7 +174,7 @@ void doInput()
 			lineWidth = MIN(lineWidth, 10.0);
 		}
 	}
-	if (input.keyboard.specialKeys[GLUT_KEY_DOWN])
+	if (input.specialKeys[GLUT_KEY_DOWN])
 	{
 		if (mode == GL_POINTS)
 		{
@@ -189,7 +189,7 @@ void doInput()
 		}
 	}
 
-	help = input.keyboard.keys['h'];
+	help = input.keys['h'];
 }
 
 void update(int value)

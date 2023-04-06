@@ -13,7 +13,7 @@ extern "C" {
 	* Example:
 	* 
 	* char* name = "Mario";
-	* char out[32];
+	+ char out[32];
 	* sprintf_s(out, 32, "Ciao, %s!", name);
 	* RenderString(-0.99, -0.99, GLUT_BITMAP_HELVETICA_18, out, 1.0f, 1.0f, 1.0f);
 	*/
