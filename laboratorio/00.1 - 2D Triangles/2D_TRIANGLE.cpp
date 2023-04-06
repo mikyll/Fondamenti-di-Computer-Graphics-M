@@ -6,8 +6,8 @@
 
 static unsigned int programId;
 
-unsigned int VAO;
-unsigned int VBO;
+unsigned int VAO_ControlPoints;
+unsigned int VBO_ControlPoints;
 
 
 float vertices[] = {
@@ -32,11 +32,11 @@ void initShader(void)
 void init(void)
 {
 
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
+	glGenVertexArrays(1, &VAO_ControlPoints);
+	glBindVertexArray(VAO_ControlPoints);
 	// 2. copy our vertices array in a buffer for OpenGL to use
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glGenBuffers(1, &VBO_ControlPoints);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_ControlPoints);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	// Configura l'attributo posizione
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
@@ -54,7 +54,7 @@ void drawScene(void)
 
 	glClear(GL_COLOR_BUFFER_BIT);
 	
-	glBindVertexArray(VAO);
+	glBindVertexArray(VAO_ControlPoints);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
 	glutSwapBuffers();

@@ -13,8 +13,8 @@
 
 static unsigned int programId;
 
-unsigned int VAO, VAO_2;
-unsigned int VBO, VBO_2;
+unsigned int VAO_ControlPoints, VAO_CurvePoints;
+unsigned int VBO_ControlPoints, VBO_CurvePoints;
 
 using namespace glm;
 
@@ -81,13 +81,13 @@ void init(void)
 	sierpinski();
 
 	//Genero un VAO
-	glGenVertexArrays(1, &VAO);
+	glGenVertexArrays(1, &VAO_ControlPoints);
 	//Ne faccio il bind (lo collego, lo attivo)
-	glBindVertexArray(VAO);
+	glBindVertexArray(VAO_ControlPoints);
 	//AL suo interno genero un VBO
-	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &VBO_ControlPoints);
 	//Ne faccio il bind (lo collego, lo attivo, assegnandogli il tipo GL_ARRAY_BUFFER)
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_ControlPoints);
 	//Carico i dati vertices sulla GPU
 	glBufferData(GL_ARRAY_BUFFER, nPoint * sizeof(Point), &Punti[0], GL_STATIC_DRAW);
 	// Configurazione dell'attributo posizione: informo il vertex shader su: dove trova le informazioni sulle posizioni e come le deve leggre
@@ -96,10 +96,10 @@ void init(void)
 	glEnableVertexAttribArray(0);
 
 	// Square frame store
-	glGenVertexArrays(1, &VAO_2);
-	glBindVertexArray(VAO_2);
-	glGenBuffers(1, &VBO_2);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_2);
+	glGenVertexArrays(1, &VAO_CurvePoints);
+	glBindVertexArray(VAO_CurvePoints);
+	glGenBuffers(1, &VBO_CurvePoints);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_CurvePoints);
 	glBufferData(GL_ARRAY_BUFFER, nPointPOL * sizeof(Point), &PuntiPOL[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -116,11 +116,11 @@ void drawScene(void)
 	glClear(GL_COLOR_BUFFER_BIT); 
 	
 	
-	glBindVertexArray(VAO);
+	glBindVertexArray(VAO_ControlPoints);
 	glPointSize(4.0);
 	glDrawArrays(GL_POINTS, 0, nPoint);
 
-	glBindVertexArray(VAO_2);
+	glBindVertexArray(VAO_CurvePoints);
 	glLineWidth(2.5); 
 	glDrawArrays(GL_LINE_STRIP, 0, nPointPOL);
 
