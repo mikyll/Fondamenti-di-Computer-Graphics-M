@@ -6,7 +6,8 @@
 * 
 * 
 * Description:
-* This program draws straight lines connecting dots placed with mouse clicks.
+* This program allows the user to draw Beziér curves by adding control points
+* and selecting the algorithm.
 *
 * Usage:
 *	- Left click to place a control point.
@@ -51,6 +52,7 @@
 // FUNCTION DECLARATIONS ========================
 static void initShader();
 static void init();
+static void printControls();
 
 static void clearPoints();
 static void addNewPoint(Point2D point);
@@ -140,6 +142,48 @@ static void init()
 	// Background color
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 	glViewport(0, 0, 500, 500);
+}
+
+/*
+*Usage:
+* - Left click to place a control point.
+* (Maximum number of control points allowed is currently set at 300)
+* - Press 'f' to remove the first control point.
+* - Press 'l' to remove the last control point.
+* - Press 'i' to print control points.
+* - Press 'o' to print curve points.
+* - Press 's' to enable/disable control and/or curve segments.
+* - Drag and drop the mouse while hovering a control point to move it.
+* - Press escape to exit.
+*
+*Curves rendering:
+* - (default) Press 'F1' to select "de Casteljau Uniform" method.
+* - Press 'F2' to select "Catmull-Rom Spline" method.
+* - Press 'F3' to select "de Casteljau Adaptive Subdivision" method.
+* - Press 'F4' to select "cubic segments" subdivision.
+* - Press 'F5' to clear control points and curve points.
+*/
+
+static void printControls()
+{
+	std::cout << "CONTROLS ==============================" << std::endl;
+	std::cout << "  Left mouse click  - place a control point" << std::endl;
+	std::cout << "  Drag/Drop mouse   - move a control point (while hovering one)" << std::endl;
+	std::cout << "  F                 - remove the first control point" << std::endl;
+	std::cout << "  L                 - remove the last control point" << std::endl;
+	std::cout << "  I                 - print control points" << std::endl;
+	std::cout << "  O                 - print curve points" << std::endl;
+	std::cout << "  S                 - enable/disable control and/or curve segments" << std::endl;
+	std::cout << "  ESC               - quit" << std::endl;
+	std::cout << std::endl;
+	std::cout << "CURVES:" << std::endl;
+	std::cout << "  F1 (default)      - De Casteljau Uniform method" << std::endl;
+	std::cout << "  F2                - Catmull-Rom Spline method" << std::endl;
+	std::cout << "  F3                - De Casteljau Adaptive Subdivision method" << std::endl;
+	std::cout << "  F4                - Cubic segments subdivision method" << std::endl;
+	std::cout << "  F5                - Clear control points and curve points" << std::endl;
+	std::cout << "  ESC               - quit" << std::endl;
+	std::cout << "=======================================" << std::endl << std::endl;
 }
 
 // LOGIC ==================================================
@@ -531,6 +575,8 @@ static void drawScene()
 // MAIN ===================================================
 int main(int argc, char** argv)
 {
+	printControls();
+
 	glutInit(&argc, argv);
 
 	glutInitContextVersion(4, 0);

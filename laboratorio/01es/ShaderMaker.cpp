@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #pragma warning(disable:4996)
+
 char* ShaderMaker::readShaderSource(const char* shaderFile)
 {
 	FILE* fp = fopen(shaderFile, "rb");
@@ -21,7 +22,7 @@ char* ShaderMaker::readShaderSource(const char* shaderFile)
 	return buf;
 }
 
-GLuint ShaderMaker::createProgram(char* vertexfilename, char *fragmentfilename)
+GLuint ShaderMaker::createProgram(char* vertexfilename, char* fragmentfilename)
 {
 	GLenum ErrorCheckValue = glGetError();
 
@@ -38,8 +39,8 @@ GLuint ShaderMaker::createProgram(char* vertexfilename, char *fragmentfilename)
 	//Associamo all'identificativo il codice del vertex shader
 	glShaderSource(vertexShaderId, 1, (const char**)&VertexShader, NULL);
 	//Compiliamo il Vertex SHader
-	glCompileShader(vertexShaderId); 
-	
+	glCompileShader(vertexShaderId);
+
 
 
 	//Leggiamo il codice del Fragment Shader
@@ -63,7 +64,7 @@ GLuint ShaderMaker::createProgram(char* vertexfilename, char *fragmentfilename)
 
 
 	ErrorCheckValue = glGetError();
-	cout << ErrorCheckValue;
+	//std::cout << ErrorCheckValue << std::endl;
 
 	if (ErrorCheckValue != GL_NO_ERROR)
 	{
@@ -81,6 +82,6 @@ GLuint ShaderMaker::createProgram(char* vertexfilename, char *fragmentfilename)
 	glAttachShader(programId, vertexShaderId);
 	glAttachShader(programId, fragmentShaderId);
 	glLinkProgram(programId);
-	
+
 	return programId;
 }
