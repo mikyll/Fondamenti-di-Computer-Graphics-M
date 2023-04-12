@@ -106,7 +106,8 @@ static void printControls()
 	std::cout << "  R     - reset spaceship position" << std::endl;
 	std::cout << "  C     - toggle colliders" << std::endl;
 	std::cout << "  B     - toggle big spaceship" << std::endl;
-	std::cout << "  L     - toggle render using only lines" << std::endl << std::endl;
+	std::cout << "  L     - toggle render using only lines" << std::endl;
+	std::cout << std::endl;
 	std::cout << "  ESC   - quit" << std::endl;
 	std::cout << "=======================================" << std::endl << std::endl;
 }
