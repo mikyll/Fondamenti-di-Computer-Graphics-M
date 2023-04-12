@@ -1,3 +1,56 @@
+/*
+* Lab 02 - 2D Animation & Gameplay
+*
+* Solution by Michele Righi (0001025005)
+* GitHub: https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/tree/main/laboratorio/02es
+*
+*
+* Description:
+* This program implements a simple version of the well-know game
+* "Asteroids" (https://it.wikipedia.org/wiki/Asteroids).
+* Some notable parts/features are:
+* - usage of a simple pass-through shader;
+* - game loop using delta time (plus cap at ~60 FPS);
+* - spaceship:
+*	- can be controlled by the user;
+*	- is composed of different parts:
+*		- hull (using cos function for the curves);
+*		- propulsor;
+*		- fins & nose;
+*		- porthole (circle & hollow circle using sin & cos);
+*		- astronaut always facing the same direction to make
+*			it *pretty*;
+* - background made more realistic using the parallax effect
+*	(3 layers of stars moving at different speeds);
+* - spaceship firetrail implemented using a particle system;
+* - bullets that can be fired by the spaceship;
+* - asteroids:
+*	- 3 different types (with different shapes and colors);
+*	- 3 different shapes;
+*	- moving in a random direction;
+*	- when broken by a bullet are split in 2 smaller asteroids;
+* - circle collision system (rect for the spaceship yet to
+*	be implemented);
+* 
+* 
+* Controls:
+* - Character controls:
+*	- press 'w' to move the spaceship forward;
+*	- press 'a'/'d' to rotate the spaceship heading
+*		clockwise/counter clockwise;
+*	- press 'SPACE' to fire a bullet;
+* - Misc. controls:
+*	- press 'p' to pause/resume the game;
+*	- press 'r'	to reset the spaceship position to the center;
+*	- press 'c' to display/hide the objects colliders;
+*	- press 'b' to enlarge/shrink the spaceship;
+*	- press 'ESC' to quit the game.
+* 
+* 
+* Gameplay:
+* Destroy each asteroid without being touched by them.
+*/
+
 #include "commons.h"
 
 static unsigned int programId;
