@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{0a1dc9fa-12e0-4af2-a8c9-c933132fd5d2}</ProjectGuid>
-    <RootNamespace>My03es</RootNamespace>
+    <ProjectGuid>{7a7c6881-e6c3-4fcd-b4d2-a8d74802ea92}</ProjectGuid>
+    <RootNamespace>My04RayTracing</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -109,6 +109,9 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PreBuildEvent>
+      <Command>-size 200 200 -input Objects\cornell_box_reflective_spheres.obj -soft_shadow -background_color 0.2 0.1 0.6 -num_bounces 5 </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -127,7 +130,41 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="03_main.cpp" />
+    <ClCompile Include="boundingbox.cpp" />
+    <ClCompile Include="camera.cpp" />
+    <ClCompile Include="edge.cpp" />
+    <ClCompile Include="face.cpp" />
+    <ClCompile Include="glCanvas.cpp" />
+    <ClCompile Include="LAB_04_students.cpp" />
+    <ClCompile Include="material.cpp" />
+    <ClCompile Include="matrix.cpp" />
+    <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="radiosity.cpp" />
+    <ClCompile Include="raytracer_students.cpp" />
+    <ClCompile Include="raytree.cpp" />
+    <ClCompile Include="sphere.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="argparser.h" />
+    <ClInclude Include="bag.h" />
+    <ClInclude Include="boundingbox.h" />
+    <ClInclude Include="camera.h" />
+    <ClInclude Include="edge.h" />
+    <ClInclude Include="face.h" />
+    <ClInclude Include="glCanvas.h" />
+    <ClInclude Include="hit.h" />
+    <ClInclude Include="material.h" />
+    <ClInclude Include="matrix.h" />
+    <ClInclude Include="mesh.h" />
+    <ClInclude Include="radiosity.h" />
+    <ClInclude Include="ray.h" />
+    <ClInclude Include="raytracer.h" />
+    <ClInclude Include="raytree.h" />
+    <ClInclude Include="sphere.h" />
+    <ClInclude Include="utils.h" />
+    <ClInclude Include="vectors.h" />
+    <ClInclude Include="vertex.h" />
+    <ClInclude Include="vertex_parent.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
