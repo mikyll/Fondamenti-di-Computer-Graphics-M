@@ -1,5 +1,5 @@
-//#include "raytracer.h"
-/*#include "material.h"
+#include "raytracer.h"
+#include "material.h"
 #include "vectors.h"
 #include "argparser.h"
 #include "raytree.h"
@@ -66,8 +66,9 @@ RayTracer::CastRay (Ray & ray, Hit & h, bool use_sphere_patches) const
   return answer;
 }
 
-Vec3f
-RayTracer::TraceRay (Ray & ray, Hit & hit, int bounce_count) const
+
+// questo metodo calcola i contributi locali che incidono sul punto
+Vec3f RayTracer::TraceRay (Ray & ray, Hit & hit, int bounce_count) const
 {
 
   hit = Hit ();
@@ -100,12 +101,21 @@ RayTracer::TraceRay (Ray & ray, Hit & hit, int bounce_count) const
 	// ==========================================
 	
 	// se (il punto sulla superficie e' riflettente & bounce_count>0)
-    
-	//     calcolare ReflectionRay  R=2<n,l>n -l
+	// NB: per questo basta che controllo se la Length del vettore è != 0 (ovvero non ha tutte le componenti nulle) e che non sia arrivato all'ultimo bounce (ultimo step della ricorsione)
+	if (reflectiveColor.Length() != 0 && bounce_count > 0)
+	{
+		Vec3f VRay = ray.getDirection();
+		
+		//     calcolare ReflectionRay  R=2<n,l>n -l
+		// NB: ReflectionRay è rv a slide 28
+		Vec3f reflectionRay = VRay - (2 * VRay.Dot3(normal) * normal);
+		reflectionRay.Normalize();
+		Ray* new_ray = new Ray(point, reflectionRay);
 
-    //	   invocare TraceRay(ReflectionRay, hit,bounce_count-1)
-	
-	//     aggiungere ad answer il contributo riflesso
+		//	   invocare TraceRay(ReflectionRay, hit, bounce_count-1)
+		//     aggiungere ad answer il contributo riflesso
+		answer += TraceRay(*new_ray, hit, bounce_count - 1) * reflectiveColor;
+	}
 	
 	// ----------------------------------------------
 	// add each light
@@ -115,10 +125,42 @@ RayTracer::TraceRay (Ray & ray, Hit & hit, int bounce_count) const
 	  // ==========================================
 	  // ASSIGNMENT:  ADD SHADOW LOGIC
 	  // ==========================================
+		Hit* new_hit;
+		bool colpito;
+		Ray* n_ray;
+		Vec3f n_point, dista, pointOnLinght;
+
+
 	  Face *f = mesh->getLights ()[i];
 	  Vec3f pointOnLight = f->computeCentroid ();
 	  Vec3f dirToLight = pointOnLight - point;
 	  dirToLight.Normalize ();
+
+	  n_ray = new Ray(point, dirToLight);
+	  new_hit = new Hit();
+	  // colpisco qualcosa che va a finire in new_hit
+	  colpito = CastRay(*n_ray, *new_hit, false);
+
+	  if (colpito)
+	  {
+		  n_point = n_ray->pointAtParameter(new_hit->getT());
+
+		  // calcola il vettore distanza fra il punto colpito dal raggio e il punto sulla luce
+		  dista.Sub(dista, n_point, pointOnLight); // calcolo la distanza fra i due punti: punto colpito dallo shadow ray e il punto sul baricentro della luce (pointOnLight)
+
+		  // Se la norma del vettore è molto vicino a zero (non facciamo mai zero completo) signfica che dal punto colpito vedo la luce
+		  if (dista.Length() < 0.01)
+		  {
+			  // se vedo la luce significa che devo andare a calcolare (con Phong) la luce incidente e il contributo locale di quella luce su quel punto
+			  if (normal.Dot3(dirToLight) > 0)
+			  {
+				  Vec3f lightColor = 0.2 * f->getMaterial()->getEmittedColor() * f->getArea();
+				  // NB: in answer ci avevamo già messo il contributo ambiente, ora aggiungiamo anche questo.
+				  answer += m->Shade(ray, hit, dirToLight, lightColor, args);
+			  }
+		  }
+
+	  }
 
       // creare shadow ray verso il punto luce
 	  
@@ -139,4 +181,4 @@ RayTracer::TraceRay (Ray & ray, Hit & hit, int bounce_count) const
   }
 
   return answer;
-}*/
+}

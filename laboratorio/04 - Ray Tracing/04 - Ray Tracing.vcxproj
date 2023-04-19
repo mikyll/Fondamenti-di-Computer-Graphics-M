@@ -110,7 +110,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>-size 200 200 -input Objects\cornell_box_reflective_spheres.obj -soft_shadow -background_color 0.2 0.1 0.6 -num_bounces 5 </Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -140,6 +141,7 @@
     <ClCompile Include="matrix.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="radiosity.cpp" />
+    <ClCompile Include="raytracer_es.cpp" />
     <ClCompile Include="raytracer_students.cpp" />
     <ClCompile Include="raytree.cpp" />
     <ClCompile Include="sphere.cpp" />
