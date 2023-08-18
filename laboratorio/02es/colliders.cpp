@@ -32,6 +32,7 @@ void drawCircleCollider(CircleCollider collider, float heading)
 
 	glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(modelMatrix));
 	glBindVertexArray(collider.figure.VAO);
+	glLineWidth(1.0f);
 	glDrawArrays(collider.figure.drawMode, 0, collider.figure.vertices.size());
 	glBindVertexArray(0);
 }

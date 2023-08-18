@@ -150,12 +150,15 @@
     <ClCompile Include="asteroids.cpp" />
     <ClCompile Include="bullets.cpp" />
     <ClCompile Include="colliders.cpp" />
+    <ClCompile Include="explosions.cpp" />
     <ClCompile Include="figure.cpp" />
     <ClCompile Include="firetrail.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="ShaderMaker.cpp" />
     <ClCompile Include="spaceship.cpp" />
     <ClCompile Include="stars.cpp" />
+    <ClCompile Include="text.cpp" />
+    <ClCompile Include="ui.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -164,14 +167,16 @@
     <ClInclude Include="colliders.h" />
     <ClInclude Include="commons.h" />
     <ClInclude Include="defs.h" />
+    <ClInclude Include="explosions.h" />
     <ClInclude Include="figure.h" />
     <ClInclude Include="firetrail.h" />
     <ClInclude Include="input.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="ShaderMaker.h" />
     <ClInclude Include="spaceship.h" />
     <ClInclude Include="stars.h" />
     <ClInclude Include="structs.h" />
+    <ClInclude Include="text.h" />
+    <ClInclude Include="ui.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

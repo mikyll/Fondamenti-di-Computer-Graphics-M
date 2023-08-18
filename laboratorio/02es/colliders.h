@@ -9,4 +9,5 @@ void drawCircleCollider(CircleCollider collider, float heading);
 bool isColliding(CircleCollider collider, Point3D pos, float radius);
 bool isCollidingCircle(CircleCollider collider1, CircleCollider collider2);
 
+extern Game game;
 extern unsigned int MatProj, MatModel;

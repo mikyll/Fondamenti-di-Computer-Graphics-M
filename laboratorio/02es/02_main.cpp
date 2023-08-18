@@ -57,16 +57,14 @@ static unsigned int programId;
 
 unsigned int MatProj, MatModel;
 
-glm::mat4 Projection;  //Matrice di proiezione
+glm::mat4 Projection;  // Matrice di proiezione
 
 extern Input input;
 
-// Game Loop variables
-float deltaTime = 0.0f;
-unsigned long timeSinceStart; // milliseconds from glutInit() call
+Game game = {};
 
-bool running = true;
-bool gameOver = false;
+static void startMenu();
+static void blinkStartText(int value);
 
 // INIT ===================================================
 static void initShader()
@@ -80,20 +78,32 @@ static void initShader()
 	glUseProgram(programId);
 }
 
+static void initGame()
+{
+	game = {};
+	game.state = GAME_MENU;
+	game.deltaTime = 0.0f;
+	game.fps = 0;
+	game.stageLevel = 1;
+	game.score = 0;
+}
+
 static void init()
 {
 	Projection = glm::ortho(0.0f, float(WINDOW_WIDTH), 0.0f, float(WINDOW_HEIGHT));
 	MatProj = glGetUniformLocation(programId, "Projection");
 	MatModel = glGetUniformLocation(programId, "Model");
 
+	initGame();
+
 	spawnSpaceship();
 	initStars();
 	initFiretrail();
 	initAsteroids();
 	initBullets();
+	initText();
 
-	// set background color
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	startMenu();
 }
 
 static void printControls()
@@ -112,6 +122,41 @@ static void printControls()
 	std::cout << "=======================================" << std::endl << std::endl;
 }
 
+static void startMenu()
+{
+	clearAsteroids();
+	initAsteroids();
+	resetSpaceship();
+
+	setVisibility(game.textIndexes.iMenuTitle, true);
+	setVisibility(game.textIndexes.iMenuStart, true);
+	setVisibility(game.textIndexes.iScore, false);
+	setVisibility(game.textIndexes.iScoreValue, false);
+	setVisibility(game.textIndexes.iStage, false);
+	setVisibility(game.textIndexes.iStageValue, false);
+
+	game.state = GAME_MENU;
+
+	glutTimerFunc(1000, blinkStartText, 0);
+}
+
+static void startGame()
+{
+	clearAsteroids();
+	initAsteroids();
+	game.stageLevel = 1;
+	game.score = 0;
+
+	setVisibility(game.textIndexes.iMenuTitle, false);
+	setVisibility(game.textIndexes.iMenuStart, false);
+	setVisibility(game.textIndexes.iScore, true);
+	setVisibility(game.textIndexes.iScoreValue, true);
+	setVisibility(game.textIndexes.iStage, true);
+	setVisibility(game.textIndexes.iStageValue, true);
+
+	game.state = GAME_RUNNING;
+}
+
 static void endGame(int value)
 {
 	std::cout << "GAME OVER" << std::endl;
@@ -120,11 +165,26 @@ static void endGame(int value)
 	exit(0);
 }
 
+static void blinkStartText(int value)
+{
+	if (game.state == GAME_MENU)
+	{
+		setVisibility(game.textIndexes.iMenuStart, !isVisible(game.textIndexes.iMenuStart));
+
+		glutTimerFunc(isVisible(game.textIndexes.iMenuStart) ? 1000 : 500, blinkStartText, 0);
+	}
+	else setVisibility(game.textIndexes.iMenuStart, false);
+}
+
 static void inputApplication()
 {
-	if (input.keyboard.keys[27])
+	if (game.state == GAME_RUNNING && input.keyboard.keys[27])
 	{
-		endGame(0);
+		startMenu();
+	}
+	if (game.state == GAME_MENU && input.keyboard.keys[' '])
+	{
+		startGame();
 	}
 }
 
@@ -132,36 +192,56 @@ static void inputApplication()
 static void update(int value)
 {
 	// Wait until 16ms has elapsed since last frame
-	while (glutGet(GLUT_ELAPSED_TIME) - timeSinceStart <= 16);
+	while (glutGet(GLUT_ELAPSED_TIME) - game.timeSinceStart <= 16);
 	
 	// Delta time = time elapsed from last frame (in seconds)
-	deltaTime = (glutGet(GLUT_ELAPSED_TIME) - timeSinceStart) / 1000.0f;
+	game.deltaTime = (glutGet(GLUT_ELAPSED_TIME) - game.timeSinceStart) / 1000.0f;
 	
 	// Clamp delta time so that it doesn't exceed ~60 fps
-	deltaTime = MIN(0.05f, deltaTime);
+	game.deltaTime = MIN(0.05f, game.deltaTime);
 
 	// Update elapsed time (for next frame)
-	timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
+	game.timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
+
 
 	// INPUT PROCESSING -----------------------------------
 	inputApplication();
 	inputSpaceship();
 
 	// UPDATE GAME LOGIC ----------------------------------
-	if (running)
+	if (game.state == GAME_MENU)
 	{
-		updateSpaceship(deltaTime);
-		updateFiretrail(deltaTime);
-		updateStars(deltaTime);
-		
-		if (!gameOver)
-		{
-			updateAsteroids(deltaTime);
-			updateBullets(deltaTime);
-		}
+		updateAsteroids(game.deltaTime);
+		updateFiretrail(game.deltaTime);
 	}
-	if (gameOver)
+	if (game.state == GAME_RUNNING)
 	{
+		updateSpaceship(game.deltaTime);
+		updateFiretrail(game.deltaTime);
+		updateStars(game.deltaTime);
+		
+		updateAsteroids(game.deltaTime);
+		updateBullets(game.deltaTime);
+
+		// test
+		char scoreText[10];
+		snprintf(scoreText, 10, "%d", game.score);
+		updateMessage(game.textIndexes.iScoreValue, scoreText);
+	}
+	if (game.state == GAME_PAUSED)
+	{
+		setVisibility(game.textIndexes.iPaused, true);
+	}
+	else
+	{
+		setVisibility(game.textIndexes.iPaused, false);
+	}
+	if (game.state == GAME_OVER)
+	{
+		updateSpaceship(game.deltaTime);
+		updateFiretrail(game.deltaTime);
+		updateStars(game.deltaTime);
+		
 		glutPostRedisplay();
 		glutTimerFunc(3000, endGame, 0);
 	}
@@ -173,6 +253,9 @@ static void update(int value)
 // DRAW ===================================================
 static void drawScene()
 {
+	// set background color
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glUniformMatrix4fv(MatProj, 1, GL_FALSE, value_ptr(Projection));
@@ -184,6 +267,8 @@ static void drawScene()
 	drawAsteroids();
 	drawSpaceship();
 	drawBullets();
+
+	drawText();
 
 	glutSwapBuffers();
 }
@@ -209,7 +294,7 @@ int main(int argc, char** argv)
 	glutKeyboardUpFunc(keyUp);
 
 	// Update callback
-	timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
+	game.timeSinceStart = glutGet(GLUT_ELAPSED_TIME);
 	glutTimerFunc(UPDATE_DELAY, update, 0);
 
 	// Draw callback

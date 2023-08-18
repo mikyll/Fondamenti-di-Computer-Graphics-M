@@ -4,11 +4,6 @@ extern Input input;
 
 Spaceship spaceship;
 
-float originalRadius;
-
-bool showLines = false;
-bool openPorthole = false;
-
 // BUILD ==================================================
 static void buildNose(Figure* fig, ColorRGBA color)
 {
@@ -315,7 +310,7 @@ void spawnSpaceship()
 	spaceship.heading = PI / 2;
 	spaceship.scale = SPACESHIP_SCALE;
 	Point3D p1 = { 0.0f, 0.0f, 0.0f }, p2 = { 0.0f, 3.7f, 0.0f };
-	spaceship.radius = originalRadius = distance(p1, p2) * spaceship.scale;
+	spaceship.radius = spaceship.originalRadius = distance(p1, p2) * spaceship.scale;
 	spaceship.forwardSpeed = 0.0f;
 	spaceship.angularSpeed = 0.0f;
 	spaceship.health = 3;
@@ -327,10 +322,23 @@ void spawnSpaceship()
 	createCircleCollider(&spaceship.collider, spaceship.pos, spaceship.radius, COLLIDER_COLOR);
 }
 
+void resetSpaceship()
+{
+	spaceship.forwardSpeed = 0.0f;
+	spaceship.angularSpeed = 0.0f;
+	spaceship.pos.x = WINDOW_WIDTH / 2;
+	spaceship.pos.y = WINDOW_HEIGHT / 2;
+	spaceship.heading = PI / 2;
+}
+
 void destroySpaceship()
 {
+	// TO-DO
+
+	// explosion
 
 }
+
 // INPUT ==================================================
 void inputSpaceship()
 {
@@ -362,11 +370,7 @@ void inputSpaceship()
 	}
 	if (input.keyboard.keys['r'])
 	{
-		spaceship.forwardSpeed = 0.0f;
-		spaceship.angularSpeed = 0.0f;
-		spaceship.pos.x = WINDOW_WIDTH / 2;
-		spaceship.pos.y = WINDOW_HEIGHT / 2;
-		spaceship.heading = PI / 2;
+		resetSpaceship();
 	}
 
 	// Do some fancy stuff over the speed to make the movement smooth
@@ -375,37 +379,43 @@ void inputSpaceship()
 	spaceship.angularSpeed = forwardNew ? MIN(SPACESHIP_MAX_ANGULAR_SPEED, MAX(-SPACESHIP_MAX_ANGULAR_SPEED, spaceship.angularSpeed + angularNew))
 		: MIN(SPACESHIP_MIN_ANGULAR_SPEED, MAX(-SPACESHIP_MIN_ANGULAR_SPEED, spaceship.angularSpeed + angularNew));
 	
-	// TEST: Show lines
 	if (input.keyboard.keys['l'])
 	{
 		input.keyboard.keys['l'] = 0;
 
-		showLines = !showLines;
+		game.showLines = !game.showLines;
 	}
 	if (input.keyboard.keys['b'])
 	{
 		input.keyboard.keys['b'] = 0;
 
 		spaceship.scale = spaceship.scale == SPACESHIP_SCALE ? SPACESHIP_SCALE * 4 : SPACESHIP_SCALE;
-		spaceship.radius = spaceship.radius == originalRadius ? originalRadius * 4 : originalRadius;
+		spaceship.radius = spaceship.radius == spaceship.originalRadius ? spaceship.originalRadius * 4 : spaceship.originalRadius;
 	}
 	if (input.keyboard.keys['o'])
 	{
 		input.keyboard.keys['o'] = 0;
 
-		openPorthole = !openPorthole;
+		spaceship.openPorthole = !spaceship.openPorthole;
 	}
 	if (input.keyboard.keys['p'])
 	{
 		input.keyboard.keys['p'] = 0;
 
-		running = !running;
+		if (game.state == GAME_RUNNING)
+		{
+			game.state = GAME_PAUSED;
+		}
+		else if (game.state == GAME_PAUSED)
+		{
+			game.state = GAME_RUNNING;
+		}
 	}
 	if (input.keyboard.keys['c'])
 	{
 		input.keyboard.keys['c'] = 0;
 
-		showColliders = !showColliders;
+		game.showColliders = !game.showColliders;
 	}
 }
 
@@ -426,7 +436,7 @@ void updateSpaceship(float deltaTime)
 			{ xSpawnCenter, ySpawnCenter, 0.0f },
 			spaceship.forwardSpeed,
 			spaceship.heading - PI,
-			20.0f * (spaceship.forwardSpeed / SPACESHIP_MAX_FORWARD_SPEED) * (spaceship.radius / originalRadius),
+			20.0f * (spaceship.forwardSpeed / SPACESHIP_MAX_FORWARD_SPEED) * (spaceship.radius / spaceship.originalRadius),
 			5.0f
 		);
 	}
@@ -488,7 +498,7 @@ void drawSpaceship()
 			glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(tmpMat));
 		}
 		// If the figure represents the porthole open/close (rotate on y)
-		else if (fig->id == SPACESHIP_PORTHOLE && openPorthole)
+		else if (fig->id == SPACESHIP_PORTHOLE && spaceship.openPorthole)
 		{
 			glm::mat4 tmpMat = modelMatrix;
 			tmpMat = translate(tmpMat, glm::vec3(0.75f, 0.0f, 0.0f));
@@ -505,8 +515,7 @@ void drawSpaceship()
 			glLineWidth(fig->widthLines);
 		else glLineWidth(1.0f);
 
-		// TEST: show lines
-		int mode = showLines ? GL_LINE_STRIP : fig->drawMode;
+		int mode = game.showLines ? GL_LINE_STRIP : fig->drawMode;
 
 		glDrawArrays(mode, 0, fig->vertices.size());
 		glBindVertexArray(0);
@@ -514,7 +523,7 @@ void drawSpaceship()
 	glDisable(GL_BLEND);
 
 	// Draw collider
-	if (showColliders)
+	if (game.showColliders)
 	{
 		drawCircleCollider(spaceship.collider, spaceship.heading);
 	}

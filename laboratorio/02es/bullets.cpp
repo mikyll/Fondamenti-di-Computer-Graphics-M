@@ -90,7 +90,7 @@ void updateBullets(float deltaTime)
 				destroyAsteroid(j);
 
 				// If the asteroid wasn't of tipe "SMALL" -> spawn 2 smaller asteroids
-				if (asteroid.scale / ASTEROID_SCALE_BASE > 0.5f)
+				if (asteroid.scale / ASTEROID_SCALE_BASE > ASTEROID_SMALL_FACTOR)
 				{
 					Point3D speed = {
 						getRandomFloat(-100.0f, 100.0f),
@@ -104,6 +104,9 @@ void updateBullets(float deltaTime)
 					speed.y = -speed.y;
 					spawnAsteroid(asteroid.pos, speed, (int)getRandomFloat(1.0f, 3.999999f), (asteroid.scale / ASTEROID_SCALE_BASE) - 0.5f);
 				}
+
+				// Add points to score
+				game.score += 4 - (asteroid.scale * 2 / ASTEROID_SCALE_BASE);
 			}
 		}
 	}

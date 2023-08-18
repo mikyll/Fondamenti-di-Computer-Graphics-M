@@ -30,3 +30,4 @@
 #include "firetrail.h"
 #include "asteroids.h"
 #include "bullets.h"
+#include "text.h"

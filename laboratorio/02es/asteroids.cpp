@@ -2,8 +2,6 @@
 
 std::vector<Asteroid> asteroids;
 
-bool showColliders = false;
-
 static void buildAsteroid1(Figure* fig)
 {
 	fig->vertices.push_back({0.0f, 0.0f, 0.0f});
@@ -203,13 +201,21 @@ void destroyAsteroid(int i)
 	asteroids.erase(asteroids.begin() + i);
 }
 
+void clearAsteroids()
+{
+	while (asteroids.size() > 0)
+	{
+		asteroids.erase(asteroids.begin());
+	}
+}
+
 void updateAsteroids(float deltaTime)
 {
-	if (asteroids.size() == 0)
+	if (game.state == GAME_RUNNING && asteroids.size() == 0)
 	{
-		gameOver = true;
+		game.state = GAME_STAGE_COMPLETED;
 
-		std::cout << "CONGRATUATIONS, YOU HAVE DESTROYED ALL THE ASTEROIDS!!!" << std::endl << std::endl;
+		std::cout << "STAGE " << game.stageLevel << " COMPLETED!" << std::endl << std::endl;
 
 		return;
 	}
@@ -238,13 +244,11 @@ void updateAsteroids(float deltaTime)
 		updateCircleCollider(&asteroid.collider, asteroid.pos, asteroid.radius);
 
 		// Check collision with spaceship
-		if (isCollidingCircle(asteroid.collider, spaceship.collider))
+		if (game.state == GAME_RUNNING && isCollidingCircle(asteroid.collider, spaceship.collider))
 		{
-			gameOver = true;
+			game.state = GAME_OVER;
 
-			// test
-			//std::cout << "COLLISION " << glutGet(GLUT_ELAPSED_TIME) << std::endl;
-			std::cout << "SPACESHIP DESTROYED, YOU LOST!" << std::endl << std::endl;
+			std::cout << "SPACESHIP DESTROYED, GAME OVER!" << std::endl << std::endl;
 			
 			return;
 		}
@@ -268,11 +272,12 @@ void drawAsteroids()
 		glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(mat));
 		glBindVertexArray(fig->VAO);
 
-		glDrawArrays(showLines ? GL_LINE_STRIP : fig->drawMode, 0, fig->vertices.size());
+		glLineWidth(1.0f);
+		glDrawArrays(game.showLines ? GL_LINE_STRIP : fig->drawMode, 0, fig->vertices.size());
 		glBindVertexArray(0);
 
 		// Draw collider
-		if (showColliders)
+		if (game.showColliders)
 		{
 			drawCircleCollider(asteroid->collider, asteroid->heading);
 		}

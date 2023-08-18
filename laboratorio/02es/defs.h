@@ -7,6 +7,16 @@
 
 #define PI	3.141592653589793
 
+// GAME ===================================================
+enum {
+	GAME_MENU = 0,
+	GAME_RUNNING,
+	GAME_PAUSED,
+	GAME_STAGE_COMPLETED,
+	GAME_OVER,
+	GAME_ENDING,
+};
+
 // SPACESHIP ==============================================
 #define SPACESHIP_SCALE	10.0f
 
@@ -65,3 +75,7 @@ enum {
 // COLLIDERS ==============================================
 #define COLLIDER_COLOR			{ 1.0f, 1.0f, 0.0f, 1.0f }
 #define COLLIDER_NUM_SEGMENTS	30
+
+// TEXT ===================================================
+#define TEXT_SCALE					10.0f
+#define DEFAULT_TEXT_LINE_WIDTH		3.0f
