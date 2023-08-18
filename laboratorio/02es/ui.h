@@ -1,47 +1,16 @@
 #pragma once
 
 #include "commons.h"
+#include "text.h"
 
-// Text structs
+void initUI();
+void showMenuUI();
+void showGameUI();
+void showGamePausedUI();
+void showStageCompletedUI();
+void showGameOverUI();
+void updateUI();
+void drawUI();
 
-void showMenuUI()
-{
-	// ASTEROIDS
-
-	// PRESS SPACE TO START GAME
-}
-
-void showControlsUI()
-{
-
-}
-
-void showGameUI()
-{
-	// Score: XXX		Stage N			Lives: X X X
-}
-
-void showStageCompletedUI()
-{
-	// Stage N completed!
-	// Score: XXX
-
-	// Next stage starting in 3 ... 2 ... 1
-}
-
-void showGameOverUI()
-{
-	// Game Over
-
-	// Score: XXX
-}
-
-void updateUI()
-{
-
-}
-
-void drawUI()
-{
-
-}
+extern Game game;
+extern unsigned int MatProj, MatModel;

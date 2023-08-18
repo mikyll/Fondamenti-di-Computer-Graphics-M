@@ -3,20 +3,6 @@
 #include "commons.h"
 
 typedef struct {
-	int iMenuTitle;
-	int iMenuStart;
-	int iControls;
-	int iScore;
-	int iScoreValue;
-	int iStage;
-	int iStageValue;
-	int iPaused;
-	int iStageCompleted;
-	int iGameOver;
-	int iGameOverScore;
-} TextIndexes;
-
-typedef struct {
 	int state;
 	float deltaTime;
 	unsigned long timeSinceStart; // milliseconds from glutInit() call
@@ -28,7 +14,6 @@ typedef struct {
 	glm::mat4 Projection; // Projection matrix
 	bool showLines;
 	bool showColliders;
-	TextIndexes textIndexes;
 } Game;
 
 typedef struct {
@@ -103,10 +88,3 @@ typedef struct {
 	int type;
 	float scale;
 } Asteroid;
-
-typedef struct {
-	std::vector<Figure> figures;
-	Point3D pos;
-	float scale;
-	bool visible;
-} Text;

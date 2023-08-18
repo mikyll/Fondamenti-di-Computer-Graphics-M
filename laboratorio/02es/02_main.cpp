@@ -101,7 +101,7 @@ static void init()
 	initFiretrail();
 	initAsteroids();
 	initBullets();
-	initText();
+	initUI();
 
 	startMenu();
 }
@@ -124,37 +124,25 @@ static void printControls()
 
 static void startMenu()
 {
+	game.state = GAME_MENU;
+
 	clearAsteroids();
 	initAsteroids();
 	resetSpaceship();
 
-	setVisibility(game.textIndexes.iMenuTitle, true);
-	setVisibility(game.textIndexes.iMenuStart, true);
-	setVisibility(game.textIndexes.iScore, false);
-	setVisibility(game.textIndexes.iScoreValue, false);
-	setVisibility(game.textIndexes.iStage, false);
-	setVisibility(game.textIndexes.iStageValue, false);
-
-	game.state = GAME_MENU;
-
-	glutTimerFunc(1000, blinkStartText, 0);
+	showMenuUI();
 }
 
 static void startGame()
 {
+	game.state = GAME_RUNNING;
+
 	clearAsteroids();
 	initAsteroids();
 	game.stageLevel = 1;
 	game.score = 0;
 
-	setVisibility(game.textIndexes.iMenuTitle, false);
-	setVisibility(game.textIndexes.iMenuStart, false);
-	setVisibility(game.textIndexes.iScore, true);
-	setVisibility(game.textIndexes.iScoreValue, true);
-	setVisibility(game.textIndexes.iStage, true);
-	setVisibility(game.textIndexes.iStageValue, true);
-
-	game.state = GAME_RUNNING;
+	showGameUI();
 }
 
 static void endGame(int value)
@@ -163,17 +151,6 @@ static void endGame(int value)
 	glutExit();
 
 	exit(0);
-}
-
-static void blinkStartText(int value)
-{
-	if (game.state == GAME_MENU)
-	{
-		setVisibility(game.textIndexes.iMenuStart, !isVisible(game.textIndexes.iMenuStart));
-
-		glutTimerFunc(isVisible(game.textIndexes.iMenuStart) ? 1000 : 500, blinkStartText, 0);
-	}
-	else setVisibility(game.textIndexes.iMenuStart, false);
 }
 
 static void inputApplication()
@@ -185,6 +162,34 @@ static void inputApplication()
 	if (game.state == GAME_MENU && input.keyboard.keys[' '])
 	{
 		startGame();
+	}
+	if (input.keyboard.keys['c'])
+	{
+		input.keyboard.keys['c'] = 0;
+
+		game.showColliders = !game.showColliders;
+	}
+	if (input.keyboard.keys['l'])
+	{
+		input.keyboard.keys['l'] = 0;
+
+		game.showLines = !game.showLines;
+	}
+	if ((game.state == GAME_RUNNING || game.state == GAME_PAUSED)
+		&& input.keyboard.keys['p'])
+	{
+		input.keyboard.keys['p'] = 0;
+
+		if (game.state == GAME_RUNNING)
+		{
+			game.state = GAME_PAUSED;
+			showGamePausedUI();
+		}
+		else if (game.state == GAME_PAUSED)
+		{
+			game.state = GAME_RUNNING;
+			showGameUI();
+		}
 	}
 }
 
@@ -222,19 +227,6 @@ static void update(int value)
 		
 		updateAsteroids(game.deltaTime);
 		updateBullets(game.deltaTime);
-
-		// test
-		char scoreText[10];
-		snprintf(scoreText, 10, "%d", game.score);
-		updateMessage(game.textIndexes.iScoreValue, scoreText);
-	}
-	if (game.state == GAME_PAUSED)
-	{
-		setVisibility(game.textIndexes.iPaused, true);
-	}
-	else
-	{
-		setVisibility(game.textIndexes.iPaused, false);
 	}
 	if (game.state == GAME_OVER)
 	{
@@ -245,6 +237,7 @@ static void update(int value)
 		glutPostRedisplay();
 		glutTimerFunc(3000, endGame, 0);
 	}
+	updateUI();
 
 	glutPostRedisplay();
 	glutTimerFunc(UPDATE_DELAY, update, 0);
@@ -267,8 +260,7 @@ static void drawScene()
 	drawAsteroids();
 	drawSpaceship();
 	drawBullets();
-
-	drawText();
+	drawUI();
 
 	glutSwapBuffers();
 }

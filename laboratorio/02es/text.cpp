@@ -547,38 +547,7 @@ static void addLetter(Figure* fig, ColorRGBA color, char letter, float offset)
 	}
 }
 
-void initText()
-{
-	float linesWidth = 3.0f;
-
-	// Menu
-	game.textIndexes.iMenuTitle = addMessage(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 2 / 3, true, TEXT_SCALE * 2, true, "ASTEROIDS");
-	game.textIndexes.iMenuStart = addMessage(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 5, true, TEXT_SCALE / 2, true, "Press SPACE to start");
-	
-	// Controls
-	//game.textIndexes.iControls = 
-	// to-do
-
-	// Score
-	game.textIndexes.iScore = addMessage(50, WINDOW_HEIGHT - 50, false, TEXT_SCALE / 2, false, "SCORE: ");
-	game.textIndexes.iScoreValue = addMessage(200, WINDOW_HEIGHT - 50, false, TEXT_SCALE / 2, false, "100");
-
-	// Stage
-	game.textIndexes.iStage = addMessage((WINDOW_WIDTH / 2) - 50, WINDOW_HEIGHT - 50, true, TEXT_SCALE / 2, false, "STAGE ");
-	game.textIndexes.iStageValue = addMessage((WINDOW_WIDTH / 2) + 50, WINDOW_HEIGHT - 50, true, TEXT_SCALE / 2, false, "1");
-
-	// Pause
-	game.textIndexes.iPaused = addMessage(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, true, TEXT_SCALE, false, "GAME PAUSED");
-
-	// Stage Level Completed
-	game.textIndexes.iStageCompleted = addMessage(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, true, TEXT_SCALE / 2, false, "STAGE LEVEL COMPLETED!");
-
-	// Game Over
-	game.textIndexes.iGameOver = addMessage(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, true, TEXT_SCALE / 2, false, "GAME OVER!");
-	game.textIndexes.iGameOverScore = addMessage(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, true, TEXT_SCALE / 2, false, "Score: 10");
-}
-
-int addMessage(float posx, float posy, bool center, float scale, bool visibility, const char* message)
+Text createText(float posx, float posy, bool center, float scale, bool visibility, const char* message)
 {
 	float textWidth = strlen(message) * 1.35f * scale;
 
@@ -598,20 +567,11 @@ int addMessage(float posx, float posy, bool center, float scale, bool visibility
 		text.figures.push_back(letter);
 	}
 
-	texts.push_back(text);
-
-	return texts.size() - 1;
+	return text;
 }
 
-bool updateMessage(int index, char* newMessage)
+void updateText(Text* text, char* newMessage)
 {
-	if (index >= texts.size())
-	{
-		return false;
-	}
-
-	Text* text = &texts.at(index);
-
 	float widthLines = text->figures.at(0).widthLines;
 	float sizePoints = text->figures.at(0).sizePoints;
 	text->figures.clear();
@@ -625,77 +585,4 @@ bool updateMessage(int index, char* newMessage)
 		createFigureVAO(&letter);
 		text->figures.push_back(letter);
 	}
-}
-
-bool isVisible(int index)
-{
-	if (index >= texts.size())
-	{
-		return false;
-	}
-
-	return texts.at(index).visible;
-}
-
-bool setVisibility(int index, bool visibility)
-{
-	if (index >= texts.size())
-	{
-		return false;
-	}
-
-	texts.at(index).visible = visibility;
-
-	return true;
-}
-
-bool removeMessage(int index)
-{
-	if (index >= texts.size())
-	{
-		return false;
-	}
-
-	texts.erase(texts.begin() + index);
-
-	// to-do update indexes
-}
-
-void drawText()
-{
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	for (int i = 0; i < texts.size(); i++)
-	{
-		Text* text = &texts.at(i);
-		if (text->visible)
-		{
-			for (int j = 0; j < text->figures.size(); j++)
-			{
-				Figure* fig = &text->figures.at(j);
-
-				glm::mat4 modelMatrix = glm::mat4(1.0);
-				modelMatrix = translate(modelMatrix, glm::vec3(text->pos.x, text->pos.y, 0.0f));
-				modelMatrix = scale(modelMatrix, glm::vec3(text->scale, text->scale, 0.0f));
-				glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(modelMatrix));
-
-				glBindVertexArray(fig->VAO);
-				if (fig->sizePoints > 0.0f)
-					glPointSize(fig->sizePoints);
-				else glPointSize(1.0f);
-				if (fig->widthLines > 0.0f)
-					glLineWidth(fig->widthLines);
-				else glLineWidth(1.0f);
-
-				glDrawArrays(fig->drawMode, 0, fig->vertices.size());
-
-				glBindVertexArray(0);
-			}
-		}
-	}
-
-	glBindVertexArray(0);
-
-	glDisable(GL_BLEND);
 }

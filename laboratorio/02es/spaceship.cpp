@@ -379,12 +379,6 @@ void inputSpaceship()
 	spaceship.angularSpeed = forwardNew ? MIN(SPACESHIP_MAX_ANGULAR_SPEED, MAX(-SPACESHIP_MAX_ANGULAR_SPEED, spaceship.angularSpeed + angularNew))
 		: MIN(SPACESHIP_MIN_ANGULAR_SPEED, MAX(-SPACESHIP_MIN_ANGULAR_SPEED, spaceship.angularSpeed + angularNew));
 	
-	if (input.keyboard.keys['l'])
-	{
-		input.keyboard.keys['l'] = 0;
-
-		game.showLines = !game.showLines;
-	}
 	if (input.keyboard.keys['b'])
 	{
 		input.keyboard.keys['b'] = 0;
@@ -397,25 +391,6 @@ void inputSpaceship()
 		input.keyboard.keys['o'] = 0;
 
 		spaceship.openPorthole = !spaceship.openPorthole;
-	}
-	if (input.keyboard.keys['p'])
-	{
-		input.keyboard.keys['p'] = 0;
-
-		if (game.state == GAME_RUNNING)
-		{
-			game.state = GAME_PAUSED;
-		}
-		else if (game.state == GAME_PAUSED)
-		{
-			game.state = GAME_RUNNING;
-		}
-	}
-	if (input.keyboard.keys['c'])
-	{
-		input.keyboard.keys['c'] = 0;
-
-		game.showColliders = !game.showColliders;
 	}
 }
 

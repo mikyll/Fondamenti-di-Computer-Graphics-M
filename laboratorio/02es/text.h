@@ -2,12 +2,16 @@
 
 #include "commons.h"
 
-void initText();
-int addMessage(float posx, float posy, bool center, float scale, bool visibility, const char* message);
-bool updateMessage(int index, char* newMessage);
-bool isVisible(int index);
-bool setVisibility(int index, bool visibility);
-void drawText();
+typedef struct {
+	int id;
+	std::vector<Figure> figures;
+	Point3D pos;
+	float scale;
+	bool visible;
+} Text;
+
+Text createText(float posx, float posy, bool center, float scale, bool visibility, const char* message);
+void updateText(Text* text, char* newMessage);
 
 extern Game game;
 extern unsigned int MatProj, MatModel;
