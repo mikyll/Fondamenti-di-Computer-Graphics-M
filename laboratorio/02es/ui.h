@@ -3,6 +3,12 @@
 #include "commons.h"
 #include "text.h"
 
+typedef struct {
+	std::vector<Figure> figures;
+	Point3D pos;
+	float scale;
+} Life;
+
 void initUI();
 void showMenuUI();
 void showGameUI();

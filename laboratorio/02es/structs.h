@@ -9,6 +9,7 @@ typedef struct {
 	int fps;
 	int stageLevel;
 	int score;
+	int lives;
 	unsigned int MatProj;
 	unsigned int MatModel;
 	glm::mat4 Projection; // Projection matrix
@@ -37,7 +38,6 @@ typedef struct {
 	// Vertices
 	std::vector<Point3D> vertices;
 	std::vector<ColorRGBA> colors;
-
 	int drawMode;
 	float sizePoints;
 	float widthLines;
@@ -60,8 +60,9 @@ typedef struct {
 	float scale;
 	float forwardSpeed;
 	float angularSpeed;
-	int health;
 	bool openPorthole;
+	bool respawning;
+	bool invulnerabile;
 } Spaceship;
 
 typedef struct {
@@ -70,13 +71,6 @@ typedef struct {
 	Point3D speed;
 	float size;
 } Particle;
-
-typedef struct {
-	GLuint VAO;
-	GLuint VBO_Geom; // VBO della geometria dei vertici
-	GLuint VBO_Col; // VBO dei colori
-	std::vector<Particle> particles;
-} Firetrail;
 
 typedef struct {
 	Figure figure;

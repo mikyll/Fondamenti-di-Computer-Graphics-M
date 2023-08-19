@@ -30,4 +30,5 @@
 #include "firetrail.h"
 #include "asteroids.h"
 #include "bullets.h"
+#include "explosions.h"
 #include "ui.h"

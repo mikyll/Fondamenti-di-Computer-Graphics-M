@@ -13,19 +13,25 @@ enum {
 	GAME_RUNNING,
 	GAME_PAUSED,
 	GAME_STAGE_COMPLETED,
+	GAME_NEXT_STAGE_STARTING,
 	GAME_OVER,
-	GAME_ENDING,
 };
 
-// SPACESHIP ==============================================
-#define SPACESHIP_SCALE	10.0f
+#define MAX_LIVES	3
+#define LIFE_SCALE	20.0f
 
-#define SPACESHIP_MAX_FORWARD_SPEED	250.0f
-#define SPACESHIP_MAX_ANGULAR_SPEED	(PI * 1.5)
-#define SPACESHIP_MIN_ANGULAR_SPEED	(PI / 1.5)
+// SPACESHIP ==============================================
+#define SPACESHIP_SCALE					10.0f
+
+#define SPACESHIP_MAX_FORWARD_SPEED		250.0f
+#define SPACESHIP_MAX_ANGULAR_SPEED		(PI * 1.5)
+#define SPACESHIP_MIN_ANGULAR_SPEED		(PI / 1.5)
 
 #define SPACESHIP_FORWARD_DECELERATION	0.95f
 #define SPACESHIP_ANGULAR_DECELERATION	0.8f
+
+#define SPACESHIP_RESPAWN_TIME			3000 // ms
+#define SPACESHIP_INVULNERABILITY_TIME	3000 // seconds
 
 enum {
 	SPACESHIP_HULL,
@@ -64,13 +70,19 @@ enum {
 #define ASTEROID_MEDIUM_FACTOR	1.0f
 #define ASTEROID_SMALL_FACTOR	0.5f
 
-#define NUM_ASTEROIDS	5
+#define NUM_ASTEROIDS	1
 
 // BULLETS ================================================
 #define BULLET_RADIUS		5.0f
 #define BULLET_MAX_SPEED	650.0f
 
 #define BULLET_RELOAD_COOLDOWN	2.0f
+
+// EXPLOSIONS =============================================
+enum {
+	EXPLOSION_SPACESHIP = 0,
+	EXPLOSION_ASTEROID,
+};
 
 // COLLIDERS ==============================================
 #define COLLIDER_COLOR			{ 1.0f, 1.0f, 0.0f, 1.0f }

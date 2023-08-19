@@ -2,7 +2,12 @@
 
 #include "commons.h"
 
-void spawnSpaceship();
+typedef struct {
+	std::vector<Figure> figures;
+} Shield;
+
+void initSpaceship();
+void spawnSpaceship(int value);
 void destroySpaceship();
 void inputSpaceship();
 void resetSpaceship();

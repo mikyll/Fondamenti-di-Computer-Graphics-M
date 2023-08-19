@@ -15,6 +15,9 @@ void initStars()
 // UPDATE =================================================
 void updateStars(float deltaTime)
 {
+	if (spaceship.respawning)
+		return;
+
 	int i;
 
 	float xMovement = cos(spaceship.heading) * spaceship.forwardSpeed * deltaTime;

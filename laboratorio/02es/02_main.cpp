@@ -86,6 +86,7 @@ static void initGame()
 	game.fps = 0;
 	game.stageLevel = 1;
 	game.score = 0;
+	game.lives = MAX_LIVES;
 }
 
 static void init()
@@ -96,13 +97,14 @@ static void init()
 
 	initGame();
 
-	spawnSpaceship();
+	initSpaceship();
 	initStars();
 	initFiretrail();
 	initAsteroids();
 	initBullets();
 	initUI();
 
+	spawnSpaceship(0);
 	startMenu();
 }
 
@@ -137,6 +139,7 @@ static void startGame()
 {
 	game.state = GAME_RUNNING;
 
+	spawnSpaceship(0);
 	clearAsteroids();
 	initAsteroids();
 	game.stageLevel = 1;
@@ -145,12 +148,12 @@ static void startGame()
 	showGameUI();
 }
 
-static void endGame(int value)
+static void gameOver(int value)
 {
 	std::cout << "GAME OVER" << std::endl;
-	glutExit();
 
-	exit(0);
+	//glutExit();
+	//exit(0);
 }
 
 static void inputApplication()
@@ -218,6 +221,7 @@ static void update(int value)
 	{
 		updateAsteroids(game.deltaTime);
 		updateFiretrail(game.deltaTime);
+		updateBullets(game.deltaTime);
 	}
 	if (game.state == GAME_RUNNING)
 	{
@@ -228,14 +232,17 @@ static void update(int value)
 		updateAsteroids(game.deltaTime);
 		updateBullets(game.deltaTime);
 	}
+	if (game.state == GAME_STAGE_COMPLETED)
+	{
+		updateSpaceship(game.deltaTime);
+		updateFiretrail(game.deltaTime);
+		updateStars(game.deltaTime);
+	}
 	if (game.state == GAME_OVER)
 	{
 		updateSpaceship(game.deltaTime);
 		updateFiretrail(game.deltaTime);
 		updateStars(game.deltaTime);
-		
-		glutPostRedisplay();
-		glutTimerFunc(3000, endGame, 0);
 	}
 	updateUI();
 

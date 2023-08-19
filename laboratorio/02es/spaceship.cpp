@@ -3,6 +3,7 @@
 extern Input input;
 
 Spaceship spaceship;
+Shield shield;
 
 // BUILD ==================================================
 static void buildNose(Figure* fig, ColorRGBA color)
@@ -211,15 +212,17 @@ static void buildPortholeGlass(Figure* fig, ColorRGBA color)
 	buildCircle(fig, { 0.0f, 0.0f, 0.0f }, 0.8f, 30, color, color);
 }
 
-static void buildSpaceship()
+static Spaceship buildSpaceship()
 {
+	Spaceship result = {};
+
 	// Figure for hull
 	Figure figHull = {};
 	figHull.id = SPACESHIP_HULL;
 	figHull.drawMode = GL_TRIANGLE_STRIP;
 	buildHull(&figHull, 15, { 0.9f, 0.9f, 0.9f, 1.0f });
 	createFigureVAO(&figHull);
-	spaceship.figures.push_back(figHull);
+	result.figures.push_back(figHull);
 
 	// Figure for propulsor
 	Figure figPropulsor = {};
@@ -227,7 +230,7 @@ static void buildSpaceship()
 	figPropulsor.drawMode = GL_TRIANGLES;
 	buildPropulsor(&figPropulsor, { 0.6f, 0.6f, 0.6f, 1.0f }, { 0.4f, 0.4f, 0.4f, 1.0f }); // grey
 	createFigureVAO(&figPropulsor);
-	spaceship.figures.push_back(figPropulsor);
+	result.figures.push_back(figPropulsor);
 
 	// Figure for nose
 	Figure figNose = {};
@@ -235,7 +238,7 @@ static void buildSpaceship()
 	figNose.drawMode = GL_TRIANGLES;
 	buildNose(&figNose, { 1.0f, 0.0f, 0.0f, 1.0f });
 	createFigureVAO(&figNose);
-	spaceship.figures.push_back(figNose);
+	result.figures.push_back(figNose);
 
 	// Figure for lateral fins
 	Figure figLatFins = {};
@@ -243,7 +246,7 @@ static void buildSpaceship()
 	figLatFins.drawMode = GL_TRIANGLES;
 	buildLatFins(&figLatFins, { 1.0f, 0.0f, 0.0f, 1.0f });
 	createFigureVAO(&figLatFins);
-	spaceship.figures.push_back(figLatFins);
+	result.figures.push_back(figLatFins);
 
 	// Figure for central fin
 	Figure figCentrFin = {};
@@ -252,7 +255,7 @@ static void buildSpaceship()
 	figCentrFin.widthLines = 5.0f;
 	buildCentrFin(&figCentrFin, { 1.0f, 0.0f, 0.0f, 1.0f });
 	createFigureVAO(&figCentrFin);
-	spaceship.figures.push_back(figCentrFin);
+	result.figures.push_back(figCentrFin);
 
 	// Figure for astronaut cabin intern
 	Figure figAstronautCabinIntern = {};
@@ -260,7 +263,7 @@ static void buildSpaceship()
 	figAstronautCabinIntern.drawMode = GL_TRIANGLES;
 	buildAstronautCabinIntern(&figAstronautCabinIntern, { 0.3f, 0.3f, 0.3f, 1.0f });
 	createFigureVAO(&figAstronautCabinIntern);
-	spaceship.figures.push_back(figAstronautCabinIntern);
+	result.figures.push_back(figAstronautCabinIntern);
 
 	// Figure for astronaut suit
 	Figure figAstronautSuit = {};
@@ -268,7 +271,7 @@ static void buildSpaceship()
 	figAstronautSuit.drawMode = GL_TRIANGLE_FAN;
 	buildAstronautSuit(&figAstronautSuit);
 	createFigureVAO(&figAstronautSuit);
-	spaceship.figures.push_back(figAstronautSuit);
+	result.figures.push_back(figAstronautSuit);
 
 	// Figure for astronaut visor
 	Figure figAstronautVisor = {};
@@ -276,7 +279,7 @@ static void buildSpaceship()
 	figAstronautVisor.drawMode = GL_TRIANGLE_FAN;
 	buildAstronautVisor(&figAstronautVisor);
 	createFigureVAO(&figAstronautVisor);
-	spaceship.figures.push_back(figAstronautVisor);
+	result.figures.push_back(figAstronautVisor);
 
 	// Figure for astronaut cabin border
 	Figure figAstronautCabinBorder = {};
@@ -284,7 +287,7 @@ static void buildSpaceship()
 	figAstronautCabinBorder.drawMode = GL_TRIANGLE_STRIP;
 	buildAstronautCabinBorder(&figAstronautCabinBorder, { 0.9f, 0.9f, 0.9f, 1.0f });
 	createFigureVAO(&figAstronautCabinBorder);
-	spaceship.figures.push_back(figAstronautCabinBorder);
+	result.figures.push_back(figAstronautCabinBorder);
 
 	// Figure for porthole border
 	Figure figPortholeBorder = {};
@@ -292,7 +295,7 @@ static void buildSpaceship()
 	figPortholeBorder.drawMode = GL_TRIANGLE_STRIP;
 	buildPortholeBorder(&figPortholeBorder, { 0.6f, 0.6f, 0.6f, 1.0f }); // grey
 	createFigureVAO(&figPortholeBorder);
-	spaceship.figures.push_back(figPortholeBorder);
+	result.figures.push_back(figPortholeBorder);
 
 	// Figure for porthole glass
 	Figure figPortholeGlass = {};
@@ -300,26 +303,52 @@ static void buildSpaceship()
 	figPortholeGlass.drawMode = GL_TRIANGLES;
 	buildPortholeGlass(&figPortholeGlass, { 0.0f, 0.8f, 1.0f, 0.3f }); // light blue (transparent)
 	createFigureVAO(&figPortholeGlass);
-	spaceship.figures.push_back(figPortholeGlass);
+	result.figures.push_back(figPortholeGlass);
+
+	return result;
 }
 
-void spawnSpaceship()
+Shield buildShield()
 {
-	spaceship.pos.x = WINDOW_WIDTH / 2;
-	spaceship.pos.y = WINDOW_HEIGHT / 2;
-	spaceship.heading = PI / 2;
-	spaceship.scale = SPACESHIP_SCALE;
-	Point3D p1 = { 0.0f, 0.0f, 0.0f }, p2 = { 0.0f, 3.7f, 0.0f };
-	spaceship.radius = spaceship.originalRadius = distance(p1, p2) * spaceship.scale;
-	spaceship.forwardSpeed = 0.0f;
-	spaceship.angularSpeed = 0.0f;
-	spaceship.health = 3;
+	Shield result = {};
+
+	// Figure for porthole glass
+	Figure figShield = {};
+	figShield.id = 0;
+	figShield.drawMode = GL_TRIANGLES;
+	buildCircle(&figShield, { 0.0f, 0.0f, 0.0f }, SPACESHIP_SCALE / 2, 30, { 1.0f, 0.5f, 0.0f, 0.3f }, { 1.0f, 0.5f, 0.0f, 0.3f });
+	createFigureVAO(&figShield);
+	result.figures.push_back(figShield);
+
+	return result;
+}
+
+void initSpaceship()
+{
+	spaceship = buildSpaceship();
+	resetSpaceship();
+
+	shield = buildShield();
+}
+
+void removeInvulnerability(int value)
+{
+	spaceship.invulnerabile = false;
+}
+
+void spawnSpaceship(int value)
+{
+	resetSpaceship();
+	spaceship.invulnerabile = true;
 
 	// Build graphics for the spaceship
 	buildSpaceship();
 
 	// Collider
 	createCircleCollider(&spaceship.collider, spaceship.pos, spaceship.radius, COLLIDER_COLOR);
+
+	// Schedule invulnerability removal
+	glutTimerFunc(SPACESHIP_INVULNERABILITY_TIME, removeInvulnerability, 0);
 }
 
 void resetSpaceship()
@@ -329,6 +358,11 @@ void resetSpaceship()
 	spaceship.pos.x = WINDOW_WIDTH / 2;
 	spaceship.pos.y = WINDOW_HEIGHT / 2;
 	spaceship.heading = PI / 2;
+	spaceship.scale = SPACESHIP_SCALE;
+	Point3D p1 = { 0.0f, 0.0f, 0.0f }, p2 = { 0.0f, 3.7f, 0.0f };
+	spaceship.radius = spaceship.originalRadius = distance(p1, p2) * spaceship.scale;
+	spaceship.respawning = false;
+	spaceship.invulnerabile = false;
 }
 
 void destroySpaceship()
@@ -336,13 +370,21 @@ void destroySpaceship()
 	// TO-DO
 
 	// explosion
+	spawnExplosion(EXPLOSION_SPACESHIP);
 
+	// Schedule respawn
+	game.lives--;
+	if (game.lives > 0)
+	{
+		spaceship.respawning = true;
+		glutTimerFunc(SPACESHIP_RESPAWN_TIME, spawnSpaceship, 1);
+	}
 }
 
 // INPUT ==================================================
 void inputSpaceship()
 {
-	if (!spaceship.health)
+	if (game.lives == 0 || spaceship.respawning)
 		return;
 
 	// Deceleration
@@ -397,7 +439,7 @@ void inputSpaceship()
 // UPDATE =================================================
 void updateSpaceship(float deltaTime)
 {
-	if (!spaceship.health)
+	if (game.lives == 0 || spaceship.respawning)
 		return;
 
 	// Spawn firetrail only if the speed is greater than a threshold
@@ -450,7 +492,7 @@ void updateSpaceship(float deltaTime)
 // DRAW ===================================================
 void drawSpaceship()
 {
-	if (!spaceship.health)
+	if (game.lives == 0 || spaceship.respawning)
 		return;
 
 	glm::mat4 modelMatrix = glm::mat4(1.0);
@@ -494,6 +536,24 @@ void drawSpaceship()
 
 		glDrawArrays(mode, 0, fig->vertices.size());
 		glBindVertexArray(0);
+	}
+
+	// Draw shield
+	if (spaceship.invulnerabile)
+	{
+		for (int i = 0; i < shield.figures.size(); i++)
+		{
+			Figure* fig = &shield.figures.at(i);
+
+			glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(modelMatrix));
+
+			glBindVertexArray(fig->VAO);
+
+			int mode = game.showLines ? GL_LINE_STRIP : fig->drawMode;
+
+			glDrawArrays(mode, 0, fig->vertices.size());
+			glBindVertexArray(0);
+		}
 	}
 	glDisable(GL_BLEND);
 

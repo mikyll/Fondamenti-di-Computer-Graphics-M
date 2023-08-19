@@ -214,8 +214,9 @@ void updateAsteroids(float deltaTime)
 	if (game.state == GAME_RUNNING && asteroids.size() == 0)
 	{
 		game.state = GAME_STAGE_COMPLETED;
+		showStageCompletedUI();
 
-		std::cout << "STAGE " << game.stageLevel << " COMPLETED!" << std::endl << std::endl;
+		std::cout << "Stage " << game.stageLevel << " completed! Current score: " << game.score << std::endl << std::endl;
 
 		return;
 	}
@@ -244,13 +245,25 @@ void updateAsteroids(float deltaTime)
 		updateCircleCollider(&asteroid.collider, asteroid.pos, asteroid.radius);
 
 		// Check collision with spaceship
-		if (game.state == GAME_RUNNING && isCollidingCircle(asteroid.collider, spaceship.collider))
+		if (!spaceship.respawning
+			&& !spaceship.invulnerabile
+			&& game.state == GAME_RUNNING
+			&& isCollidingCircle(asteroid.collider, spaceship.collider))
 		{
-			game.state = GAME_OVER;
+			if (game.lives > 1)
+			{
+				// Destroy spaceship
+				destroySpaceship();
+			}
+			else
+			{
+				game.state = GAME_OVER;
 
-			std::cout << "SPACESHIP DESTROYED, GAME OVER!" << std::endl << std::endl;
-			
-			return;
+				std::cout << "Spaceship destroyed, game over! Score: " << game.score << std::endl << std::endl;
+				showGameOverUI();
+				
+				return;
+			}
 		}
 		
 		asteroids.at(i) = asteroid;
