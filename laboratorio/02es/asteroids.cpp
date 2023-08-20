@@ -140,9 +140,9 @@ static void buildAsteroid3(Figure* fig)
 	fig->colors.push_back({ 0.78f, 0.83f, 0.95f, 1.0f });
 }
 
-void initAsteroids()
+void initAsteroids(int num)
 {
-	for (int i = 0; i < NUM_ASTEROIDS; i++)
+	for (int i = 0; i < num; i++)
 	{
 		Point3D speed = {
 			getRandomFloat(-100.0f, 100.0f),
@@ -198,6 +198,9 @@ void spawnAsteroid(Point3D pos, Point3D speed, int type, float size)
 
 void destroyAsteroid(int i)
 {
+	Asteroid a = asteroids.at(i);
+	spawnExplosion(EXPLOSION_ASTEROID, a.pos, a.radius / 30, EXPLOSION_SPEED / 1.5f, 30);
+
 	asteroids.erase(asteroids.begin() + i);
 }
 
@@ -246,16 +249,14 @@ void updateAsteroids(float deltaTime)
 
 		// Check collision with spaceship
 		if (!spaceship.respawning
-			&& !spaceship.invulnerabile
+			&& !spaceship.invulnerable
 			&& game.state == GAME_RUNNING
 			&& isCollidingCircle(asteroid.collider, spaceship.collider))
 		{
-			if (game.lives > 1)
-			{
-				// Destroy spaceship
-				destroySpaceship();
-			}
-			else
+			// Destroy spaceship
+			destroySpaceship();
+
+			if (game.lives == 0)
 			{
 				game.state = GAME_OVER;
 

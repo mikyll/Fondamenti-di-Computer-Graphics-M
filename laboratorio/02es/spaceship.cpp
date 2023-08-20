@@ -331,24 +331,18 @@ void initSpaceship()
 	shield = buildShield();
 }
 
-void removeInvulnerability(int value)
-{
-	spaceship.invulnerabile = false;
-}
-
 void spawnSpaceship(int value)
 {
 	resetSpaceship();
-	spaceship.invulnerabile = true;
+	spaceship.respawning = false;
+	spaceship.invulnerable = value;
+	spaceship.invulnerabilityTime = value ? SPACESHIP_INVULNERABILITY_TIME : 0.0f;
 
 	// Build graphics for the spaceship
 	buildSpaceship();
 
 	// Collider
 	createCircleCollider(&spaceship.collider, spaceship.pos, spaceship.radius, COLLIDER_COLOR);
-
-	// Schedule invulnerability removal
-	glutTimerFunc(SPACESHIP_INVULNERABILITY_TIME, removeInvulnerability, 0);
 }
 
 void resetSpaceship()
@@ -362,15 +356,13 @@ void resetSpaceship()
 	Point3D p1 = { 0.0f, 0.0f, 0.0f }, p2 = { 0.0f, 3.7f, 0.0f };
 	spaceship.radius = spaceship.originalRadius = distance(p1, p2) * spaceship.scale;
 	spaceship.respawning = false;
-	spaceship.invulnerabile = false;
+	spaceship.invulnerable = false;
 }
 
 void destroySpaceship()
 {
-	// TO-DO
-
 	// explosion
-	spawnExplosion(EXPLOSION_SPACESHIP);
+	spawnExplosion(EXPLOSION_SPACESHIP, spaceship.pos, spaceship.radius / 4, EXPLOSION_SPEED, 30);
 
 	// Schedule respawn
 	game.lives--;
@@ -485,6 +477,17 @@ void updateSpaceship(float deltaTime)
 			spaceship.pos.y -= WINDOW_HEIGHT + spaceship.radius * 2;
 	}
 
+	// Update invulnerability time
+	if (spaceship.invulnerabilityTime > 0.0f)
+	{
+		spaceship.invulnerabilityTime -= deltaTime;
+	}
+	else
+	{
+		spaceship.invulnerabilityTime = 0.0f;
+		spaceship.invulnerable = false;
+	}
+
 	// Update collider
 	updateCircleCollider(&spaceship.collider, spaceship.pos, spaceship.radius);
 }
@@ -539,7 +542,7 @@ void drawSpaceship()
 	}
 
 	// Draw shield
-	if (spaceship.invulnerabile)
+	if (spaceship.invulnerable)
 	{
 		for (int i = 0; i < shield.figures.size(); i++)
 		{
@@ -563,74 +566,3 @@ void drawSpaceship()
 		drawCircleCollider(spaceship.collider, spaceship.heading);
 	}
 }
-
-/*
-// MADNESS INPUT
-void inputSpaceship()
-{
-	if (!spaceship.health)
-		return;
-
-	// Deceleration
-	spaceship.forwardSpeed *= SPACESHIP_FORWARD_DECELERATION;
-	spaceship.angularSpeed *= SPACESHIP_ANGULAR_DECELERATION;
-
-	spaceship.scale = SPACESHIP_SCALE;
-	spaceship.radius = originalRadius;
-
-	float forwardNew = 0.0f;
-	float angularNew = 0.0f;
-
-	if (input.keyboard.keys['w'])
-	{
-		spaceship.forwardSpeed += SPACESHIP_MAX_FORWARD_SPEED;
-	}
-	if (input.keyboard.keys['a'])
-	{
-		spaceship.angularSpeed += SPACESHIP_MAX_ANGULAR_SPEED;
-	}
-	if (input.keyboard.keys['d'])
-	{
-		spaceship.angularSpeed -= SPACESHIP_MAX_ANGULAR_SPEED;
-	}
-	if (input.keyboard.keys['r'])
-	{
-		spaceship.forwardSpeed = 0.0f;
-		spaceship.angularSpeed = 0.0f;
-		spaceship.pos.x = WINDOW_WIDTH / 2;
-		spaceship.pos.y = WINDOW_HEIGHT / 2;
-		spaceship.heading = PI / 2;
-	}
-	if (input.keyboard.keys['b'])
-	{
-		spaceship.scale *= 2;
-		spaceship.radius *= 2;
-	}
-
-	// Do some fancy stuff over the speed to make the movement smooth
-	//spaceship.forwardSpeed = MIN(SPACESHIP_MAX_FORWARD_SPEED,
-	//	MAX(-SPACESHIP_MAX_FORWARD_SPEED, spaceship.forwardSpeed + forwardNew));
-	//spaceship.angularSpeed = forwardNew ? MIN(SPACESHIP_MAX_ANGULAR_SPEED, MAX(-SPACESHIP_MAX_ANGULAR_SPEED, spaceship.angularSpeed + angularNew))
-	//	: MIN(SPACESHIP_MIN_ANGULAR_SPEED, MAX(-SPACESHIP_MIN_ANGULAR_SPEED, spaceship.angularSpeed + angularNew));
-
-	// Spawn firetrail only if the speed is greater than a threshold
-	if (spaceship.forwardSpeed > 10.0f)
-	{
-		float xSpawnCenter, ySpawnCenter;
-		xSpawnCenter = spaceship.pos.x + (spaceship.radius + spaceship.scale * 1.25f) * cos(spaceship.heading + PI);
-		ySpawnCenter = spaceship.pos.y + (spaceship.radius + spaceship.scale * 1.25f) * sin(spaceship.heading + PI);
-
-		spawnFiretrailParticles(
-			{ xSpawnCenter, ySpawnCenter, 0.0f },
-			spaceship.forwardSpeed,
-			spaceship.heading - PI,
-			20.0f * (spaceship.forwardSpeed / SPACESHIP_MAX_FORWARD_SPEED) * (spaceship.radius / originalRadius),
-			5.0f * (spaceship.radius / originalRadius)
-		);
-	}
-
-	// TEST: Show lines
-	showLines = input.keyboard.keys['l'];
-	openPorthole = input.keyboard.keys['p'];
-}
-*/

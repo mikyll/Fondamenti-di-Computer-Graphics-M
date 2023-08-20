@@ -99,10 +99,10 @@ void updateBullets(float deltaTime)
 					};
 					
 					// Spawn 2 smaller asteroids
-					spawnAsteroid(asteroid.pos, speed, (int)getRandomFloat(1.0f, 3.999999f), (asteroid.scale / ASTEROID_SCALE_BASE) - 0.5f);
+					spawnAsteroid(asteroid.pos, speed, (int)getRandomFloat(1.0f, ASTEROID_MAX_SPEED), (asteroid.scale / ASTEROID_SCALE_BASE) - 0.5f);
 					speed.x = -speed.x;
 					speed.y = -speed.y;
-					spawnAsteroid(asteroid.pos, speed, (int)getRandomFloat(1.0f, 3.999999f), (asteroid.scale / ASTEROID_SCALE_BASE) - 0.5f);
+					spawnAsteroid(asteroid.pos, speed, (int)getRandomFloat(1.0f, ASTEROID_MAX_SPEED), (asteroid.scale / ASTEROID_SCALE_BASE) - 0.5f);
 				}
 
 				// Add points to score

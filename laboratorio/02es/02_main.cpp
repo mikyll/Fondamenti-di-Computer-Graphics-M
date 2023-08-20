@@ -100,11 +100,10 @@ static void init()
 	initSpaceship();
 	initStars();
 	initFiretrail();
-	initAsteroids();
 	initBullets();
+	initExplosions();
 	initUI();
 
-	spawnSpaceship(0);
 	startMenu();
 }
 
@@ -129,21 +128,22 @@ static void startMenu()
 	game.state = GAME_MENU;
 
 	clearAsteroids();
-	initAsteroids();
-	resetSpaceship();
+	initAsteroids(10);
+	spawnSpaceship(0);
+	game.stageLevel = 1;
+	game.score = 0;
+	game.lives = MAX_LIVES;
 
 	showMenuUI();
 }
 
-static void startGame()
+static void startGame(int stageLevel)
 {
 	game.state = GAME_RUNNING;
 
-	spawnSpaceship(0);
+	spawnSpaceship(1);
 	clearAsteroids();
-	initAsteroids();
-	game.stageLevel = 1;
-	game.score = 0;
+	initAsteroids(NUM_ASTEROIDS * stageLevel);
 
 	showGameUI();
 }
@@ -158,13 +158,21 @@ static void gameOver(int value)
 
 static void inputApplication()
 {
-	if (game.state == GAME_RUNNING && input.keyboard.keys[27])
+	if ((game.state == GAME_RUNNING || game.state == GAME_OVER) && input.keyboard.keys[27])
 	{
+		startMenu();
+	}
+	if (game.state == GAME_OVER && input.keyboard.keys[' '])
+	{
+		input.keyboard.keys[' '] = 0;
+
 		startMenu();
 	}
 	if (game.state == GAME_MENU && input.keyboard.keys[' '])
 	{
-		startGame();
+		input.keyboard.keys[' '] = 0;
+
+		startGame(game.stageLevel);
 	}
 	if (input.keyboard.keys['c'])
 	{
@@ -228,6 +236,7 @@ static void update(int value)
 		updateSpaceship(game.deltaTime);
 		updateFiretrail(game.deltaTime);
 		updateStars(game.deltaTime);
+		updateExplosions(game.deltaTime);
 		
 		updateAsteroids(game.deltaTime);
 		updateBullets(game.deltaTime);
@@ -237,12 +246,21 @@ static void update(int value)
 		updateSpaceship(game.deltaTime);
 		updateFiretrail(game.deltaTime);
 		updateStars(game.deltaTime);
+		updateBullets(game.deltaTime);
+		updateExplosions(game.deltaTime);
+	}
+	if (game.state == GAME_NEXT_STAGE_STARTING)
+	{
+		game.stageLevel++;
+		startGame(game.stageLevel);
 	}
 	if (game.state == GAME_OVER)
 	{
 		updateSpaceship(game.deltaTime);
+		updateAsteroids(game.deltaTime);
 		updateFiretrail(game.deltaTime);
-		updateStars(game.deltaTime);
+		updateBullets(game.deltaTime);
+		updateExplosions(game.deltaTime);
 	}
 	updateUI();
 
@@ -267,6 +285,7 @@ static void drawScene()
 	drawAsteroids();
 	drawSpaceship();
 	drawBullets();
+	drawExplosions();
 	drawUI();
 
 	glutSwapBuffers();

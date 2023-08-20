@@ -31,13 +31,12 @@ void spawnFiretrailParticles(Point3D pStart, float speed, float heading, int num
 	for (int i = 0; i < num; i++)
 	{
 		Particle p = {};
-		p.pos = pStart;
-
-		// Calculate the speed component (x,y,z) from polar coordinates (speed, heading)
-		p.speed = { cos(heading) * speed, sin(heading) * speed, 0.0f };
 
 		// Spawn a particle in a random point inside a circle (the probability decreases moving away from the center)
 		p.pos = getRandomPoint2DinsideCircle(pStart.x, pStart.y, MIN(circleRadius, circleRadius * ((i + 1.0f) / num)));
+
+		// Calculate the speed component (x,y,z) from polar coordinates (speed, heading)
+		p.speed = { cos(heading) * speed, sin(heading) * speed, 0.0f };
 		
 		float greenComponent = getRandomFloat(0.0f, 1.0f - ((i + 1.0f) / num / 4));
 		p.color = { 1.0f, greenComponent, 0.0f, 1.0f};

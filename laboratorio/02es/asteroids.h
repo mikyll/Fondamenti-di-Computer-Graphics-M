@@ -2,7 +2,7 @@
 
 #include "commons.h"
 
-void initAsteroids();
+void initAsteroids(int num);
 void spawnAsteroid(Point3D pos, Point3D speed, int type, float size);
 void destroyAsteroid(int i);
 void clearAsteroids();

@@ -10,7 +10,7 @@ typedef struct {
 } Explosion;
 
 void initExplosions();
-void spawnExplosion(int type);
+void spawnExplosion(int type, Point3D center, float radius, float speed, int num);
 
 void updateExplosions(float deltaTime);
 void drawExplosions();

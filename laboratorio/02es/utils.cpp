@@ -37,6 +37,14 @@ double uniform()
 	return (double)rand() / RAND_MAX;
 }
 
+int getRandomInt(int min, int max)
+{
+	if (min >= max)
+		return 0;
+
+	return (int) ((float)min + (float)rand() / (float)(RAND_MAX / ((float)max - (float)min)));
+}
+
 float getRandomFloat(float min, float max)
 {
 	if (min >= max)

@@ -31,7 +31,7 @@ enum {
 #define SPACESHIP_ANGULAR_DECELERATION	0.8f
 
 #define SPACESHIP_RESPAWN_TIME			3000 // ms
-#define SPACESHIP_INVULNERABILITY_TIME	3000 // seconds
+#define SPACESHIP_INVULNERABILITY_TIME	3.0f // seconds
 
 enum {
 	SPACESHIP_HULL,
@@ -65,6 +65,7 @@ enum {
 
 #define ASTEROID_RADIUS_BASE	1.9f
 #define ASTEROID_SCALE_BASE		20.0f
+#define ASTEROID_MAX_SPEED		3.999999f
 
 #define ASTEROID_BIG_FACTOR		1.5f
 #define ASTEROID_MEDIUM_FACTOR	1.0f
@@ -83,6 +84,8 @@ enum {
 	EXPLOSION_SPACESHIP = 0,
 	EXPLOSION_ASTEROID,
 };
+
+#define EXPLOSION_SPEED		250.0f
 
 // COLLIDERS ==============================================
 #define COLLIDER_COLOR			{ 1.0f, 1.0f, 0.0f, 1.0f }

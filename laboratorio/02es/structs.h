@@ -62,7 +62,8 @@ typedef struct {
 	float angularSpeed;
 	bool openPorthole;
 	bool respawning;
-	bool invulnerabile;
+	bool invulnerable;
+	float invulnerabilityTime;
 } Spaceship;
 
 typedef struct {

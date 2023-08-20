@@ -1,16 +1,17 @@
 #include "ui.h"
 
 Text textMenuTitle;
-Text textMenuStart;
 Text textMenuInfo;
+Text textMenuStart;
 
-// Controls background
 Text textControls;
 
 Text textGameScore;
 Text textGameScoreValue;
 Text textGameStage;
-// Lives
+Text textInvulnerability;
+Text textInvulnerabilityTimeLeft;
+
 Text textGamePaused;
 
 Text textStageCompleted;
@@ -22,6 +23,7 @@ Text textGameOverScore;
 
 Life lifeBase;
 
+// Controls background
 std::vector<Text*> displayedText;
 std::vector<Life> lives;
 
@@ -127,20 +129,19 @@ void initUI()
 {
 	// Menu
 	textMenuTitle = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 2 / 3, true, TEXT_SCALE * 2, true, "ASTEROIDS");
+	textMenuInfo = createText(WINDOW_WIDTH - 100, 20, true, TEXT_SCALE / 4, true, "Game by Michele Righi");
 	textMenuStart = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 5, true, TEXT_SCALE / 2, true, "Press SPACE to start");
 
 	// Controls
 	// TO-DO
 
-	// Score
+	// Game
 	textGameScore = createText(50, WINDOW_HEIGHT - 50, false, TEXT_SCALE / 2, false, "SCORE: ");
-	textGameScoreValue = createText(200, WINDOW_HEIGHT - 50, false, TEXT_SCALE / 2, false, "0");
-
-	// Stage
+	textGameScoreValue = createText(150, WINDOW_HEIGHT - 50, false, TEXT_SCALE / 2, false, "0");
 	textGameStage = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT - 50, true, TEXT_SCALE / 2, false, "STAGE 1");
-
-	// Lives
 	lifeBase = buildLifeFigure(WINDOW_WIDTH - 200, WINDOW_HEIGHT - 50, LIFE_SCALE);
+	textInvulnerability = createText(50, 50, false, TEXT_SCALE / 2, false, "SHIELD: ");
+	textInvulnerabilityTimeLeft = createText(170, 50, false, TEXT_SCALE / 2, false, "3");
 
 	// Paused
 	textGamePaused = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, true, TEXT_SCALE, false, "GAME PAUSED");
@@ -148,7 +149,7 @@ void initUI()
 	// Stage Level Completed
 	textStageCompleted = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 2 / 3, true, TEXT_SCALE, false, "STAGE 1 COMPLETED");
 	textStageCompletedCurrentScore = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 2 / 3 - 100, true, TEXT_SCALE / 2, false, "CURRENT SCORE: 0");
-	textStageCompletedNextStage = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 5, true, TEXT_SCALE / 2, false, "NEXT STAGE WILL START IN 3...");
+	textStageCompletedNextStage = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 5, true, TEXT_SCALE / 2, false, "                             ");
 
 	// Game Over
 	textGameOver = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 2 / 3, true, TEXT_SCALE, false, "GAME OVER");
@@ -159,11 +160,33 @@ static void blinkStartText(int value)
 {
 	if (game.state == GAME_MENU)
 	{
-		if (displayedText.size() == 2)
+		if (displayedText.size() == 3)
 			displayedText.pop_back();
 		else displayedText.push_back(&textMenuStart);
 
-		glutTimerFunc(displayedText.size() == 2 ? 1000 : 500, blinkStartText, 0);
+		glutTimerFunc(displayedText.size() == 3 ? 1000 : 500, blinkStartText, 0);
+	}
+}
+
+static void countDownNextStageText(int value)
+{
+	if (game.state == GAME_STAGE_COMPLETED)
+	{
+		if (value > 0)
+		{
+			displayedText.pop_back();
+			char buffer[32];
+			snprintf(buffer, 32, "NEXT STAGE WILL START IN %d...", value);
+			updateText(&textStageCompletedNextStage, buffer);
+			displayedText.push_back(&textStageCompletedNextStage);
+
+			glutTimerFunc(1000, countDownNextStageText, value - 1);
+		}
+		else
+		{
+			updateText(&textStageCompletedNextStage, (char*)"                             ");
+			game.state = GAME_NEXT_STAGE_STARTING;
+		}
 	}
 }
 
@@ -173,6 +196,9 @@ void showMenuUI()
 
 	// ASTEROIDS
 	displayedText.push_back(&textMenuTitle);
+
+	// INFO
+	displayedText.push_back(&textMenuInfo);
 
 	// PRESS SPACE TO START GAME
 	displayedText.push_back(&textMenuStart);
@@ -192,6 +218,8 @@ void showGameUI()
 	displayedText.push_back(&textGameScore);
 	displayedText.push_back(&textGameScoreValue);
 	displayedText.push_back(&textGameStage);
+	displayedText.push_back(&textInvulnerability);
+	displayedText.push_back(&textInvulnerabilityTimeLeft);
 }
 
 void showGamePausedUI()
@@ -203,7 +231,6 @@ void showGamePausedUI()
 
 void showStageCompletedUI()
 {
-	// Update score value
 	char buffer[32];
 	snprintf(buffer, 32, "STAGE %d COMPLETED", game.stageLevel);
 	updateText(&textStageCompleted, buffer);
@@ -215,7 +242,9 @@ void showStageCompletedUI()
 
 	displayedText.push_back(&textStageCompleted);
 	displayedText.push_back(&textStageCompletedCurrentScore);
-	displayedText.push_back(&textStageCompletedCurrentScore);
+	displayedText.push_back(&textStageCompletedNextStage);
+
+	glutTimerFunc(1000, countDownNextStageText, 3);
 }
 
 void showGameOverUI()
@@ -238,12 +267,26 @@ void updateUI()
 		char buffer[32];
 
 		// Update score value
-		snprintf(buffer, 32, "%d", game.score);
+		snprintf(buffer, 32, "%5d", game.score);
 		updateText(&textGameScoreValue, buffer);
 
 		// Update stage level
 		snprintf(buffer, 32, "STAGE %d", game.stageLevel);
 		updateText(&textGameStage, buffer);
+
+		// Update invulnerability
+		snprintf(buffer, 32, "%1.3f", abs(spaceship.invulnerabilityTime));
+		updateText(&textInvulnerabilityTimeLeft, buffer);
+		if (spaceship.invulnerable && displayedText.size() == 3)
+		{
+			displayedText.push_back(&textInvulnerability);
+			displayedText.push_back(&textInvulnerabilityTimeLeft);
+		}
+		else if (!spaceship.invulnerable && displayedText.size() == 5)
+		{
+			displayedText.pop_back();
+			displayedText.pop_back();
+		}
 
 		// Update lives
 		if (game.lives != lives.size())
