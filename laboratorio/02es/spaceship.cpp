@@ -362,7 +362,7 @@ void resetSpaceship()
 void destroySpaceship()
 {
 	// explosion
-	spawnExplosion(EXPLOSION_SPACESHIP, spaceship.pos, spaceship.radius / 4, EXPLOSION_SPEED, 30);
+	spawnExplosion(EXPLOSION_SPACESHIP, spaceship.pos, spaceship.radius / 4, EXPLOSION_SPEED, 60);
 
 	// Schedule respawn
 	game.lives--;

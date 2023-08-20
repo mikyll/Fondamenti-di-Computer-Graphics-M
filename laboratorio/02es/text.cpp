@@ -531,6 +531,22 @@ static void addLetter(Figure* fig, ColorRGBA color, char letter, float offset)
 		fig->vertices.push_back({ -0.5f + offset, 1.0f, 0.0f });
 		fig->vertices.push_back({ -0.5f + offset, -1.0f, 0.0f });
 		break;
+	case '/':
+		fig->vertices.push_back({ -0.75f + offset, -2.5f, 0.0f });
+		fig->vertices.push_back({ 0.75f + offset, 2.5f, 0.0f });
+		break;
+	case '+':
+		fig->vertices.push_back({ -1.0f + offset, 0.0f, 0.0f });
+		fig->vertices.push_back({ 1.0f + offset, 0.0f, 0.0f });
+		fig->vertices.push_back({ 0.0f + offset, 0.0f, 0.0f });
+		fig->vertices.push_back({ 0.0f + offset, 1.0f, 0.0f });
+		fig->vertices.push_back({ 0.0f + offset, -1.0f, 0.0f });
+		break;
+	case '\'':
+		fig->vertices.push_back({ 0.0f + offset, 2.0f, 0.0f });
+		fig->vertices.push_back({ 0.0f + offset, 1.0f, 0.0f });
+		
+		break;
 	case '>':
 	case '<':
 	case '=':

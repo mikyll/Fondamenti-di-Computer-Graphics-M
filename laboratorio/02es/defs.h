@@ -10,6 +10,7 @@
 // GAME ===================================================
 enum {
 	GAME_MENU = 0,
+	GAME_MENU_CONTROLS,
 	GAME_RUNNING,
 	GAME_PAUSED,
 	GAME_STAGE_COMPLETED,
@@ -71,7 +72,7 @@ enum {
 #define ASTEROID_MEDIUM_FACTOR	1.0f
 #define ASTEROID_SMALL_FACTOR	0.5f
 
-#define NUM_ASTEROIDS	1
+#define NUM_ASTEROIDS	3
 
 // BULLETS ================================================
 #define BULLET_RADIUS		5.0f

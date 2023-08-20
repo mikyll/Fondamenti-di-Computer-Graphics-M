@@ -11,6 +11,7 @@ typedef struct {
 
 void initUI();
 void showMenuUI();
+void showControlsUI();
 void showGameUI();
 void showGamePausedUI();
 void showStageCompletedUI();

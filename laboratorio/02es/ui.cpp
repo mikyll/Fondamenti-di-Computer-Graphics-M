@@ -1,10 +1,19 @@
 #include "ui.h"
 
 Text textMenuTitle;
+Text textMenuControlsHint;
 Text textMenuInfo;
 Text textMenuStart;
 
 Text textControls;
+Text textControlMoveForward;
+Text textControlRotate;
+Text textControlFire;
+Text textControlColliders;
+Text textControlLines;
+Text textControlBigShip;
+Text textPause;
+Text textReturnToMenu;
 
 Text textGameScore;
 Text textGameScoreValue;
@@ -15,21 +24,53 @@ Text textInvulnerabilityTimeLeft;
 Text textGamePaused;
 
 Text textStageCompleted;
-Text textStageCompletedCurrentScore;
 Text textStageCompletedNextStage;
 
 Text textGameOver;
-Text textGameOverScore;
+Text textGameOverReturnToMenu;
+
+Text textCurrentScore;
 
 Life lifeBase;
 
 // Controls background
+Figure backgroundControls;
 std::vector<Text*> displayedText;
 std::vector<Life> lives;
 
-static void blinkStartText(int value);
 static Life buildLifeFigure(float posx, float posy, float scale);
 
+static void blinkStartText(int value);
+static void addScoreToTotal(int value);
+static void calculateNewScore(int value);
+static void countDownNextStageText(int value);
+static void blinkGameOverText(int value);
+
+static Figure buildBackgroundControls()
+{
+	Figure fig = {};
+
+	fig.id = 0;
+	fig.drawMode = GL_TRIANGLE_STRIP;
+	
+	fig.vertices.push_back({ WINDOW_WIDTH / 10, WINDOW_HEIGHT * 9 / 10, 0.0f });
+	fig.vertices.push_back({ WINDOW_WIDTH * 9 / 10, WINDOW_HEIGHT * 9 / 10, 0.0f });
+	fig.vertices.push_back({ WINDOW_WIDTH * 9 / 10, WINDOW_HEIGHT / 10, 0.0f });
+	
+	fig.vertices.push_back({ WINDOW_WIDTH * 9 / 10, WINDOW_HEIGHT / 10, 0.0f });
+	fig.vertices.push_back({ WINDOW_WIDTH / 10, WINDOW_HEIGHT * 9 / 10, 0.0f });
+	fig.vertices.push_back({ WINDOW_WIDTH / 10, WINDOW_HEIGHT / 10, 0.0f });
+
+
+	// Color
+	for (int i = 0; i < fig.vertices.size(); i++)
+	{
+		fig.colors.push_back({ 0.0f, 0.0f, 0.0f, 0.8f });
+	}
+	createFigureVAO(&fig);
+
+	return fig;
+}
 
 static Life buildLifeFigure(float posx, float posy, float scale)
 {
@@ -129,11 +170,21 @@ void initUI()
 {
 	// Menu
 	textMenuTitle = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 2 / 3, true, TEXT_SCALE * 2, true, "ASTEROIDS");
+	textMenuControlsHint = createText(20, 20, false, TEXT_SCALE / 4, true, "Press 'H' to show controls");
 	textMenuInfo = createText(WINDOW_WIDTH - 100, 20, true, TEXT_SCALE / 4, true, "Game by Michele Righi");
-	textMenuStart = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 5, true, TEXT_SCALE / 2, true, "Press SPACE to start");
+	textMenuStart = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 5, true, TEXT_SCALE / 2, true, "Press 'SPACE' to start");
 
 	// Controls
-	// TO-DO
+	textControls = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 9 / 10 - 50, true, TEXT_SCALE , false, "CONTROLS");
+	textControlMoveForward = createText(WINDOW_WIDTH / 2 - 200, WINDOW_HEIGHT / 2 + 150, false, TEXT_SCALE / 2, true,     "  W     - MOVE FORWARD");
+	textControlRotate = createText(WINDOW_WIDTH / 2 - 200, WINDOW_HEIGHT / 2 + 100, false, TEXT_SCALE / 2, true,     " A/D    - ROTATE LEFT/RIGHT");
+	textControlFire = createText(WINDOW_WIDTH / 2 - 200, WINDOW_HEIGHT / 2 + 25, false, TEXT_SCALE / 2, true,      "SPACE   - FIRE BULLET");
+	textControlColliders = createText(WINDOW_WIDTH / 2 - 200, WINDOW_HEIGHT / 2 - 25, false, TEXT_SCALE / 2, true, "  C     - TOGGLE COLLIDERS");
+	textControlLines = createText(WINDOW_WIDTH / 2 - 200, WINDOW_HEIGHT / 2 - 75, false, TEXT_SCALE / 2, true,     "  L     - TOGGLE RENDERING MODE");
+	textControlBigShip = createText(WINDOW_WIDTH / 2 - 200, WINDOW_HEIGHT / 2 - 125, false, TEXT_SCALE / 2, true,   "  B     - TOGGLE BIG SHIP");
+	textPause = createText(WINDOW_WIDTH / 2 - 200, WINDOW_HEIGHT / 2 - 200, false, TEXT_SCALE / 2, true,            "  P     - TOGGLE PAUSE GAME");
+	textReturnToMenu = createText(WINDOW_WIDTH / 2 - 200, WINDOW_HEIGHT / 2 - 250, false, TEXT_SCALE / 2, true,     " ESC    - GO BACK TO MENU");
+	backgroundControls = buildBackgroundControls();
 
 	// Game
 	textGameScore = createText(50, WINDOW_HEIGHT - 50, false, TEXT_SCALE / 2, false, "SCORE: ");
@@ -148,23 +199,64 @@ void initUI()
 
 	// Stage Level Completed
 	textStageCompleted = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 2 / 3, true, TEXT_SCALE, false, "STAGE 1 COMPLETED");
-	textStageCompletedCurrentScore = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 2 / 3 - 100, true, TEXT_SCALE / 2, false, "CURRENT SCORE: 0");
 	textStageCompletedNextStage = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 5, true, TEXT_SCALE / 2, false, "                             ");
 
 	// Game Over
 	textGameOver = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 2 / 3, true, TEXT_SCALE, false, "GAME OVER");
-	textGameOverScore = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 2 / 3 - 100, true, TEXT_SCALE / 2, false, "SCORE: 0");
+	textGameOverReturnToMenu = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 5, true, TEXT_SCALE / 2, true, "Press 'ESC' to go back to the menu");
+
+
+	textCurrentScore = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 2 / 3 - 100, true, TEXT_SCALE / 2, false, "TOTAL SCORE: 0");
 }
 
 static void blinkStartText(int value)
 {
 	if (game.state == GAME_MENU)
 	{
-		if (displayedText.size() == 3)
+		if (displayedText.size() == 4)
 			displayedText.pop_back();
 		else displayedText.push_back(&textMenuStart);
 
-		glutTimerFunc(displayedText.size() == 3 ? 1000 : 500, blinkStartText, 0);
+		glutTimerFunc(displayedText.size() == 4 ? 1000 : 500, blinkStartText, 0);
+	}
+}
+
+static void addScoreToTotal(int value)
+{
+	if (game.state == GAME_STAGE_COMPLETED || game.state == GAME_OVER)
+	{
+		char buffer[32];
+		snprintf(buffer, 32, "TOTAL SCORE: %d +%d", game.totalScore, game.stageScore);
+		updateText(&textCurrentScore, buffer);
+
+		glutTimerFunc(1000, calculateNewScore, value);
+	}
+}
+
+static void calculateNewScore(int value)
+{
+	if (game.state == GAME_STAGE_COMPLETED || game.state == GAME_OVER)
+	{
+		if (game.totalScore < value)
+		{
+			char buffer[32];
+			game.totalScore++;
+			snprintf(buffer, 32, "TOTAL SCORE: %d", game.totalScore);
+			updateText(&textCurrentScore, buffer);
+
+			glutTimerFunc(0, calculateNewScore, value);
+		}
+		else
+		{
+			if (game.state == GAME_STAGE_COMPLETED)
+			{
+				glutTimerFunc(1000, countDownNextStageText, 3);
+			}
+			else
+			{
+				glutTimerFunc(1000, blinkGameOverText, 0);
+			}
+		}
 	}
 }
 
@@ -190,6 +282,18 @@ static void countDownNextStageText(int value)
 	}
 }
 
+static void blinkGameOverText(int value)
+{
+	if (game.state == GAME_OVER)
+	{
+		if (displayedText.size() == 3)
+			displayedText.pop_back();
+		else displayedText.push_back(&textGameOverReturnToMenu);
+
+		glutTimerFunc(displayedText.size() == 3 ? 1000 : 500, blinkGameOverText, 0);
+	}
+}
+
 void showMenuUI()
 {
 	displayedText.clear();
@@ -198,6 +302,7 @@ void showMenuUI()
 	displayedText.push_back(&textMenuTitle);
 
 	// INFO
+	displayedText.push_back(&textMenuControlsHint);
 	displayedText.push_back(&textMenuInfo);
 
 	// PRESS SPACE TO START GAME
@@ -208,7 +313,17 @@ void showMenuUI()
 
 void showControlsUI()
 {
+	displayedText.clear();
 
+	displayedText.push_back(&textControls);
+	displayedText.push_back(&textControlMoveForward);
+	displayedText.push_back(&textControlRotate);
+	displayedText.push_back(&textControlFire);
+	displayedText.push_back(&textControlColliders);
+	displayedText.push_back(&textControlLines);
+	displayedText.push_back(&textControlBigShip);
+	displayedText.push_back(&textPause);
+	displayedText.push_back(&textReturnToMenu);
 }
 
 void showGameUI()
@@ -235,29 +350,31 @@ void showStageCompletedUI()
 	snprintf(buffer, 32, "STAGE %d COMPLETED", game.stageLevel);
 	updateText(&textStageCompleted, buffer);
 
-	snprintf(buffer, 32, "CURRENT SCORE: %d", game.score);
-	updateText(&textStageCompletedCurrentScore, buffer);
+	snprintf(buffer, 32, "CURRENT SCORE: %d", game.totalScore);
+	updateText(&textCurrentScore, buffer);
 
 	displayedText.clear();
 
 	displayedText.push_back(&textStageCompleted);
-	displayedText.push_back(&textStageCompletedCurrentScore);
+	displayedText.push_back(&textCurrentScore);
 	displayedText.push_back(&textStageCompletedNextStage);
 
-	glutTimerFunc(1000, countDownNextStageText, 3);
+	glutTimerFunc(1000, addScoreToTotal, game.totalScore + game.stageScore);
 }
 
 void showGameOverUI()
 {
 	// Update score value
-	char buffer[10];
-	snprintf(buffer, 10, "SCORE: %d", game.score);
-	updateText(&textGameOverScore, buffer);
+	char buffer[32];
+	snprintf(buffer, 32, "TOTAL SCORE: %d", game.totalScore);
+	updateText(&textCurrentScore, buffer);
 
 	displayedText.clear();
 
 	displayedText.push_back(&textGameOver);
-	displayedText.push_back(&textGameOverScore);
+	displayedText.push_back(&textCurrentScore);
+
+	glutTimerFunc(1000, addScoreToTotal, game.totalScore + game.stageScore);
 }
 
 void updateUI()
@@ -267,7 +384,7 @@ void updateUI()
 		char buffer[32];
 
 		// Update score value
-		snprintf(buffer, 32, "%5d", game.score);
+		snprintf(buffer, 32, "%5d", game.stageScore);
 		updateText(&textGameScoreValue, buffer);
 
 		// Update stage level
@@ -306,6 +423,13 @@ void drawUI()
 {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	if (game.state == GAME_MENU_CONTROLS)
+	{
+		glBindVertexArray(backgroundControls.VAO);
+		glDrawArrays(backgroundControls.drawMode, 0, backgroundControls.vertices.size());
+		glBindVertexArray(0);
+	}
 
 	// Text
 	for (int i = 0; i < displayedText.size(); i++)

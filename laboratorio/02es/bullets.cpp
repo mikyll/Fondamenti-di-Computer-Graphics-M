@@ -106,7 +106,7 @@ void updateBullets(float deltaTime)
 				}
 
 				// Add points to score
-				game.score += 4 - (asteroid.scale * 2 / ASTEROID_SCALE_BASE);
+				game.stageScore += 4 - (asteroid.scale * 2 / ASTEROID_SCALE_BASE);
 			}
 		}
 	}

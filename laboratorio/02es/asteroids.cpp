@@ -219,7 +219,7 @@ void updateAsteroids(float deltaTime)
 		game.state = GAME_STAGE_COMPLETED;
 		showStageCompletedUI();
 
-		std::cout << "Stage " << game.stageLevel << " completed! Current score: " << game.score << std::endl << std::endl;
+		std::cout << "Stage " << game.stageLevel << " completed! Current score: " << game.totalScore + game.stageScore << std::endl << std::endl;
 
 		return;
 	}
@@ -260,7 +260,7 @@ void updateAsteroids(float deltaTime)
 			{
 				game.state = GAME_OVER;
 
-				std::cout << "Spaceship destroyed, game over! Score: " << game.score << std::endl << std::endl;
+				std::cout << "Spaceship destroyed, game over! Score: " << game.totalScore + game.stageScore << std::endl << std::endl;
 				showGameOverUI();
 				
 				return;

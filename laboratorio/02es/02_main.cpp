@@ -85,7 +85,8 @@ static void initGame()
 	game.deltaTime = 0.0f;
 	game.fps = 0;
 	game.stageLevel = 1;
-	game.score = 0;
+	game.totalScore = 0;
+	game.stageScore = 0;
 	game.lives = MAX_LIVES;
 }
 
@@ -131,7 +132,8 @@ static void startMenu()
 	initAsteroids(10);
 	spawnSpaceship(0);
 	game.stageLevel = 1;
-	game.score = 0;
+	game.totalScore = 0;
+	game.stageScore = 0;
 	game.lives = MAX_LIVES;
 
 	showMenuUI();
@@ -140,6 +142,7 @@ static void startMenu()
 static void startGame(int stageLevel)
 {
 	game.state = GAME_RUNNING;
+	game.stageScore = 0;
 
 	spawnSpaceship(1);
 	clearAsteroids();
@@ -158,15 +161,29 @@ static void gameOver(int value)
 
 static void inputApplication()
 {
-	if ((game.state == GAME_RUNNING || game.state == GAME_OVER) && input.keyboard.keys[27])
+	if ((game.state == GAME_RUNNING
+		|| game.state == GAME_OVER
+		|| game.state == GAME_PAUSED)
+		&& input.keyboard.keys[27])
 	{
 		startMenu();
 	}
-	if (game.state == GAME_OVER && input.keyboard.keys[' '])
+	if ((game.state == GAME_MENU
+		|| game.state == GAME_MENU_CONTROLS)
+		&& input.keyboard.keys['h'])
 	{
-		input.keyboard.keys[' '] = 0;
+		input.keyboard.keys['h'] = 0;
 
-		startMenu();
+		if (game.state == GAME_MENU)
+		{
+			game.state = GAME_MENU_CONTROLS;
+			showControlsUI();
+		}
+		else
+		{
+			game.state = GAME_MENU;
+			showMenuUI();
+		}
 	}
 	if (game.state == GAME_MENU && input.keyboard.keys[' '])
 	{

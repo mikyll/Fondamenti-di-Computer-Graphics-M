@@ -8,7 +8,8 @@ typedef struct {
 	unsigned long timeSinceStart; // milliseconds from glutInit() call
 	int fps;
 	int stageLevel;
-	int score;
+	int totalScore;
+	int stageScore;
 	int lives;
 	unsigned int MatProj;
 	unsigned int MatModel;
