@@ -206,7 +206,7 @@ void initUI()
 	textGameOverReturnToMenu = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 5, true, TEXT_SCALE / 2, true, "Press 'ESC' to go back to the menu");
 
 
-	textCurrentScore = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 2 / 3 - 100, true, TEXT_SCALE / 2, false, "TOTAL SCORE: 0");
+	textCurrentScore = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 2 / 3 - 100, true, TEXT_SCALE / 2, false, "TOTAL SCORE:     0");
 }
 
 static void blinkStartText(int value)
@@ -226,7 +226,7 @@ static void addScoreToTotal(int value)
 	if (game.state == GAME_STAGE_COMPLETED || game.state == GAME_OVER)
 	{
 		char buffer[32];
-		snprintf(buffer, 32, "TOTAL SCORE: %d +%d", game.totalScore, game.stageScore);
+		snprintf(buffer, 32, "TOTAL SCORE: %5d +%d", game.totalScore, game.stageScore);
 		updateText(&textCurrentScore, buffer);
 
 		glutTimerFunc(1000, calculateNewScore, value);
@@ -241,7 +241,7 @@ static void calculateNewScore(int value)
 		{
 			char buffer[32];
 			game.totalScore++;
-			snprintf(buffer, 32, "TOTAL SCORE: %d", game.totalScore);
+			snprintf(buffer, 32, "TOTAL SCORE: %5d", game.totalScore);
 			updateText(&textCurrentScore, buffer);
 
 			glutTimerFunc(0, calculateNewScore, value);
@@ -350,7 +350,7 @@ void showStageCompletedUI()
 	snprintf(buffer, 32, "STAGE %d COMPLETED", game.stageLevel);
 	updateText(&textStageCompleted, buffer);
 
-	snprintf(buffer, 32, "CURRENT SCORE: %d", game.totalScore);
+	snprintf(buffer, 32, "CURRENT SCORE: %5d", game.totalScore);
 	updateText(&textCurrentScore, buffer);
 
 	displayedText.clear();
@@ -366,7 +366,7 @@ void showGameOverUI()
 {
 	// Update score value
 	char buffer[32];
-	snprintf(buffer, 32, "TOTAL SCORE: %d", game.totalScore);
+	snprintf(buffer, 32, "TOTAL SCORE: %5d", game.totalScore);
 	updateText(&textCurrentScore, buffer);
 
 	displayedText.clear();
@@ -374,7 +374,9 @@ void showGameOverUI()
 	displayedText.push_back(&textGameOver);
 	displayedText.push_back(&textCurrentScore);
 
-	glutTimerFunc(1000, addScoreToTotal, game.totalScore + game.stageScore);
+	if (game.stageScore > 0)
+		glutTimerFunc(1000, addScoreToTotal, game.totalScore + game.stageScore);
+	else glutTimerFunc(1000, blinkGameOverText, 0);
 }
 
 void updateUI()
