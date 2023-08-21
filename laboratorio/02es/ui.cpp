@@ -478,7 +478,10 @@ void drawUI()
 				glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(modelMatrix));
 
 				glBindVertexArray(fig->VAO);
-				glDrawArrays(fig->drawMode, 0, fig->vertices.size());
+				
+				glLineWidth(1.0f);
+				int mode = game.showLines ? GL_LINE_STRIP : fig->drawMode;
+				glDrawArrays(mode, 0, fig->vertices.size());
 
 				glBindVertexArray(0);
 			}
