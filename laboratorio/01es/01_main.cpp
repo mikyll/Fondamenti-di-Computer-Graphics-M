@@ -12,13 +12,13 @@
 * Usage:
 *	- Left click to place a control point.
 *		(Maximum number of control points allowed is currently set at 300)
+*	- Drag and drop the mouse while hovering a control point to move it.
 *	- Press 'f' to remove the first control point.
 *	- Press 'l' to remove the last control point.
 *	- Press 'i' to print control points.
 *	- Press 'o' to print curve points.
-*	- Press 's' to enable/disable control and/or curve segments.
-*	- Drag and drop the mouse while hovering a control point to move it.
-*	- Press escape to exit.
+*	- Press 's' to show control points/segments/curve.
+*	- Press ESC to exit.
 * 
 *	Curves rendering:
 *	- (default) Press 'F1' to select "de Casteljau Uniform" method.
@@ -48,6 +48,14 @@
 #include "01_5a.h"
 #include "01_5b.h"
 #include "01_5c.h" // TO-DO
+
+enum {
+	DRAW_EVERYTHING = 0,
+	DRAW_ONLY_CONTROL_POINTS,
+	DRAW_CONTROL_POINTS_AND_SEGMENTS,
+	DRAW_CONTROL_POINTS_AND_CURVE,
+	DRAW_ONLY_CURVE,
+} DRAW_MODE;
 
 // FUNCTION DECLARATIONS ========================
 static void initShader();
@@ -107,8 +115,7 @@ int dragging = 0;
 // Function pointer for getting the curve
 static void (*getCurve)(Point2D* ctrlPts, int numCtrl, Point2D* curvePts, int* numCurve);
 
-bool drawControlSegments = true;
-bool drawCurveSegments = true;
+int drawMode = DRAW_EVERYTHING;
 
 // INIT ===================================================
 static void initShader()
@@ -319,7 +326,10 @@ static void inputKeyboard(unsigned char key, int x, int y)
 		printCurvePoints();
 		break;
 	case 's':
-		if (!drawControlSegments && !drawCurveSegments)
+		drawMode++;
+		if (drawMode > DRAW_ONLY_CURVE)
+			drawMode = DRAW_EVERYTHING;
+		/*if (!drawControlSegments && !drawCurveSegments)
 		{
 			drawControlSegments = true;
 		}
@@ -337,7 +347,7 @@ static void inputKeyboard(unsigned char key, int x, int y)
 		{
 			drawControlSegments = false;
 			drawCurveSegments = false;
-		}
+		}*/
 		break;
 	case 27: // Escape key
 		exit(0);
@@ -533,39 +543,47 @@ static void update(int value)
 static void drawScene()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
-
+	
 	// Draw control polygon
 	glBindVertexArray(VAO_ControlPoints);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_ControlPoints);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(ctrlPointArray), &ctrlPointArray[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+
 	// Draw the control points CP
-	glPointSize(ctrlPointSize);
-	glDrawArrays(GL_POINTS, 0, numCtrlPts);
-	
-	if (drawControlSegments)
+	if (drawMode == DRAW_EVERYTHING
+		|| drawMode == DRAW_ONLY_CONTROL_POINTS
+		|| drawMode == DRAW_CONTROL_POINTS_AND_SEGMENTS
+		|| drawMode == DRAW_CONTROL_POINTS_AND_CURVE)
 	{
-		// Draw the line segments between CP
+		glPointSize(ctrlPointSize);
+		glDrawArrays(GL_POINTS, 0, numCtrlPts);
+	}
+
+	// Draw the segments (lines between CP)
+	if (drawMode == DRAW_EVERYTHING
+		|| drawMode == DRAW_CONTROL_POINTS_AND_SEGMENTS)
+	{
 		glLineWidth(2.0);
 		glDrawArrays(GL_LINE_STRIP, 0, numCtrlPts);
 	}
 
-	if (numCtrlPts > 1)
+	// Draw curve
+	if ((drawMode == DRAW_EVERYTHING
+		|| drawMode == DRAW_CONTROL_POINTS_AND_CURVE) 
+		|| drawMode == DRAW_ONLY_CURVE
+		&& numCtrlPts > 1)
 	{
-		// Draw curve
 		glBindVertexArray(VAO_CurvePoints);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO_CurvePoints);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(curvePointArray), &curvePointArray[0], GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
-		
-		if (drawCurveSegments)
-		{
-			// Draw the segments that form the line
-			glLineWidth(0.5);
-			glDrawArrays(GL_LINE_STRIP, 0, numCurvePts);
-		}
+
+		// Draw the segments that form the curve
+		glLineWidth(0.5);
+		glDrawArrays(GL_LINE_STRIP, 0, numCurvePts);
 	}
 	glBindVertexArray(0);
 
