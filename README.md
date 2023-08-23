@@ -11,3 +11,6 @@ Vedi [setup.md](./setup.md)
 ### Lab01
 
 ### Lab02
+
+https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/assets/56556806/7e170636-a165-4445-adc6-97f49cb02532
+
