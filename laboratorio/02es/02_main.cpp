@@ -7,7 +7,7 @@
 *
 * Description:
 * This program implements a simple version of the well-know game
-* "Asteroids" (https://it.wikipedia.org/wiki/Asteroids).
+* "Asteroids" from Atari, Inc. (https://it.wikipedia.org/wiki/Asteroids).
 * Some notable parts/features are:
 * - usage of a simple pass-through shader;
 * - game loop using delta time (plus cap at ~60 FPS);
@@ -31,14 +31,24 @@
 *	- when broken by a bullet are split in 2 smaller asteroids;
 * - circle collision system (rect for the spaceship yet to
 *	be implemented);
+* - invulnerability shield;
+* - esplosions implemented using a particle system;
+* - menu and game goal;
+* - UI with simple text drawn with points and lines;
+* - UI animations (text blink, text increment/decrement);
 * 
 * 
 * Controls:
+* - Menu controls:
+*	- press 'h' to show controls;
+*	- press 'space' to start the game;
+* 
 * - Character controls:
 *	- press 'w' to move the spaceship forward;
 *	- press 'a'/'d' to rotate the spaceship heading
 *		clockwise/counter clockwise;
 *	- press 'SPACE' to fire a bullet;
+* 
 * - Misc. controls:
 *	- press 'p' to pause/resume the game;
 *	- press 'r'	to reset the spaceship position to the center;
@@ -294,7 +304,6 @@ static void drawScene()
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glUniformMatrix4fv(MatProj, 1, GL_FALSE, value_ptr(Projection));
-	
 
 	// DRAW SCENE OBJECTS ---------------------------------
 	drawStars();
