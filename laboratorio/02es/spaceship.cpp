@@ -514,7 +514,7 @@ void drawSpaceship()
 		if (fig->id == SPACESHIP_ASTRONAUT)
 		{
 			glm::mat4 tmpMat = modelMatrix;
-			tmpMat = rotate(tmpMat, -spaceship.heading + ((float)PI / 2), glm::vec3(0.0f, 0.0f, 1.0f));
+			tmpMat = rotate(tmpMat, spaceship.heading - ((float)PI / 2), glm::vec3(0.0f, 0.0f, -1.0f));
 			glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(tmpMat));
 		}
 		// If the figure represents the porthole open/close (rotate on y)
