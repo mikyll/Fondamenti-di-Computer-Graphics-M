@@ -15,7 +15,7 @@ void initStars()
 // UPDATE =================================================
 void updateStars(float deltaTime)
 {
-	if (spaceship.respawning)
+	if (spaceship.respawning || stars.vertices.size() == 0)
 		return;
 
 	int i;
@@ -60,6 +60,9 @@ void updateStars(float deltaTime)
 // DRAW ===================================================
 void drawStars()
 {
+	if (stars.vertices.size() == 0)
+		return;
+
 	glm::mat4 mat = glm::mat4(1.0);
 
 	glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(mat));
