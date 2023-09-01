@@ -50,28 +50,6 @@ void getCurve_CatmullRomSpline(Point2D* ctrlPts, int numCtrl, Point2D* curvePts,
 	}
 }
 
-static void catmullRomSpline2(Point2D p0, Point2D p1, Point2D p2, Point2D p3)
-{
-	Point2D resP1, resP2;
-
-	
-
-	/*res.x = 0.5 * (
-		(2 * p1.x) +
-		(-p0.x + p2.x) * t +
-		(2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t * t +
-		(-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t * t * t
-		);
-	res.y = 0.5 * (
-		(2 * p1.y) +
-		(-p0.y + p2.y) * t +
-		(2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t * t +
-		(-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t * t * t
-		);*/
-
-	//return res;
-}
-
 void getCurve_CatmullRomSpline2(Point2D* ctrlPts, int numCtrl, Point2D* curvePts, int* numCurve)
 {
 	// NB: we need at least 4 control points

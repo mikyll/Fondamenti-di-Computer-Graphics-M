@@ -18,6 +18,7 @@
 *	- Press 'i' to print control points.
 *	- Press 'o' to print curve points.
 *	- Press 's' to show control points/segments/curve.
+*	- Press 'c'/'r' to clear (reset) control points and curve points.
 *	- Press ESC to exit.
 * 
 *	Curves rendering:
@@ -25,7 +26,6 @@
 *	- Press 'F2' to select "Catmull-Rom Spline" method.
 *	- Press 'F3' to select "de Casteljau Adaptive Subdivision" method.
 *	- Press 'F4' to select "cubic segments" subdivision.
-*	- Press 'F5' to clear control points and curve points.
 */
 
 #include <iostream>
@@ -62,7 +62,9 @@ static void initShader();
 static void init();
 static void printControls();
 
-static void clearPoints();
+static void clearControlPoints();
+static void clearCurvePoints();
+static void clearAllPoints();
 static void addNewPoint(Point2D point);
 static void addNewPoint(float x, float y);
 static void removeFirstPoint();
@@ -151,26 +153,6 @@ static void init()
 	glViewport(0, 0, 500, 500);
 }
 
-/*
-*Usage:
-* - Left click to place a control point.
-* (Maximum number of control points allowed is currently set at 300)
-* - Press 'f' to remove the first control point.
-* - Press 'l' to remove the last control point.
-* - Press 'i' to print control points.
-* - Press 'o' to print curve points.
-* - Press 's' to enable/disable control and/or curve segments.
-* - Drag and drop the mouse while hovering a control point to move it.
-* - Press escape to exit.
-*
-*Curves rendering:
-* - (default) Press 'F1' to select "de Casteljau Uniform" method.
-* - Press 'F2' to select "Catmull-Rom Spline" method.
-* - Press 'F3' to select "de Casteljau Adaptive Subdivision" method.
-* - Press 'F4' to select "cubic segments" subdivision.
-* - Press 'F5' to clear control points and curve points.
-*/
-
 static void printControls()
 {
 	std::cout << "CONTROLS ==============================" << std::endl;
@@ -181,6 +163,7 @@ static void printControls()
 	std::cout << "  I                 - print control points" << std::endl;
 	std::cout << "  O                 - print curve points" << std::endl;
 	std::cout << "  S                 - enable/disable control and/or curve segments" << std::endl;
+	std::cout << "  C/R               - clear (reset) control and curve points" << std::endl;
 	std::cout << "  ESC               - quit" << std::endl;
 	std::cout << std::endl;
 	std::cout << "CURVES:" << std::endl;
@@ -188,16 +171,15 @@ static void printControls()
 	std::cout << "  F2                - Catmull-Rom Spline method" << std::endl;
 	std::cout << "  F3                - De Casteljau Adaptive Subdivision method" << std::endl;
 	std::cout << "  F4                - Cubic segments subdivision method" << std::endl;
-	std::cout << "  F5                - Clear control points and curve points" << std::endl;
 	std::cout << "  ESC               - quit" << std::endl;
 	std::cout << "=======================================" << std::endl << std::endl;
 }
 
 // LOGIC ==================================================
 /*
-Clear all the control points and curve points.
+Clear control points.
 */
-static void clearPoints()
+static void clearControlPoints()
 {
 	// Clear control points
 	for (int i = 0; i < numCtrlPts; i++)
@@ -206,15 +188,28 @@ static void clearPoints()
 	}
 	numCtrlPts = 0;
 
+	iHoverCtrlPt = -1;
+	glutSetCursor(CURSOR_NORMAL);
+}
+/*
+Clear curve points.
+*/
+static void clearCurvePoints()
+{
 	// Clear curve points
 	for (int i = 0; i < numCurvePts; i++)
 	{
 		curvePointArray[i] = { 0.0f, 0.0f };
 	}
 	numCurvePts = 0;
-
-	iHoverCtrlPt = -1;
-	glutSetCursor(CURSOR_NORMAL);
+}
+/*
+Clear all the control points and curve points.
+*/
+static void clearAllPoints()
+{
+	clearControlPoints();
+	clearCurvePoints();
 }
 
 /*
@@ -329,25 +324,10 @@ static void inputKeyboard(unsigned char key, int x, int y)
 		drawMode++;
 		if (drawMode > DRAW_ONLY_CURVE)
 			drawMode = DRAW_EVERYTHING;
-		/*if (!drawControlSegments && !drawCurveSegments)
-		{
-			drawControlSegments = true;
-		}
-		else if (drawControlSegments && !drawCurveSegments)
-		{
-			drawControlSegments = false;
-			drawCurveSegments = true;
-		}
-		else if(!drawControlSegments && drawCurveSegments)
-		{
-			drawControlSegments = true;
-			drawCurveSegments = true;
-		}
-		else
-		{
-			drawControlSegments = false;
-			drawCurveSegments = false;
-		}*/
+		break;
+	case 'c':
+	case 'r':
+		clearAllPoints();
 		break;
 	case 27: // Escape key
 		exit(0);
@@ -387,11 +367,12 @@ static void specialKeyDown(int key, int x, int y)
 		break;
 	case GLUT_KEY_F5:
 		getCurve = NULL;
-		clearPoints();
-		std::cout << "SELECTED ALGORITHM: none (clear curve)" << std::endl;
+		clearCurvePoints();
+		std::cout << "SELECTED ALGORITHM: none" << std::endl;
 		break;
 	}
 }
+
 /*
 Keyboard Input: special keys (up)
 */
@@ -607,6 +588,7 @@ int main(int argc, char** argv)
 	glutCreateWindow("Draw curves 2D");
 
 	// Input callbacks
+	glutReshapeFunc(resizeWindow);
 	glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
 	glutKeyboardFunc(inputKeyboard);
 	glutSpecialFunc(specialKeyDown);
