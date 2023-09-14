@@ -50,26 +50,36 @@ Usage:
 #include "input.h"
 #include "text.h"
 
-using namespace glm;
-
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
-int		width = 500;
-int		height = 500;
-int		fov = 45;
-float	zNear = 0.01;
-float	zFar = 10000.0;
+typedef glm::vec4 point4;
+typedef glm::vec4 colorRGBA;
 
 static unsigned int programId, MatProj, MatModel, MatView;
 
-vec3 cameraPos = vec3(0.0, 0.0, 10.0);
-vec3 cameraFront = vec3(0.0, 0.0, -1.0);
-vec3 cameraUp = vec3(0.0, 1.0, 0.0);
+const colorRGBA BLACK = colorRGBA(1.0, 0.0, 0.0, 1.0);
+const colorRGBA RED = colorRGBA(1.0, 0.0, 0.0, 1.0);
+const colorRGBA YELLOW = colorRGBA(1.0, 1.0, 0.0, 1.0);
+const colorRGBA GREEN = colorRGBA(0.0, 1.0, 0.0, 1.0);
+const colorRGBA BLUE = colorRGBA(0.0, 0.0, 1.0, 1.0);
+const colorRGBA MAGENTA = colorRGBA(1.0, 0.0, 1.0, 1.0);
+const colorRGBA WHITE = colorRGBA(1.0, 1.0, 1.0, 1.0);
+const colorRGBA CYAN = colorRGBA(0.0, 1.0, 1.0, 1.0);
 
-float deltaTime = 0.0;  // tempo fra il frame corrente e l'ultimo
-float last_frame = 0.0;  // tempo dell'ultimo frame
+const int width = 500;
+const int height = 500;
+const float zNear = 0.01;
+const float zFar = 10000.0;
+int fov = 45;
+
+glm::vec3 cameraPos = glm::vec3(0.0, 0.0, 10.0);
+glm::vec3 cameraFront = glm::vec3(0.0, 0.0, -1.0);
+glm::vec3 cameraUp = glm::vec3(0.0, 1.0, 0.0);
+
+float deltaTime = 0.0; // tempo fra il frame corrente e l'ultimo
+float last_frame = 0.0; // tempo dell'ultimo frame
 
 float rotateX = 15, rotateY = -15, rotateZ = 0;  // rotation amounts about axes, controlled by keyboard
 float scaleX = 1.0, scaleY = 1.0, scaleZ = 1.0;
@@ -78,10 +88,8 @@ float scaleX = 1.0, scaleY = 1.0, scaleZ = 1.0;
 // Cube data
 unsigned int vao;
 const int NumVertices = 36;
-typedef  vec4  point4;
-typedef  vec4  color4;
 point4  vPositions[NumVertices];
-color4  vColors[NumVertices];
+colorRGBA  vColors[NumVertices];
 
 point4 positions[8] = {
 	point4(-0.5, -0.5,  0.5, 1.0),
@@ -94,40 +102,32 @@ point4 positions[8] = {
 	point4(0.5, -0.5, -0.5, 1.0)
 };
 
-color4 colors[8] = {
-	color4(0.0, 0.0, 0.0, 1.0),  // black
-	color4(1.0, 0.0, 0.0, 1.0),  // red
-	color4(1.0, 1.0, 0.0, 1.0),  // yellow
-	color4(0.0, 1.0, 0.0, 1.0),  // green
-	color4(0.0, 0.0, 1.0, 1.0),  // blue
-	color4(1.0, 0.0, 1.0, 1.0),  // magenta
-	color4(1.0, 1.0, 1.0, 1.0),  // white
-	color4(0.0, 1.0, 1.0, 1.0)   // cyan
-};
 int Index = 0;  // global variable indexing into VBO arrays
-void polygon(int a, int b, int c, int d, int color)
+
+void polygon(int a, int b, int c, int d, colorRGBA color)
 {
-	vColors[Index] = colors[color]; vPositions[Index] = positions[a]; Index++;
-	vColors[Index] = colors[color]; vPositions[Index] = positions[b]; Index++;
-	vColors[Index] = colors[color]; vPositions[Index] = positions[c]; Index++;
-	vColors[Index] = colors[color]; vPositions[Index] = positions[a]; Index++;
-	vColors[Index] = colors[color]; vPositions[Index] = positions[c]; Index++;
-	vColors[Index] = colors[color]; vPositions[Index] = positions[d]; Index++;
+	vPositions[Index] = positions[a]; vColors[Index] = color; Index++;
+	vPositions[Index] = positions[b]; vColors[Index] = color; Index++;
+	vPositions[Index] = positions[c]; vColors[Index] = color; Index++;
+	vPositions[Index] = positions[a]; vColors[Index] = color; Index++;
+	vPositions[Index] = positions[c]; vColors[Index] = color; Index++;
+	vPositions[Index] = positions[d]; vColors[Index] = color; Index++;
 }
+
 void colorcube()
 {
-	polygon(1, 0, 3, 2, 1); // red
-	polygon(2, 3, 7, 6, 4); // blue
-	polygon(3, 0, 4, 7, 5); // magenta
-	polygon(6, 5, 1, 2, 3); // green
-	polygon(4, 5, 6, 7, 7); // cyan
-	polygon(5, 4, 0, 1, 2); // yellow
+	polygon(1, 0, 3, 2, RED);
+	polygon(2, 3, 7, 6, BLUE);
+	polygon(3, 0, 4, 7, MAGENTA);
+	polygon(6, 5, 1, 2, GREEN);
+	polygon(4, 5, 6, 7, CYAN);
+	polygon(5, 4, 0, 1, YELLOW);
 }
 ///////////////////////////////////////////////////////////////////////////////////
 
-mat4 Projection, Model, View;
+glm::mat4 Projection, Model, View;
 
-vec3 cubePosition = vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 cubePosition = glm::vec3(0.0f, 0.0f, 0.0f);
 
 void initShader(void)
 {
@@ -200,40 +200,49 @@ void doInput()
 
 	// Quit
 	if (input.keys[033])
+	{
 		exit(EXIT_SUCCESS);
+	}
 
 	// Move camera upwards
-	if (input.keys[' ']) {
+	if (input.keys[' ']) 
+	{
 		cameraPos -= alfa * cameraUp;
 	}
 	// Move camera downwards
-	if (input.specialKeys[0160]) {
+	if (input.specialKeys[0160])
+	{
 		cameraPos += alfa * cameraUp;
 	}
 	// Move camera to the right
-	if (input.keys['a']) {
-		vec3 direction = normalize(cross(cameraFront, cameraUp));
+	if (input.keys['a']) 
+	{
+		glm::vec3 direction = normalize(cross(cameraFront, cameraUp));
 		cameraPos -= alfa * direction;
 	}
 	// Move camera to the left
-	if (input.keys['d']) {
-		vec3 direction = normalize(cross(cameraFront, cameraUp));
+	if (input.keys['d'])
+	{
+		glm::vec3 direction = normalize(cross(cameraFront, cameraUp));
 		cameraPos += alfa * direction;
 	}
 	// Move camera close (same direction)
-	if (input.keys['w']) {
+	if (input.keys['w'])
+	{
 		cameraPos += alfa * cameraFront;
 	}
 	// move camera away (same direction)
-	if (input.keys['s']) { 
+	if (input.keys['s'])
+	{ 
 		cameraPos -= alfa * cameraFront;
 	}
 
 	// Reset camera position
-	if (input.keys['t']) {
-		cameraPos = vec3(0.0, 0.0, 10.0);
-		cameraFront = vec3(0.0, 0.0, -1.0);
-		cameraUp = vec3(0.0, 1.0, 0.0);
+	if (input.keys['t'])
+	{
+		cameraPos = glm::vec3(0.0, 0.0, 10.0);
+		cameraFront = glm::vec3(0.0, 0.0, -1.0);
+		cameraUp = glm::vec3(0.0, 1.0, 0.0);
 	}
 
 	// Rotate along Y axis (clockwise)
@@ -334,7 +343,7 @@ void drawScene()
 
 	//Passo al Vertex Shader il puntatore alla matrice Projection, che sarà associata alla variabile Uniform mat4 Projection
 	//all'interno del Vertex shader. Uso l'identificatio MatProj
-	Projection = perspective(radians((float)fov), (float)(width) / float(height), zNear, zFar);
+	Projection = glm::perspective(glm::radians((float)fov), (float)(width) / float(height), zNear, zFar);
 	glUniformMatrix4fv(MatProj, 1, GL_FALSE, value_ptr(Projection));
 	//Costruisco la matrice di Vista che applicata ai vertici in coordinate mondo WCS
 	//li trasforma nel sistema di riferimento della camera VCS.
@@ -351,12 +360,12 @@ void drawScene()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-	Model = mat4(1.0);
+	Model = glm::mat4(1.0);
 	Model = translate(Model, cubePosition);
-	Model = rotate(Model, radians(rotateX), glm::vec3(1.0f, 0.0f, 0.0f)); 
-	Model = rotate(Model, radians(rotateY), glm::vec3(0.0f, 1.0f, 0.0f));
-	Model = rotate(Model, radians(rotateZ), glm::vec3(0.0f, 0.0f, 1.0f));
-	Model = scale(Model, vec3(scaleX, scaleY, scaleZ));
+	Model = glm::rotate(Model, glm::radians(rotateX), glm::vec3(1.0f, 0.0f, 0.0f));
+	Model = glm::rotate(Model, glm::radians(rotateY), glm::vec3(0.0f, 1.0f, 0.0f));
+	Model = glm::rotate(Model, glm::radians(rotateZ), glm::vec3(0.0f, 0.0f, 1.0f));
+	Model = glm::scale(Model, glm::vec3(scaleX, scaleY, scaleZ));
 
 	//Passo al Vertex Shader il puntatore alla matrice Model, che sarà associata alla variabile Uniform mat4 Projection
 	//all'interno del Vertex shader. Uso l'identificatio MatModel
