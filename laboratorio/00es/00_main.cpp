@@ -1,3 +1,36 @@
+/*
+* Lab 00 - OpenGL Introduction
+*
+* Solution by Michele Righi (0001025005)
+* GitHub: https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/tree/main/laboratorio/00es
+*
+*
+* Description:
+*
+Usage:
+*	- Left click to place a control point.
+*		(Maximum number of control points allowed is currently set at 300)
+*	- Drag and drop the mouse while hovering a control point to move it.
+* 
+*	- Press 'w' to move the camera forwards.
+*	- Press 'a' to move the camera to the left.
+*	- Press 's' to move the camera backwards.
+*	- Press 'd' to move the camera to the right.
+*	- Press SPACE to move the camera upwards.
+*	- Press MAIUSC to move the camera downwards.
+*	- Press 't' to reset the camera position.
+* 
+*	- Press up arrow to rotate the cube on x-axis clockwise,
+*	- Press down arrow to rotate the cube on x-axis counter-clockwise.
+*	- Press left arrow to rotate the cube on y-axis clockwise,
+*	- Press right arrow to rotate the cube on y-axis counter-clockwise.
+*	- Press page-up to rotate the cube on z-axis clockwise,
+*	- Press page-down to rotate the cube on z-axis counter-clockwise.
+*	- Press 'r' to reset the cube rotation.
+* 
+*	- Press ESC to exit.
+*/
+
 // 3D_CUBE_TRANSMAT.cpp 
 // (advanced) Cube data defined with colored faces 
 //
@@ -174,42 +207,68 @@ void doInput()
 {
 	float alfa = 0.05 * deltaTime;
 
-	// Key input
-	if (input.keys['q'] || input.keys['Q'] || input.keys[033]) // Escape Key
+	// Quit
+	if (input.keys[033])
 		exit(EXIT_SUCCESS);
-	if (input.keys['a']) { // move camera to the right
-		vec3 dir = normalize(cross(cameraFront, cameraUp));
-		cameraPos = cameraPos - alfa * dir;
+
+	// Move camera upwards
+	if (input.keys[' ']) {
+		cameraPos -= alfa * cameraUp;
 	}
-	if (input.keys['d']) { // move camera to the left
-		vec3 direzione = normalize(cross(cameraFront, cameraUp));
-		cameraPos = cameraPos + alfa * direzione;
+
+	// Move camera downwards
+	if (input.specialKeys[160]) {
+		cameraPos += alfa * cameraUp;
 	}
-	if (input.keys['w']) { // move camera close (same direction)
-		cameraPos = cameraPos + alfa * cameraFront;
+
+	// Move camera to the right
+	if (input.keys['a']) {
+		vec3 direction = normalize(cross(cameraFront, cameraUp));
+		cameraPos -= alfa * direction;
 	}
-	if (input.keys['s']) { // move camera away (same direction)
-		cameraPos = cameraPos - alfa * cameraFront;
+	// Move camera to the left
+	if (input.keys['d']) {
+		vec3 direction = normalize(cross(cameraFront, cameraUp));
+		cameraPos += alfa * direction;
 	}
-	if (input.keys[' ']) { // reset values to their defaults
+	// Move camera close (same direction)
+	if (input.keys['w']) {
+		cameraPos += alfa * cameraFront;
+	}
+	// move camera away (same direction)
+	if (input.keys['s']) { 
+		cameraPos -= alfa * cameraFront;
+	}
+
+	// Reset camera position
+	if (input.keys['t']) {
 		cameraPos = vec3(0.0, 0.0, 10.0);
 		cameraFront = vec3(0.0, 0.0, -1.0);
 		cameraUp = vec3(0.0, 1.0, 0.0);
 	}
 
-	// Special key input
+	// Rotate along Y axis (clockwise)
 	if (input.specialKeys[GLUT_KEY_LEFT])
 	{
 		rotateY -= 15;
 		if (rotateY < 0)
 			rotateY += 360;
 	}
+	// Rotate along Y axis (counter-clockwise)
 	if (input.specialKeys[GLUT_KEY_RIGHT])
 	{
 		rotateY += 15;
 		if (rotateY >= 360)
 			rotateY -= 360;
 	}
+	// Rotate along X axis (clockwise)
+	if (input.specialKeys[GLUT_KEY_UP])
+	{
+		rotateX -= 15;
+		if (rotateX < 0)
+			rotateX += 360;
+	}
+	// Rotate along X axis (counter-clockwise)
 	if (input.specialKeys[GLUT_KEY_DOWN])
 	{
 		rotateX += 15;
@@ -217,56 +276,40 @@ void doInput()
 			rotateX -= 360;
 
 	}
-	if (input.specialKeys[GLUT_KEY_UP])
-	{
-		rotateX -= 15;
-		if (rotateX < 0)
-			rotateX += 360;
-	}
+	// Rotate along Z axis (clockwise)
 	if (input.specialKeys[GLUT_KEY_PAGE_UP])
-	{
-		rotateZ += 15;
-		if (rotateZ >= 360)
-			rotateZ -= 360;
-	}
-	if (input.specialKeys[GLUT_KEY_PAGE_DOWN])
 	{
 		rotateZ -= 15;
 		if (rotateZ < 0)
 			rotateZ += 360;
 	}
+	// Rotate along Z axis (counter-clockwise)
+	if (input.specialKeys[GLUT_KEY_PAGE_DOWN])
+	{
+		rotateZ += 15;
+		if (rotateZ >= 360)
+			rotateZ -= 360;
+	}
 
-	if (input.specialKeys[GLUT_KEY_HOME])
+	// Reset rotation
+	if (input.keys['r'])
 		rotateX = rotateY = rotateZ = 0;
 
-	/*if (input.mouse.keys[GLUT_LEFT_BUTTON])
-	{
-		scaleX = 1.1;
-	}
-	else scaleX = 1.0;
-
-	if (input.mouse.keys[GLUT_MIDDLE_BUTTON])
-	{
-		scaleY = 1.1;
-	}
-	else scaleY = 1.0;
-
-	if (input.mouse.keys[GLUT_RIGHT_BUTTON])
-	{
-		scaleZ = 1.1;
-	}
-	else scaleZ = 1.0;*/
-
+	// Scale along X axis
 	if (input.mouse.keys[GLUT_LEFT_BUTTON])
 	{
 		scaleX = MIN(10.0, scaleX * 1.1);
 	}
 	else scaleX = MAX(1.0, scaleX * 0.9);
+	
+	// Scale along Y axis
 	if (input.mouse.keys[GLUT_MIDDLE_BUTTON])
 	{
 		scaleY = MIN(10.0, scaleY * 1.1);
 	}
 	else scaleY = MAX(1.0, scaleY * 0.9);
+	
+	// Scale along Z axis
 	if (input.mouse.keys[GLUT_RIGHT_BUTTON])
 	{
 		scaleZ = MIN(10.0, scaleZ * 1.1);
@@ -330,7 +373,7 @@ void drawScene()
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glDrawArrays(GL_TRIANGLES, 0, NumVertices);
 	
-	drawText();
+	//drawText();
 
 	glutSwapBuffers();
 }
@@ -357,7 +400,6 @@ int main(int argc, char* argv[])
 
 	glewExperimental = GL_TRUE;
 	glewInit();
-
 	
 	// Input
 	glutMouseWheelFunc(mousewheel);
@@ -365,7 +407,6 @@ int main(int argc, char* argv[])
 
 	// Update
 	glutTimerFunc(20, update, 0);
-	
 
 	// Draw
 	glutDisplayFunc(drawScene);

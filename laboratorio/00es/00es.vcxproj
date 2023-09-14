@@ -132,7 +132,7 @@
   <ItemGroup>
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="input.c" />
-    <ClCompile Include="00es_main.cpp" />
+    <ClCompile Include="00_main.cpp" />
     <ClCompile Include="ShaderMaker.cpp" />
     <ClCompile Include="text.c" />
   </ItemGroup>
