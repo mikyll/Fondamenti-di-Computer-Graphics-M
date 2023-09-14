@@ -6,12 +6,11 @@
 *
 *
 * Description:
+* This program draws a single 3D cube with faces of different flat colors
+*	(red, green, blue, yellow, magenta, cyan) and allows the user to
+*	interact with it.
 *
 Usage:
-*	- Left click to place a control point.
-*		(Maximum number of control points allowed is currently set at 300)
-*	- Drag and drop the mouse while hovering a control point to move it.
-* 
 *	- Press 'w' to move the camera forwards.
 *	- Press 'a' to move the camera to the left.
 *	- Press 's' to move the camera backwards.
@@ -20,29 +19,21 @@ Usage:
 *	- Press MAIUSC to move the camera downwards.
 *	- Press 't' to reset the camera position.
 * 
-*	- Press up arrow to rotate the cube on x-axis clockwise,
+*	- Press up arrow to rotate the cube on x-axis clockwise.
 *	- Press down arrow to rotate the cube on x-axis counter-clockwise.
-*	- Press left arrow to rotate the cube on y-axis clockwise,
+*	- Press left arrow to rotate the cube on y-axis clockwise.
 *	- Press right arrow to rotate the cube on y-axis counter-clockwise.
-*	- Press page-up to rotate the cube on z-axis clockwise,
+*	- Press page-up to rotate the cube on z-axis clockwise.
 *	- Press page-down to rotate the cube on z-axis counter-clockwise.
 *	- Press 'r' to reset the cube rotation.
 * 
+*	- Press left mouse button to scale the cube on x-axis.
+*	- Press middle mouse button (wheel) to scale the cube on y-axis.
+*	- Press right mouse button to scale the cube on z-axis.
+*	- Scroll mouse wheel to change FOV (Field Of View).
+* 
 *	- Press ESC to exit.
 */
-
-// 3D_CUBE_TRANSMAT.cpp 
-// (advanced) Cube data defined with colored faces 
-//
-// 
-// VIEWING:  (lookAt())
-//		'a' /'A'		move camera position right and left 
-//		's'/'S'			move camera position close /away 
-// 
-// PROJECTION (perspective() )		mouse wheel	change fov 
-//
-// MODELING:   translate()/rotate()/scale()  to transform the cube geometry 
-//				special keys		spinning 
 
 #include <iostream>
 
@@ -175,17 +166,17 @@ void init(void)
 	glBindBuffer(GL_ARRAY_BUFFER, vcolorID);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
 	
-	//Definisco il colore che verrà assegnato allo schermo
+	// Definisco il colore che verrà assegnato allo schermo
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
 	// Ottieni l'identificativo della variabile uniform mat4 Projection (in vertex shader).
-    //Questo identificativo sarà poi utilizzato per il trasferimento della matrice Projection al Vertex Shader
+    // Questo identificativo sarà poi utilizzato per il trasferimento della matrice Projection al Vertex Shader
 	MatProj = glGetUniformLocation(programId, "Projection");
 	// Ottieni l'identificativo della variabile uniform mat4 Model (in vertex shader)
-	//Questo identificativo sarà poi utilizzato per il trasferimento della matrice Model al Vertex Shader
+	// Questo identificativo sarà poi utilizzato per il trasferimento della matrice Model al Vertex Shader
 	MatModel = glGetUniformLocation(programId, "Model");
-	//Ottieni l'identificativo della variabile uniform mat4 View (in vertex shader)
-	//Questo identificativo sarà poi utilizzato per il trasferimento della matrice View al Vertex Shader
+	// Ottieni l'identificativo della variabile uniform mat4 View (in vertex shader)
+	// Questo identificativo sarà poi utilizzato per il trasferimento della matrice View al Vertex Shader
 	MatView = glGetUniformLocation(programId, "View");
 
 }
@@ -205,7 +196,7 @@ void resize(int w, int h)
 
 void doInput()
 {
-	float alfa = 0.05 * deltaTime;
+	float alfa = 0.025 * deltaTime;
 
 	// Quit
 	if (input.keys[033])
@@ -215,12 +206,10 @@ void doInput()
 	if (input.keys[' ']) {
 		cameraPos -= alfa * cameraUp;
 	}
-
 	// Move camera downwards
-	if (input.specialKeys[160]) {
+	if (input.specialKeys[0160]) {
 		cameraPos += alfa * cameraUp;
 	}
-
 	// Move camera to the right
 	if (input.keys['a']) {
 		vec3 direction = normalize(cross(cameraFront, cameraUp));
@@ -293,7 +282,11 @@ void doInput()
 
 	// Reset rotation
 	if (input.keys['r'])
-		rotateX = rotateY = rotateZ = 0;
+	{
+		rotateX = 15;
+		rotateY = -15;
+		rotateZ = 0;
+	}
 
 	// Scale along X axis
 	if (input.mouse.keys[GLUT_LEFT_BUTTON])
