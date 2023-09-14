@@ -214,13 +214,13 @@ void doInput()
 	{
 		cameraPos += alfa * cameraUp;
 	}
-	// Move camera to the right
+	// Move camera to the left
 	if (input.keys['a']) 
 	{
 		glm::vec3 direction = normalize(cross(cameraFront, cameraUp));
 		cameraPos -= alfa * direction;
 	}
-	// Move camera to the left
+	// Move camera to the right
 	if (input.keys['d'])
 	{
 		glm::vec3 direction = normalize(cross(cameraFront, cameraUp));
@@ -245,20 +245,6 @@ void doInput()
 		cameraUp = glm::vec3(0.0, 1.0, 0.0);
 	}
 
-	// Rotate along Y axis (clockwise)
-	if (input.specialKeys[GLUT_KEY_LEFT])
-	{
-		rotateY -= 15;
-		if (rotateY < 0)
-			rotateY += 360;
-	}
-	// Rotate along Y axis (counter-clockwise)
-	if (input.specialKeys[GLUT_KEY_RIGHT])
-	{
-		rotateY += 15;
-		if (rotateY >= 360)
-			rotateY -= 360;
-	}
 	// Rotate along X axis (clockwise)
 	if (input.specialKeys[GLUT_KEY_UP])
 	{
@@ -272,7 +258,20 @@ void doInput()
 		rotateX += 15;
 		if (rotateX >= 360)
 			rotateX -= 360;
-
+	}
+	// Rotate along Y axis (clockwise)
+	if (input.specialKeys[GLUT_KEY_LEFT])
+	{
+		rotateY -= 15;
+		if (rotateY < 0)
+			rotateY += 360;
+	}
+	// Rotate along Y axis (counter-clockwise)
+	if (input.specialKeys[GLUT_KEY_RIGHT])
+	{
+		rotateY += 15;
+		if (rotateY >= 360)
+			rotateY -= 360;
 	}
 	// Rotate along Z axis (clockwise)
 	if (input.specialKeys[GLUT_KEY_PAGE_UP])
@@ -341,12 +340,12 @@ void drawScene()
 {
 	float timevalue = glutGet(GLUT_ELAPSED_TIME) * 0.0001;
 
-	//Passo al Vertex Shader il puntatore alla matrice Projection, che sarà associata alla variabile Uniform mat4 Projection
-	//all'interno del Vertex shader. Uso l'identificatio MatProj
+	// Passo al Vertex Shader il puntatore alla matrice Projection, che sarà associata alla variabile Uniform mat4 Projection
+	// all'interno del Vertex shader. Uso l'identificatio MatProj
 	Projection = glm::perspective(glm::radians((float)fov), (float)(width) / float(height), zNear, zFar);
 	glUniformMatrix4fv(MatProj, 1, GL_FALSE, value_ptr(Projection));
-	//Costruisco la matrice di Vista che applicata ai vertici in coordinate mondo WCS
-	//li trasforma nel sistema di riferimento della camera VCS.
+	// Costruisco la matrice di Vista che applicata ai vertici in coordinate mondo WCS
+	// li trasforma nel sistema di riferimento della camera VCS.
 	// usage: lookAt(eye,at,up);
 	View = lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 	glUniformMatrix4fv(MatView, 1, GL_FALSE, value_ptr(View));
@@ -367,15 +366,15 @@ void drawScene()
 	Model = glm::rotate(Model, glm::radians(rotateZ), glm::vec3(0.0f, 0.0f, 1.0f));
 	Model = glm::scale(Model, glm::vec3(scaleX, scaleY, scaleZ));
 
-	//Passo al Vertex Shader il puntatore alla matrice Model, che sarà associata alla variabile Uniform mat4 Projection
-	//all'interno del Vertex shader. Uso l'identificatio MatModel
+	// Passo al Vertex Shader il puntatore alla matrice Model, che sarà associata alla variabile Uniform mat4 Projection
+	// all'interno del Vertex shader. Uso l'identificatio MatModel
 	glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(Model));
 	
 	glBindVertexArray(vao);
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glDrawArrays(GL_TRIANGLES, 0, NumVertices);
 	
-	//drawText();
+	// drawText();
 
 	glutSwapBuffers();
 }
