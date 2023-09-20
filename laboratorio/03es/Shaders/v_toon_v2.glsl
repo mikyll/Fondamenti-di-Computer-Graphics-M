@@ -1,4 +1,4 @@
-// Vertex shader: Wave Light shading
+// Vertex shader: Toon shading
 // ================
 #version 450 core
 
@@ -6,19 +6,10 @@
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
 
-// Resulting color from lighting calculations
-out vec3 Color;
-
-// Projection, View, Model matrices
+// Values that stay constant for the whole mesh.
 uniform mat4 P;
 uniform mat4 V;
 uniform mat4 M; // = position * rotation * scaling
-
-uniform float time; // in milliseconds
-
-uniform float xFreq = 0.001, zFreq = 0.001;
-uniform float heightScale = 0.1;
-
 
 struct PointLight{
 	vec3 position;
@@ -35,42 +26,40 @@ struct Material {
 }; 
 uniform Material material;
 
+// Ouput data
+out vec3 E;
+out vec3 N;
+out vec3 L;
+out vec3 Color; // resulting color from lighting calculations
+
 void main()
 {
-	vec4 v = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-	
-	// Update the Y component
-	v.y = aPos.y + 
-	heightScale * sin(time * xFreq + 10 * aPos.x) +
-	heightScale * sin(time * zFreq + 10 * aPos.z);
-	
-	gl_Position = P * V * M * v;
-	
-	
-	// Adding light
+    gl_Position = P * V * M * vec4(aPos, 1.0);
 	
 	// Transform vertex  position into eye (VCS) coordinates
     vec4 eyePosition = V * M * vec4(aPos, 1.0);
-	// Transform Light  position into eye (VCS) coordinates 
+	// Transform Light position into eye (VCS) coordinates 
 	vec4 eyeLightPos = V * vec4(light.position, 1.0);
+
+
     // Transform vertex normal into VCS
-    vec3 N = normalize(transpose(inverse(mat3(V * M))) * aNormal);
-
-	// Compute vectors E, L, R in VCS
-	vec3 E = normalize(-eyePosition.xyz);
-	vec3 L = normalize((eyeLightPos - eyePosition).xyz);
+    N = normalize(transpose(inverse(mat3(V * M))) * aNormal);
+	
+	// Compute vectors E, L in VCS
+	E = normalize(-eyePosition.xyz);
+	L = normalize((eyeLightPos - eyePosition).xyz);
     vec3 R = reflect(-L, N);
-
-    // Ambient
+	
+	// ambient
     vec3 ambient = light.power * material.ambient;
   	
-    // Diffuse
-    float diff = max(dot(L, N), 0.0);
+    // diffuse 
+    float diff = max(dot(L,N), 0.0);
     vec3 diffuse = light.power * light.color * diff * material.diffuse;
 
-    // Specular
+    // specular
     float spec = pow(max(dot(E, R), 0.0), material.shininess);
-    vec3 specular =  light.power * light.color * spec * material.specular;
+    vec3 specular =  light.power * light.color * spec * material.specular;  
 
     Color = ambient + diffuse + specular;
 }

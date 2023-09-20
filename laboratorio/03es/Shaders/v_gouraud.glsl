@@ -32,7 +32,7 @@ void main()
 {
     gl_Position = P * V * M * vec4(aPos, 1.0);
     
-    // Transform vertex  position into eye (VCS) coordinates
+    // Transform vertex position into eye (VCS) coordinates
     vec4 eyePosition = V * M * vec4(aPos, 1.0);
 	// Transform Light  position into eye (VCS) coordinates 
 	vec4 eyeLightPos = V * vec4(light.position, 1.0);

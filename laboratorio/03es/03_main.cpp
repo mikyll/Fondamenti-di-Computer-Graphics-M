@@ -72,14 +72,15 @@ typedef struct {
 	GLuint uvBufferObjID;
 } Mesh;
 
-typedef enum { // used also as index, don't modify order
+typedef enum {
+	PASS_THROUGH,
 	GOURAUD,
 	PHONG,
 	BLINN,
-	TOON,
-	PASS_THROUGH,
 	WAVE,
 	WAVE_LIGHT,
+	TOON,
+	TOON_V2,
 	SHADINGS_LENGTH
 } ShadingType;
 
@@ -235,28 +236,34 @@ void init_waving_plane() {
 	loadObjFile(MeshDir + "GridPlane.obj", &sphereS);
 	generate_and_load_buffers(true, &sphereS);
 	// Object Setup use the light shader and a material for color and light behavior
-	Object obj4 = {};
-	obj4.mesh = sphereS;
-	obj4.material = MaterialType::BRONZE;
-	obj4.shading = ShadingType::WAVE_LIGHT;
-	obj4.name = "Waves";
-	obj4.M = glm::scale(glm::translate(glm::mat4(1), glm::vec3(0., -2., 0.)), glm::vec3(8., 8., 8.));
-	objects.push_back(obj4);
+	Object obj = {};
+	obj.mesh = sphereS;
+	obj.material = MaterialType::TURQUOISE;
+	obj.shading = ShadingType::WAVE_LIGHT;
+	obj.name = "Waves";
+	obj.M = glm::scale(glm::translate(glm::mat4(1), glm::vec3(0., -2., 0.)), glm::vec3(8., 8., 8.));
+	objects.push_back(obj);
 }
 
-void init_mesh() {
+void init_mesh(string filename, string name, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, MaterialType material, ShadingType shading) {
 	Mesh sphereS = {};
 	//	loadObjFile(MeshDir + "airplane.obj", &sphereS);
-	loadObjFile(MeshDir + "bunny.obj", &sphereS);
+	loadObjFile(MeshDir + filename, &sphereS);
 	generate_and_load_buffers(true, &sphereS);
 	// Object Setup use the light shader and a material for color and light behavior
-	Object obj4 = {};
-	obj4.mesh = sphereS;
-	obj4.material = MaterialType::RED_PLASTIC; // NO_MATERIAL;
-	obj4.shading = ShadingType::PHONG; // GOURAUD; // TOON;
-	obj4.name = "Bunny";
-	obj4.M = glm::scale(glm::translate(glm::mat4(1), glm::vec3(0., 0., -2.)), glm::vec3(2., 2., 2.));
-	objects.push_back(obj4);
+	Object obj = {};
+	obj.mesh = sphereS;
+	obj.material = material; // NO_MATERIAL;
+	obj.shading = shading;
+	obj.name = name;
+	obj.M = glm::scale(glm::translate(glm::mat4(1), position), scale);
+	if (rotation != glm::vec3(0.0f, 0.0f, 0.0f))
+	{
+		obj.M = glm::rotate(obj.M, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+		obj.M = glm::rotate(obj.M, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+		obj.M = glm::rotate(obj.M, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+	}
+	objects.push_back(obj);
 }
 
 
@@ -265,13 +272,13 @@ void init_sphere_FLAT() {
 	loadObjFile(MeshDir + "sphere_n_t_flat.obj", &sphereF);
 	generate_and_load_buffers(true, &sphereF);
 	// Object Setup  use the light shader and a material for color and light behavior
-	Object obj3 = {};
-	obj3.mesh = sphereF;
-	obj3.material = MaterialType::EMERALD;
-	obj3.shading = ShadingType::PHONG;
-	obj3.name = "Sphere FLAT";
-	obj3.M = glm::translate(glm::mat4(1), glm::vec3(3., 0., -6.));
-	objects.push_back(obj3);
+	Object obj = {};
+	obj.mesh = sphereF;
+	obj.material = MaterialType::EMERALD;
+	obj.shading = ShadingType::PHONG;
+	obj.name = "Sphere FLAT";
+	obj.M = glm::translate(glm::mat4(1), glm::vec3(3., 1., -6.));
+	objects.push_back(obj);
 }
 
 void init_sphere_SMOOTH() {
@@ -279,39 +286,39 @@ void init_sphere_SMOOTH() {
 	loadObjFile(MeshDir + "sphere_n_t_smooth.obj", &sphereS);
 	generate_and_load_buffers(true, &sphereS);
 	// Object Setup use the light shader and a material for color and light behavior
-	Object obj4 = {};
-	obj4.mesh = sphereS;
-	obj4.material = MaterialType::EMERALD;
-	obj4.shading = ShadingType::BLINN;
-	obj4.name = "Sphere SMOOTH";
-	obj4.M = glm::translate(glm::mat4(1), glm::vec3(6., 0., -3.));
-	objects.push_back(obj4);
+	Object obj = {};
+	obj.mesh = sphereS;
+	obj.material = MaterialType::SILVER;
+	obj.shading = ShadingType::BLINN;
+	obj.name = "Sphere SMOOTH";
+	obj.M = glm::translate(glm::mat4(1), glm::vec3(6., 1., -3.));
+	objects.push_back(obj);
 }
 
 void init_axis() {
 	Mesh _grid = {};
 	loadObjFile(MeshDir + "axis.obj", &_grid);
 	generate_and_load_buffers(true, &_grid);
-	Object obj1 = {};
-	obj1.mesh = _grid;
-	obj1.material = MaterialType::NO_MATERIAL;
-	obj1.shading = ShadingType::BLINN;
-	obj1.name = "axis_";
-	obj1.M = glm::scale(glm::mat4(1), glm::vec3(2.f, 2.f, 2.f));
-	Axis = obj1;
+	Object obj = {};
+	obj.mesh = _grid;
+	obj.material = MaterialType::NO_MATERIAL;
+	obj.shading = ShadingType::BLINN;
+	obj.name = "axis_";
+	obj.M = glm::scale(glm::mat4(1), glm::vec3(2.f, 2.f, 2.f));
+	Axis = obj;
 }
 
 void init_grid() {
 	Mesh _grid = {};
 	loadObjFile(MeshDir + "reference_grid.obj", &_grid);
 	generate_and_load_buffers(true, &_grid);
-	Object obj1 = {};
-	obj1.mesh = _grid;
-	obj1.material = MaterialType::NO_MATERIAL;
-	obj1.shading = ShadingType::PASS_THROUGH;
-	obj1.name = "grid_";
-	obj1.M = glm::mat4(1);
-	Grid = obj1;
+	Object obj = {};
+	obj.mesh = _grid;
+	obj.material = MaterialType::NO_MATERIAL;
+	obj.shading = ShadingType::PASS_THROUGH;
+	obj.name = "grid_";
+	obj.M = glm::mat4(1);
+	Grid = obj;
 }
 
 
@@ -322,15 +329,26 @@ void initShader()
 	light_uniforms.resize(NUM_SHADERS); // allocate space for uniforms of PHONG, BLINN and GOURAND + TOON
 	base_uniforms.resize(NUM_SHADERS); // allocate space for uniforms of PHONG,BLINN,GOURAND,TOON,WAVE
 
+	BaseShaderUniform base_unif = {};
+	LightShaderUniform light_unif = {};
+
+	// Pass-Through Shader loading
+	shaders_IDs[PASS_THROUGH] = createProgram(ShaderDir + "v_passthrough.glsl", ShaderDir + "f_passthrough.glsl");
+	// Otteniamo i puntatori alle variabili uniform per poterle utilizzare in seguito
+	base_unif.P_Matrix_pointer = glGetUniformLocation(shaders_IDs[PASS_THROUGH], "P");
+	base_unif.V_Matrix_pointer = glGetUniformLocation(shaders_IDs[PASS_THROUGH], "V");
+	base_unif.M_Matrix_pointer = glGetUniformLocation(shaders_IDs[PASS_THROUGH], "M");
+	base_uniforms[ShadingType::PASS_THROUGH] = base_unif;
+	glUseProgram(shaders_IDs[PASS_THROUGH]);
+	glUniform4fv(glGetUniformLocation(shaders_IDs[PASS_THROUGH], "Color"), 1, value_ptr(glm::vec4(1.0, 1.0, 1.0, 1.0)));
+
 	// Gourand Shader loading
 	shaders_IDs[GOURAUD] = createProgram(ShaderDir + "v_gouraud.glsl", ShaderDir + "f_gouraud.glsl");
-	BaseShaderUniform base_unif = {};
 	// Otteniamo i puntatori alle variabili uniform per poterle utilizzare in seguito
 	base_unif.P_Matrix_pointer = glGetUniformLocation(shaders_IDs[GOURAUD], "P");
 	base_unif.V_Matrix_pointer = glGetUniformLocation(shaders_IDs[GOURAUD], "V");
 	base_unif.M_Matrix_pointer = glGetUniformLocation(shaders_IDs[GOURAUD], "M");
 	base_uniforms[ShadingType::GOURAUD] = base_unif;
-	LightShaderUniform light_unif = {};
 	light_unif.material_ambient = glGetUniformLocation(shaders_IDs[GOURAUD], "material.ambient");
 	light_unif.material_diffuse = glGetUniformLocation(shaders_IDs[GOURAUD], "material.diffuse");
 	light_unif.material_specular = glGetUniformLocation(shaders_IDs[GOURAUD], "material.specular");
@@ -401,7 +419,7 @@ void initShader()
 	glUseProgram(shaders_IDs[WAVE]);
 
 	// Wave Light Shader Loading
-	// Extra: OK
+	// TO-DO Extra: OK
 	shaders_IDs[WAVE_LIGHT] = createProgram(ShaderDir + "v_wave_light.glsl", ShaderDir + "f_wave_light.glsl");
 	base_unif.P_Matrix_pointer = glGetUniformLocation(shaders_IDs[WAVE_LIGHT], "P");
 	base_unif.V_Matrix_pointer = glGetUniformLocation(shaders_IDs[WAVE_LIGHT], "V");
@@ -424,17 +442,42 @@ void initShader()
 	glUniform1f(light_uniforms[WAVE_LIGHT].light_power_pointer, light.power);
 
 	// Toon Shader Loading
-	// TO-DO
-	
-	// Pass-Through Shader loading
-	shaders_IDs[PASS_THROUGH] = createProgram(ShaderDir + "v_passthrough.glsl", ShaderDir + "f_passthrough.glsl");
-	// Otteniamo i puntatori alle variabili uniform per poterle utilizzare in seguito
-	base_unif.P_Matrix_pointer = glGetUniformLocation(shaders_IDs[PASS_THROUGH], "P");
-	base_unif.V_Matrix_pointer = glGetUniformLocation(shaders_IDs[PASS_THROUGH], "V");
-	base_unif.M_Matrix_pointer = glGetUniformLocation(shaders_IDs[PASS_THROUGH], "M");
-	base_uniforms[ShadingType::PASS_THROUGH] = base_unif;
-	glUseProgram(shaders_IDs[PASS_THROUGH]);
-	glUniform4fv(glGetUniformLocation(shaders_IDs[PASS_THROUGH], "Color"), 1, value_ptr(glm::vec4(1.0, 1.0, 1.0, 1.0)));
+	// TO-DO: OK
+	shaders_IDs[TOON] = createProgram(ShaderDir + "v_toon.glsl", ShaderDir + "f_toon.glsl");
+	base_unif.P_Matrix_pointer = glGetUniformLocation(shaders_IDs[TOON], "P");
+	base_unif.V_Matrix_pointer = glGetUniformLocation(shaders_IDs[TOON], "V");
+	base_unif.M_Matrix_pointer = glGetUniformLocation(shaders_IDs[TOON], "M");
+	base_uniforms[ShadingType::TOON] = base_unif;
+	light_unif.light_position_pointer = glGetUniformLocation(shaders_IDs[TOON], "light.position");
+	light_uniforms[ShadingType::TOON] = light_unif;
+	// Rendiamo attivo lo shader
+	glUseProgram(shaders_IDs[TOON]);
+	// Shader uniforms initialization
+	glUniform3f(light_uniforms[TOON].light_position_pointer, light.position.x, light.position.y, light.position.z);
+	// Set light color
+	glUniform4fv(glGetUniformLocation(shaders_IDs[TOON], "color"), 1, value_ptr(glm::vec4(1.0, 1.0, 1.0, 1.0)));
+
+	// Toon Shader Loading
+	// TO-DO Extra: OK
+	shaders_IDs[TOON_V2] = createProgram(ShaderDir + "v_toon_v2.glsl", ShaderDir + "f_toon_v2.glsl");
+	base_unif.P_Matrix_pointer = glGetUniformLocation(shaders_IDs[TOON_V2], "P");
+	base_unif.V_Matrix_pointer = glGetUniformLocation(shaders_IDs[TOON_V2], "V");
+	base_unif.M_Matrix_pointer = glGetUniformLocation(shaders_IDs[TOON_V2], "M");
+	base_uniforms[ShadingType::TOON_V2] = base_unif;
+	// Rendiamo attivo lo shader
+	glUseProgram(shaders_IDs[TOON_V2]);
+	light_unif.light_position_pointer = glGetUniformLocation(shaders_IDs[TOON_V2], "light.position");
+	light_unif.light_color_pointer = glGetUniformLocation(shaders_IDs[TOON_V2], "light.color");
+	light_unif.light_power_pointer = glGetUniformLocation(shaders_IDs[TOON_V2], "light.power");
+	light_unif.material_ambient = glGetUniformLocation(shaders_IDs[TOON_V2], "material.ambient");
+	light_unif.material_diffuse = glGetUniformLocation(shaders_IDs[TOON_V2], "material.diffuse");
+	light_unif.material_specular = glGetUniformLocation(shaders_IDs[TOON_V2], "material.specular");
+	light_unif.material_shininess = glGetUniformLocation(shaders_IDs[TOON_V2], "material.shininess");
+	light_uniforms[ShadingType::TOON_V2] = light_unif;
+	// Shader uniforms initialization
+	glUniform3f(light_uniforms[TOON_V2].light_position_pointer, light.position.x, light.position.y, light.position.z);
+	glUniform3f(light_uniforms[TOON_V2].light_color_pointer, light.color.r, light.color.g, light.color.b);
+	glUniform1f(light_uniforms[TOON_V2].light_power_pointer, light.power);
 }
 
 void init() {
@@ -448,8 +491,6 @@ void init() {
 	light.position = { 5.0,5.0,-5.0 };
 	light.color = { 1.0,1.0,1.0 };
 	light.power = 1.f;
-
-	
 
 	// Camera Setup
 	ViewSetup = {};
@@ -471,7 +512,7 @@ void init() {
 	// SMOOTH SPHERE (vertex normals)  uses a shader with lighting
 	init_sphere_SMOOTH();
 
-	//Reference point of the position of the light
+	// Reference point of the position of the light
 	init_light_object();
 
 	// White Axis for reference
@@ -483,8 +524,14 @@ void init() {
 	// Waving plane
 	init_waving_plane();
 
-	// Airplane model with TOON SHADING
-	init_mesh();
+	// Bunny Red plastic
+	init_mesh("bunny.obj", "Bunny", glm::vec3(0., 0., -2.), glm::vec3(), glm::vec3(2., 2., 2.), MaterialType::RED_PLASTIC, ShadingType::TOON);
+
+	// Airplane model with PHONG shading
+	init_mesh("airplane.obj", "Airplane", glm::vec3(-10., 5., 0.), glm::vec3(0.0 ,0.0, -40.0), glm::vec3(5., 5., 5.), MaterialType::RED_PLASTIC, ShadingType::PHONG);
+
+	// Horse model with PHONG shading
+	init_mesh("horse.obj", "Horse", glm::vec3(-4., 2., 5.), glm::vec3(0.0, 180.0f, 0.0), glm::vec3(0.5, 0.5, 0.5), MaterialType::GOLD, ShadingType::PHONG);
 }
 
 void drawScene() {
@@ -498,6 +545,12 @@ void drawScene() {
 		// Shader selection
 		switch (objects[i].shading)
 		{
+			case ShadingType::PASS_THROUGH:
+				glUseProgram(shaders_IDs[PASS_THROUGH]);
+				// Caricamento matrice trasformazione del modello
+				glUniformMatrix4fv(base_uniforms[PASS_THROUGH].M_Matrix_pointer, 1, GL_FALSE, value_ptr(objects[i].M));
+				break;
+		
 			case ShadingType::GOURAUD:
 				glUseProgram(shaders_IDs[GOURAUD]);
 				// Caricamento matrice trasformazione del modello
@@ -531,18 +584,6 @@ void drawScene() {
 				glUniform1f(light_uniforms[BLINN].material_shininess, materials[objects[i].material].shininess);
 				break;
 
-			case ShadingType::TOON:
-				glUseProgram(shaders_IDs[TOON]);
-				// Caricamento matrice trasformazione del modello
-				glUniformMatrix4fv(base_uniforms[TOON].M_Matrix_pointer, 1, GL_FALSE, value_ptr(objects[i].M));
-				break;
-
-			case ShadingType::PASS_THROUGH:
-				glUseProgram(shaders_IDs[PASS_THROUGH]);
-				// Caricamento matrice trasformazione del modello
-				glUniformMatrix4fv(base_uniforms[PASS_THROUGH].M_Matrix_pointer, 1, GL_FALSE, value_ptr(objects[i].M));
-				break;
-
 			case ShadingType::WAVE:
 				glUseProgram(shaders_IDs[WAVE]);
 				// Caricamento matrice trasformazione del modello
@@ -562,6 +603,23 @@ void drawScene() {
 				glUniform3fv(light_uniforms[WAVE_LIGHT].material_diffuse, 1, glm::value_ptr(materials[objects[i].material].diffuse));
 				glUniform3fv(light_uniforms[WAVE_LIGHT].material_specular, 1, glm::value_ptr(materials[objects[i].material].specular));
 				glUniform1f(light_uniforms[WAVE_LIGHT].material_shininess, materials[objects[i].material].shininess);
+				break;
+
+			case ShadingType::TOON:
+				glUseProgram(shaders_IDs[TOON]);
+				// Caricamento matrice trasformazione del modello
+				glUniformMatrix4fv(base_uniforms[TOON].M_Matrix_pointer, 1, GL_FALSE, value_ptr(objects[i].M));
+				break;
+
+			case ShadingType::TOON_V2:
+				glUseProgram(shaders_IDs[TOON_V2]);
+				// Caricamento matrice trasformazione del modello
+				glUniformMatrix4fv(base_uniforms[TOON_V2].M_Matrix_pointer, 1, GL_FALSE, value_ptr(objects[i].M));
+				// Material loading
+				glUniform3fv(light_uniforms[TOON_V2].material_ambient, 1, glm::value_ptr(materials[objects[i].material].ambient));
+				glUniform3fv(light_uniforms[TOON_V2].material_diffuse, 1, glm::value_ptr(materials[objects[i].material].diffuse));
+				glUniform3fv(light_uniforms[TOON_V2].material_specular, 1, glm::value_ptr(materials[objects[i].material].specular));
+				glUniform1f(light_uniforms[TOON_V2].material_shininess, materials[objects[i].material].shininess);
 				break;
 
 			default:
@@ -1126,13 +1184,14 @@ void printToScreen()
 	}
 	switch (objects[selected_obj].shading)
 	{
+		case ShadingType::PASS_THROUGH: shad += "Pass Through"; break;
 		case ShadingType::GOURAUD: shad += "Gouraud"; break;
 		case ShadingType::PHONG: shad += "Phong"; break;
 		case ShadingType::BLINN: shad += "Blinn"; break;
-		case ShadingType::TOON: shad += "Toon"; break;
-		case ShadingType::PASS_THROUGH: shad += "Pass Through"; break;
 		case ShadingType::WAVE: shad += "Wave"; break;
 		case ShadingType::WAVE_LIGHT: shad += "Wave Light"; break;
+		case ShadingType::TOON: shad += "Toon"; break;
+		case ShadingType::TOON_V2: shad += "Toon v2"; break;
 	}
 
 	glMatrixMode(GL_PROJECTION);

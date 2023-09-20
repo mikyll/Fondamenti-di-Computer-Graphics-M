@@ -14,6 +14,7 @@ glm::vec3 gold_ambient = { 0.24725, 0.1995, 0.0745 }, gold_diffuse = { 0.75164, 
 glm::vec3 silver_ambient = { 0.19225, 0.19225, 0.19225 }, silver_diffuse = { 0.50754, 0.50754, 0.50754 }, silver_specular{ 0.508273, 0.508273, 0.508273 }; GLfloat silver_shininess = 51.2f;
 glm::vec3 bronze_ambient = { 0.2125, 0.1275, 0.054 }, bronze_diffuse = { 0.714, 0.4284, 0.18144 }, bronze_specular{ 0.393548, 0.271906, 0.166721 }; GLfloat bronze_shininess = 25.6f;
 glm::vec3 copper_ambient = { 0.19125, 0.0735, 0.0225 }, copper_diffuse = { 0.7038, 0.27048, 0.0828 }, copper_specular{ 0.256777, 0.137622, 0.086014 }; GLfloat copper_shininess = 12.8f;
+glm::vec3 turquoise_ambient = { 0.1, 0.18725, 0.1745 }, turquoise_diffuse = { 0.396, 0.74151, 0.69102 }, turquoise_specular{ 0.297254, 0.30829, 0.306678 }; GLfloat turquoise_shininess = 12.8f;
 
 
 void initMaterials()
@@ -80,4 +81,10 @@ void initMaterials()
 	materials[MaterialType::COPPER].diffuse = copper_diffuse;
 	materials[MaterialType::COPPER].specular = copper_specular;
 	materials[MaterialType::COPPER].shininess = copper_shininess;
+
+	materials[MaterialType::TURQUOISE].name = "Turquoise";
+	materials[MaterialType::TURQUOISE].ambient = turquoise_ambient;
+	materials[MaterialType::TURQUOISE].diffuse = turquoise_diffuse;
+	materials[MaterialType::TURQUOISE].specular = turquoise_specular;
+	materials[MaterialType::TURQUOISE].shininess = turquoise_shininess;
 }

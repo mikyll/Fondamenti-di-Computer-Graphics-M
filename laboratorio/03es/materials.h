@@ -21,6 +21,7 @@ typedef enum {
 	SILVER,
 	BRONZE,
 	COPPER,
+	TURQUOISE,
 	MATERIALS_LENGTH
 } MaterialType;
 
