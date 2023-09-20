@@ -301,11 +301,12 @@ void init_axis() {
 	generate_and_load_buffers(true, &_grid);
 	Object obj = {};
 	obj.mesh = _grid;
-	obj.material = MaterialType::NO_MATERIAL;
+	obj.material = MaterialType::COPPER;
 	obj.shading = ShadingType::BLINN;
 	obj.name = "axis_";
 	obj.M = glm::scale(glm::mat4(1), glm::vec3(2.f, 2.f, 2.f));
 	Axis = obj;
+	objects.push_back(obj);
 }
 
 void init_grid() {
