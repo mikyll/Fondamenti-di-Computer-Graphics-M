@@ -127,10 +127,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="03_main.cpp" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <ClCompile Include="03_main.cpp" />
+    <ClCompile Include="HUD_Logger.cpp" />
+    <ClCompile Include="material.cpp" />
+    <ClCompile Include="ShaderMaker.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="HUD_Logger.h" />
+    <ClInclude Include="materials.h" />
+    <ClInclude Include="ShaderMaker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
