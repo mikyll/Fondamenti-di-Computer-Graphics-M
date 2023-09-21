@@ -20,7 +20,7 @@ glm::vec3 turquoise_ambient = { 0.1, 0.18725, 0.1745 }, turquoise_diffuse = { 0.
 void initMaterials()
 {
 	// Materials setup
-	materials.resize(MATERIALS_LENGTH);
+	materials.resize(NUM_MATERIALS);
 	materials[MaterialType::NO_MATERIAL].name = "NO_MATERIAL";
 	materials[MaterialType::NO_MATERIAL].ambient = glm::vec3(1, 1, 1);
 	materials[MaterialType::NO_MATERIAL].diffuse = glm::vec3(0, 0, 0);

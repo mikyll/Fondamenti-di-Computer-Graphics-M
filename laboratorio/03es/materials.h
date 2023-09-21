@@ -22,7 +22,7 @@ typedef enum {
 	BRONZE,
 	COPPER,
 	TURQUOISE,
-	MATERIALS_LENGTH
+	NUM_MATERIALS
 } MaterialType;
 
 typedef struct {

@@ -48,96 +48,12 @@ based on the OpenGL Shading Language (GLSL) specifications.
 
 #include "materials.h"
 
+using namespace std;
+
 #define SHIFT_WHEEL_UP 11
 #define SHIFT_WHEEL_DOWN 12
 #define CTRL_WHEEL_UP 19
 #define CTRL_WHEEL_DOWN 20
-
-#define NUM_SHADERS 9
-
-using namespace std;
-
-// Viewport size
-static int WindowWidth = 1120;
-static int WindowHeight = 630;
-GLfloat aspect_ratio = 16.0f / 9.0f;
-
-typedef struct {
-	std::vector<glm::vec3> vertices;
-	std::vector<glm::vec3> normals;
-	std::vector<glm::vec2> texCoords;
-	GLuint vertexArrayObjID;
-	GLuint vertexBufferObjID;
-	GLuint normalBufferObjID;
-	GLuint uvBufferObjID;
-} Mesh;
-
-typedef enum {
-	PASS_THROUGH,
-	GOURAUD,
-	PHONG,
-	BLINN,
-	WAVE,
-	WAVE_LIGHT,
-	TOON,
-	TOON_V2,
-	SHADINGS_LENGTH
-} ShadingType;
-
-typedef struct {
-	Mesh mesh;
-	MaterialType material;
-	ShadingType shading;
-	glm::mat4 M;
-	string name;
-} Object;
-
-typedef struct {
-	GLuint light_position_pointer;
-	GLuint light_color_pointer;
-	GLuint light_power_pointer;
-	GLuint material_diffuse;
-	GLuint material_ambient;
-	GLuint material_specular;
-	GLuint material_shininess;
-} LightShaderUniform;
-
-typedef struct {
-	GLuint P_Matrix_pointer;
-	GLuint V_Matrix_pointer;
-	GLuint M_Matrix_pointer;
-	GLfloat time_delta_pointer;
-} BaseShaderUniform;
-
-const string MeshDir = "Mesh/";
-const string ShaderDir = "Shaders/";
-static Object Axis, Grid;
-static vector<Object> objects;
-extern vector<Material> materials;
-static int selected_obj = 0;
-
-typedef struct {
-	glm::vec3 position;
-	glm::vec3 color;
-	GLfloat power;
-} PointLight;
-
-static PointLight light;
-
-/*camera structures*/
-constexpr float CAMERA_ZOOM_SPEED = 0.1f;
-constexpr float CAMERA_TRASLATION_SPEED = 0.01f;
-
-// Camera "look at": è indirizzata verso un punto specifico.
-struct {
-	glm::vec4 position; // Posizione della camera
-	glm::vec4 target; // Punto verso cui la camera è puntata
-	glm::vec4 upVector; // Vettore VUP, "View Up Vector"
-} ViewSetup;
-
-struct {
-	float fovY, aspect, near_plane, far_plane;
-} PerspectiveSetup;
 
 typedef enum {
 	WIRE_FRAME,
@@ -166,6 +82,89 @@ enum {
 	OCS, // Object Coordinate System
 	WCS // World Coordinate System
 } TransformMode;
+
+typedef enum {
+	PASS_THROUGH,
+	GOURAUD,
+	PHONG,
+	BLINN,
+	WAVE,
+	WAVE_LIGHT,
+	TOON,
+	TOON_V2,
+	NUM_SHADERS
+} ShadingType;
+
+typedef struct {
+	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec3> normals;
+	std::vector<glm::vec2> texCoords;
+	GLuint vertexArrayObjID;
+	GLuint vertexBufferObjID;
+	GLuint normalBufferObjID;
+	GLuint uvBufferObjID;
+} Mesh;
+
+typedef struct {
+	Mesh mesh;
+	MaterialType material;
+	ShadingType shading;
+	glm::mat4 M;
+	string name;
+} Object;
+
+typedef struct {
+	GLuint light_position_pointer;
+	GLuint light_color_pointer;
+	GLuint light_power_pointer;
+	GLuint material_diffuse;
+	GLuint material_ambient;
+	GLuint material_specular;
+	GLuint material_shininess;
+} LightShaderUniform;
+
+typedef struct {
+	GLuint P_Matrix_pointer;
+	GLuint V_Matrix_pointer;
+	GLuint M_Matrix_pointer;
+	GLfloat time_delta_pointer;
+} BaseShaderUniform;
+
+typedef struct {
+	glm::vec3 position;
+	glm::vec3 color;
+	GLfloat power;
+} PointLight;
+
+// Camera "look at": è indirizzata verso un punto specifico.
+struct {
+	glm::vec4 position; // Posizione della camera
+	glm::vec4 target; // Punto verso cui la camera è puntata
+	glm::vec4 upVector; // Vettore VUP, "View Up Vector"
+} ViewSetup;
+
+struct {
+	float fovY, aspect, near_plane, far_plane;
+} PerspectiveSetup;
+
+
+
+// Viewport size
+static int WindowWidth = 1120;
+static int WindowHeight = 630;
+GLfloat aspect_ratio = 16.0f / 9.0f;
+
+const string MeshDir = "Mesh/";
+const string ShaderDir = "Shaders/";
+static Object Axis, Grid;
+static vector<Object> objects;
+extern vector<Material> materials;
+static int selected_obj = 0;
+static PointLight light;
+
+// Camera structures
+constexpr float CAMERA_ZOOM_SPEED = 0.1f;
+constexpr float CAMERA_TRASLATION_SPEED = 0.01f;
 
 static bool moving_trackball = 0;
 static int last_mouse_pos_Y;
@@ -845,12 +844,12 @@ void keyboardDown(unsigned char key, int x, int y)
 	case '-':
 		st--;
 		if (st < 0)
-			st = ShadingType::SHADINGS_LENGTH - 1;
+			st = ShadingType::NUM_SHADERS - 1;
 		objects[selected_obj].shading = ShadingType(st);
 		break;
 	case '+':
 		st++;
-		if (st == ShadingType::SHADINGS_LENGTH)
+		if (st == ShadingType::NUM_SHADERS)
 			st = 0;
 		objects[selected_obj].shading = ShadingType(st);
 		break;
@@ -899,7 +898,7 @@ void main_menu_func(int option)
 
 void material_menu_function(int option)
 {
-	objects[selected_obj].material = (MaterialType)option;
+	objects.at(selected_obj).material = (MaterialType)option;
 }
 
 void buildOpenGLMenu()
@@ -907,7 +906,7 @@ void buildOpenGLMenu()
 	int materialSubMenu = glutCreateMenu(material_menu_function);
 
 	// add Material menu entries
-	for (int i = 0; i < MaterialType::MATERIALS_LENGTH; i++)
+	for (int i = 0; i < MaterialType::NUM_MATERIALS; i++)
 	{
 		glutAddMenuEntry(materials[i].name.c_str(), i);
 	}
@@ -988,7 +987,15 @@ void moveCameraDown()
 
 void modifyModelMatrix(glm::vec3 translation_vector, glm::vec3 rotation_vector, GLfloat angle, GLfloat scale_factor)
 {
-	// TO-DO 
+	// TO-DO: OK
+	glm::mat4 modelMatrix = objects.at(selected_obj).M;
+	// Translation
+	modelMatrix = glm::translate(modelMatrix, translation_vector);
+	// Rotation
+	modelMatrix = glm::rotate(modelMatrix, glm::radians(angle), rotation_vector);
+	// Scaling
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(scale_factor, scale_factor, scale_factor));
+	objects.at(selected_obj).M = modelMatrix;
 }
 
 void generate_and_load_buffers(bool generate, Mesh* mesh)
