@@ -988,14 +988,14 @@ void moveCameraDown()
 void modifyModelMatrix(glm::vec3 translation_vector, glm::vec3 rotation_vector, GLfloat angle, GLfloat scale_factor)
 {
 	// TO-DO: OK
-	glm::mat4 modelMatrix = objects.at(selected_obj).M;
+	glm::mat4 newModelMatrix = objects.at(selected_obj).M;
 	// Translation
-	modelMatrix = glm::translate(modelMatrix, translation_vector);
+	newModelMatrix = glm::translate(newModelMatrix, translation_vector);
 	// Rotation
-	modelMatrix = glm::rotate(modelMatrix, glm::radians(angle), rotation_vector);
+	newModelMatrix = glm::rotate(newModelMatrix, glm::radians(angle), rotation_vector);
 	// Scaling
-	modelMatrix = glm::scale(modelMatrix, glm::vec3(scale_factor, scale_factor, scale_factor));
-	objects.at(selected_obj).M = modelMatrix;
+	newModelMatrix = glm::scale(newModelMatrix, glm::vec3(scale_factor, scale_factor, scale_factor));
+	objects.at(selected_obj).M = newModelMatrix;
 }
 
 void generate_and_load_buffers(bool generate, Mesh* mesh)
