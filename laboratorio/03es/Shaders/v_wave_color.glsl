@@ -29,4 +29,6 @@ void main()
 	heightScale * sin(time * zFreq + 5 * aPos.z);
 	
 	gl_Position = P * V * M * v;
+	
+	Color = vec3(v.x, v.y * 5, v.z);
 }
