@@ -21,70 +21,70 @@ void initMaterials()
 {
 	// Materials setup
 	materials.resize(NUM_MATERIALS);
-	materials[MaterialType::NO_MATERIAL].name = "NO_MATERIAL";
-	materials[MaterialType::NO_MATERIAL].ambient = glm::vec3(1, 1, 1);
-	materials[MaterialType::NO_MATERIAL].diffuse = glm::vec3(0, 0, 0);
-	materials[MaterialType::NO_MATERIAL].specular = glm::vec3(0, 0, 0);
-	materials[MaterialType::NO_MATERIAL].shininess = 1.f;
+	materials[NO_MATERIAL].name = "NO_MATERIAL";
+	materials[NO_MATERIAL].ambient = glm::vec3(1, 1, 1);
+	materials[NO_MATERIAL].diffuse = glm::vec3(0, 0, 0);
+	materials[NO_MATERIAL].specular = glm::vec3(0, 0, 0);
+	materials[NO_MATERIAL].shininess = 1.f;
 
-	materials[MaterialType::RED_PLASTIC].name = "Red Plastic";
-	materials[MaterialType::RED_PLASTIC].ambient = red_plastic_ambient;
-	materials[MaterialType::RED_PLASTIC].diffuse = red_plastic_diffuse;
-	materials[MaterialType::RED_PLASTIC].specular = red_plastic_specular;
-	materials[MaterialType::RED_PLASTIC].shininess = red_plastic_shininess;
+	materials[RED_PLASTIC].name = "Red Plastic";
+	materials[RED_PLASTIC].ambient = red_plastic_ambient;
+	materials[RED_PLASTIC].diffuse = red_plastic_diffuse;
+	materials[RED_PLASTIC].specular = red_plastic_specular;
+	materials[RED_PLASTIC].shininess = red_plastic_shininess;
 
-	materials[MaterialType::EMERALD].name = "Emerald";
-	materials[MaterialType::EMERALD].ambient = emerald_ambient;
-	materials[MaterialType::EMERALD].diffuse = emerald_diffuse;
-	materials[MaterialType::EMERALD].specular = emerald_specular;
-	materials[MaterialType::EMERALD].shininess = emerald_shininess;
+	materials[EMERALD].name = "Emerald";
+	materials[EMERALD].ambient = emerald_ambient;
+	materials[EMERALD].diffuse = emerald_diffuse;
+	materials[EMERALD].specular = emerald_specular;
+	materials[EMERALD].shininess = emerald_shininess;
 
-	materials[MaterialType::BRASS].name = "Brass";
-	materials[MaterialType::BRASS].ambient = brass_ambient;
-	materials[MaterialType::BRASS].diffuse = brass_diffuse;
-	materials[MaterialType::BRASS].specular = brass_specular;
-	materials[MaterialType::BRASS].shininess = brass_shininess;
+	materials[BRASS].name = "Brass";
+	materials[BRASS].ambient = brass_ambient;
+	materials[BRASS].diffuse = brass_diffuse;
+	materials[BRASS].specular = brass_specular;
+	materials[BRASS].shininess = brass_shininess;
 
-	materials[MaterialType::SLATE].name = "Slate";
-	materials[MaterialType::SLATE].ambient = slate_ambient;
-	materials[MaterialType::SLATE].diffuse = slate_diffuse;
-	materials[MaterialType::SLATE].specular = slate_specular;
-	materials[MaterialType::SLATE].shininess = slate_shininess;
+	materials[SLATE].name = "Slate";
+	materials[SLATE].ambient = slate_ambient;
+	materials[SLATE].diffuse = slate_diffuse;
+	materials[SLATE].specular = slate_specular;
+	materials[SLATE].shininess = slate_shininess;
 
 	// New materials
-	materials[MaterialType::BLACK_PLASTIC].name = "Black Plastic";
-	materials[MaterialType::BLACK_PLASTIC].ambient = black_plastic_ambient;
-	materials[MaterialType::BLACK_PLASTIC].diffuse = black_plastic_diffuse;
-	materials[MaterialType::BLACK_PLASTIC].specular = black_plastic_specular;
-	materials[MaterialType::BLACK_PLASTIC].shininess = black_plastic_shininess;
+	materials[BLACK_PLASTIC].name = "Black Plastic";
+	materials[BLACK_PLASTIC].ambient = black_plastic_ambient;
+	materials[BLACK_PLASTIC].diffuse = black_plastic_diffuse;
+	materials[BLACK_PLASTIC].specular = black_plastic_specular;
+	materials[BLACK_PLASTIC].shininess = black_plastic_shininess;
 
-	materials[MaterialType::GOLD].name = "Gold";
-	materials[MaterialType::GOLD].ambient = gold_ambient;
-	materials[MaterialType::GOLD].diffuse = gold_diffuse;
-	materials[MaterialType::GOLD].specular = gold_specular;
-	materials[MaterialType::GOLD].shininess = gold_shininess;
+	materials[GOLD].name = "Gold";
+	materials[GOLD].ambient = gold_ambient;
+	materials[GOLD].diffuse = gold_diffuse;
+	materials[GOLD].specular = gold_specular;
+	materials[GOLD].shininess = gold_shininess;
 
-	materials[MaterialType::SILVER].name = "Silver";
-	materials[MaterialType::SILVER].ambient = silver_ambient;
-	materials[MaterialType::SILVER].diffuse = silver_diffuse;
-	materials[MaterialType::SILVER].specular = silver_specular;
-	materials[MaterialType::SILVER].shininess = silver_shininess;
+	materials[SILVER].name = "Silver";
+	materials[SILVER].ambient = silver_ambient;
+	materials[SILVER].diffuse = silver_diffuse;
+	materials[SILVER].specular = silver_specular;
+	materials[SILVER].shininess = silver_shininess;
 
-	materials[MaterialType::BRONZE].name = "Bronze";
-	materials[MaterialType::BRONZE].ambient = bronze_ambient;
-	materials[MaterialType::BRONZE].diffuse = bronze_diffuse;
-	materials[MaterialType::BRONZE].specular = bronze_specular;
-	materials[MaterialType::BRONZE].shininess = bronze_shininess;
+	materials[BRONZE].name = "Bronze";
+	materials[BRONZE].ambient = bronze_ambient;
+	materials[BRONZE].diffuse = bronze_diffuse;
+	materials[BRONZE].specular = bronze_specular;
+	materials[BRONZE].shininess = bronze_shininess;
 
-	materials[MaterialType::COPPER].name = "Copper";
-	materials[MaterialType::COPPER].ambient = copper_ambient;
-	materials[MaterialType::COPPER].diffuse = copper_diffuse;
-	materials[MaterialType::COPPER].specular = copper_specular;
-	materials[MaterialType::COPPER].shininess = copper_shininess;
+	materials[COPPER].name = "Copper";
+	materials[COPPER].ambient = copper_ambient;
+	materials[COPPER].diffuse = copper_diffuse;
+	materials[COPPER].specular = copper_specular;
+	materials[COPPER].shininess = copper_shininess;
 
-	materials[MaterialType::TURQUOISE].name = "Turquoise";
-	materials[MaterialType::TURQUOISE].ambient = turquoise_ambient;
-	materials[MaterialType::TURQUOISE].diffuse = turquoise_diffuse;
-	materials[MaterialType::TURQUOISE].specular = turquoise_specular;
-	materials[MaterialType::TURQUOISE].shininess = turquoise_shininess;
+	materials[TURQUOISE].name = "Turquoise";
+	materials[TURQUOISE].ambient = turquoise_ambient;
+	materials[TURQUOISE].diffuse = turquoise_diffuse;
+	materials[TURQUOISE].specular = turquoise_specular;
+	materials[TURQUOISE].shininess = turquoise_shininess;
 }

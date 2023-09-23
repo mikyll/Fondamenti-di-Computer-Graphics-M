@@ -28,143 +28,25 @@ OpenGL Mathematics (GLM) is a header only C++ mathematics library for graphics s
 based on the OpenGL Shading Language (GLSL) specifications.
 *******************************************************************************************/
 
-#define _CRT_SECURE_NO_WARNINGS // for fscanf
-
-#include <stdio.h>
-#include <math.h>
-#include <vector>
-#include <string>
-#include <ctime>
-
-#include <GL/glew.h>
-#include <GL/freeglut.h>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
-#include "HUD_Logger.h"
-#include "ShaderMaker.h"
-
-#include "materials.h"
-
-using namespace std;
-
-#define SHIFT_WHEEL_UP 11
-#define SHIFT_WHEEL_DOWN 12
-#define CTRL_WHEEL_UP 19
-#define CTRL_WHEEL_DOWN 20
-
-typedef enum {
-	CHANGE_TO_OCS,
-	CHANGE_TO_WCS,
-	WIRE_FRAME,
-	FACE_FILL,
-	CULLING_OFF,
-	CULLING_ON,
-	NUM_OPTIONS,
-} MenuOption;
-
-enum {
-	NAVIGATION,
-	CAMERA_MOVING,
-	TRASLATING,
-	ROTATING,
-	SCALING
-} OperationMode;
-
-enum {
-	X,
-	Y,
-	Z
-} WorkingAxis;
-
-enum {
-	OCS, // Object Coordinate System
-	WCS // World Coordinate System
-} TransformMode;
-
-typedef enum {
-	PASS_THROUGH,
-	GOURAUD,
-	PHONG,
-	BLINN,
-	WAVE,
-	WAVE_COLOR,
-	WAVE_LIGHT,
-	TOON,
-	TOON_V2,
-	NUM_SHADERS
-} ShadingType;
-
-typedef struct {
-	std::vector<glm::vec3> vertices;
-	std::vector<glm::vec3> normals;
-	std::vector<glm::vec2> texCoords;
-	GLuint vertexArrayObjID;
-	GLuint vertexBufferObjID;
-	GLuint normalBufferObjID;
-	GLuint uvBufferObjID;
-} Mesh;
-
-typedef struct {
-	Mesh mesh;
-	MaterialType material;
-	ShadingType shading;
-	glm::mat4 M;
-	string name;
-} Object;
-
-typedef struct {
-	GLuint light_position_pointer;
-	GLuint light_color_pointer;
-	GLuint light_power_pointer;
-	GLuint material_diffuse;
-	GLuint material_ambient;
-	GLuint material_specular;
-	GLuint material_shininess;
-} LightShaderUniform;
-
-typedef struct {
-	GLuint P_Matrix_pointer;
-	GLuint V_Matrix_pointer;
-	GLuint M_Matrix_pointer;
-	GLfloat time_delta_pointer;
-} BaseShaderUniform;
-
-typedef struct {
-	glm::vec3 position;
-	glm::vec3 color;
-	GLfloat power;
-} PointLight;
-
-// Camera "look at": è indirizzata verso un punto specifico.
-struct {
-	glm::vec4 position; // Posizione della camera
-	glm::vec4 target; // Punto verso cui la camera è puntata
-	glm::vec4 upVector; // Vettore VUP, "View Up Vector"
-} ViewSetup;
-
-struct {
-	float fovY, aspect, near_plane, far_plane;
-} PerspectiveSetup;
-
-
+#include "commons.h"
 
 // Viewport size
-static int WindowWidth = 1120;
-static int WindowHeight = 630;
+int WindowWidth = 1120;
+int WindowHeight = 630;
 GLfloat aspect_ratio = 16.0f / 9.0f;
 
-const string MeshDir = "Mesh/";
-const string ShaderDir = "Shaders/";
+const std::string MeshDir = "Mesh/";
+const std::string ShaderDir = "Shaders/";
 static Object Axis, Grid;
-static vector<Object> objects;
-extern vector<Material> materials;
+extern std::vector<Object> objects;
+extern std::vector<Material> materials;
 static int selected_obj = 0;
 static PointLight light;
 
 int transformMode = WCS;
+int operationMode = MODE_NAVIGATION;
+
+int workingAxis = AXIS_X;
 
 // Camera structures
 constexpr float CAMERA_ZOOM_SPEED = 0.1f;
@@ -175,14 +57,49 @@ static int last_mouse_pos_Y;
 static int last_mouse_pos_X;
 
 // Shaders Uniforms 
-static vector<LightShaderUniform> light_uniforms; // for shaders with light
-static vector<BaseShaderUniform> base_uniforms; // for ALL shaders
-static vector<GLuint> shaders_IDs; //Pointers to the shader programs
+static std::vector<LightShaderUniform> light_uniforms; // for shaders with light
+static std::vector<BaseShaderUniform> base_uniforms; // for ALL shaders
+static std::vector<GLuint> shaders_IDs; //Pointers to the shader programs
 
 static int menu;
 static int materialSubmenu;
 static int shaderSubmenu;
 
+
+void initMeshes()
+{
+	// Axis for reference
+	initMesh("axis.obj", "axis_", true, glm::vec3(), glm::vec3(), glm::vec3(2., 2., 2.), COPPER, BLINN);
+	//objects.pop_back();
+
+	// White Grid Plane for reference
+	initMesh("reference_grid.obj", "grid_", true, glm::vec3(), glm::vec3(), glm::vec3(1., 1., 1.), NO_MATERIAL, PASS_THROUGH);
+
+	// Point Light
+	initMesh("sphere_n_t_smooth.obj", "light", false, light.position, glm::vec3(), glm::vec3(0.2, 0.2, 0.2), NO_MATERIAL, GOURAUD);
+
+	// FLAT Sphere (face normals)
+	initMesh("sphere_n_t_flat.obj", "Sphere FLAT", false, glm::vec3(3., 1., -6.), glm::vec3(), glm::vec3(1., 1., 1.), EMERALD, PHONG);
+
+	// SMOOTH Sphere (vertex normals)
+	initMesh("sphere_n_t_smooth.obj", "Sphere SMOOTH", false, glm::vec3(6., 1., -3.), glm::vec3(), glm::vec3(1., 1., 1.), SILVER, BLINN);
+
+	// Waving plane
+	initMesh("GridPlane.obj", "Waves", false, glm::vec3(0., -2., 0.), glm::vec3(), glm::vec3(8., 8., 8.), TURQUOISE, WAVE_LIGHT);
+
+	// Bunny model
+	initMesh("bunny.obj", "Bunny", true, glm::vec3(0., 0., -2.), glm::vec3(), glm::vec3(2., 2., 2.), RED_PLASTIC, TOON);
+
+	// Airplane model
+	initMesh("airplane.obj", "Airplane", true, glm::vec3(-10., 5., 0.), glm::vec3(0.0, 0.0, -40.0), glm::vec3(5., 5., 5.), RED_PLASTIC, PHONG);
+
+	// Horse model
+	initMesh("horse.obj", "Horse", true, glm::vec3(-3., 2., 5.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5), GOLD, PHONG);
+
+	// Horse model
+	initMesh("horse.obj", "Horse", false, glm::vec3(-5., 2., 7.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5), SLATE, PHONG);
+}
+void initMeshes();
 // Main initialization funtion
 void init();
 // Reshape Function
@@ -191,7 +108,7 @@ void resize(int w, int h);
 void refresh_monitor(int millis);
 // Mouse Function
 void mouseInput(int button, int state, int x, int y);
-// Keyboard:  g traslate r rotate s scale x,y,z axis esc 
+// Keyboard: g traslate r rotate s scale x,y,z axis esc 
 void keyboardDown(unsigned char key, int x, int y);
 // Special key arrow: select active object (arrows left,right)
 void special(int key, int x, int y);
@@ -216,41 +133,15 @@ void modifyModelMatrix(glm::vec3 translation_vector, glm::vec3 rotation_vector, 
 // Genera i buffer per la mesh in input e ne salva i puntatori di openGL
 void generate_and_load_buffers(bool generate, Mesh* mesh);
 // legge un file obj ed inizializza i vector della mesh in input
-void loadObjFile(string file_path, Mesh* mesh, bool vertices_normals);
+void loadObjFile(std::string file_path, Mesh* mesh, bool vertices_normals);
 // disegna l'origine del assi
 void drawAxisAndGrid();
 // 2D fixed pipeline Font rendering on screen
 void printToScreen();
 
-void init_light_object() {
-	Mesh sphereS = {};
-	loadObjFile(MeshDir + "sphere_n_t_smooth.obj", &sphereS, false);
-	generate_and_load_buffers(true, &sphereS);
-	// Object Setup, use the light shader and a material for color and light behavior
-	Object obj = {};
-	obj.mesh = sphereS;
-	obj.material = MaterialType::NO_MATERIAL;
-	obj.shading = ShadingType::GOURAUD;
-	obj.name = "light";
-	obj.M = glm::scale(glm::translate(glm::mat4(1), light.position), glm::vec3(0.2, 0.2, 0.2));
-	objects.push_back(obj);
-}
 
-void init_waving_plane() {
-	Mesh sphereS = {};
-	loadObjFile(MeshDir + "GridPlane.obj", &sphereS, false);
-	generate_and_load_buffers(true, &sphereS);
-	// Object Setup use the light shader and a material for color and light behavior
-	Object obj = {};
-	obj.mesh = sphereS;
-	obj.material = MaterialType::TURQUOISE;
-	obj.shading = ShadingType::WAVE_LIGHT;
-	obj.name = "Waves";
-	obj.M = glm::scale(glm::translate(glm::mat4(1), glm::vec3(0., -2., 0.)), glm::vec3(8., 8., 8.));
-	objects.push_back(obj);
-}
 
-void init_mesh(string filename, string name, bool vertices_normals, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, MaterialType material, ShadingType shading) {
+void init_mesh(std::string filename, std::string name, bool vertices_normals, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, int material, int shading) {
 	Mesh sphereS = {};
 	//	loadObjFile(MeshDir + "airplane.obj", &sphereS);
 	loadObjFile(MeshDir + filename, &sphereS, vertices_normals);
@@ -259,7 +150,7 @@ void init_mesh(string filename, string name, bool vertices_normals, glm::vec3 po
 	Object obj = {};
 	obj.mesh = sphereS;
 	obj.material = material;
-	obj.shading = shading;
+	obj.shader = shading;
 	obj.name = name;
 	obj.M = glm::scale(glm::translate(glm::mat4(1), position), scale);
 	if (rotation != glm::vec3(0.0f, 0.0f, 0.0f))
@@ -272,60 +163,6 @@ void init_mesh(string filename, string name, bool vertices_normals, glm::vec3 po
 }
 
 
-void init_sphere_FLAT() {
-	Mesh sphereF = {};
-	loadObjFile(MeshDir + "sphere_n_t_flat.obj", &sphereF, false);
-	generate_and_load_buffers(true, &sphereF);
-	// Object Setup  use the light shader and a material for color and light behavior
-	Object obj = {};
-	obj.mesh = sphereF;
-	obj.material = MaterialType::EMERALD;
-	obj.shading = ShadingType::PHONG;
-	obj.name = "Sphere FLAT";
-	obj.M = glm::translate(glm::mat4(1), glm::vec3(3., 1., -6.));
-	objects.push_back(obj);
-}
-
-void init_sphere_SMOOTH() {
-	Mesh sphereS = {};
-	loadObjFile(MeshDir + "sphere_n_t_smooth.obj", &sphereS, false);
-	generate_and_load_buffers(true, &sphereS);
-	// Object Setup use the light shader and a material for color and light behavior
-	Object obj = {};
-	obj.mesh = sphereS;
-	obj.material = MaterialType::SILVER;
-	obj.shading = ShadingType::BLINN;
-	obj.name = "Sphere SMOOTH";
-	obj.M = glm::translate(glm::mat4(1), glm::vec3(6., 1., -3.));
-	objects.push_back(obj);
-}
-
-void init_axis() {
-	Mesh _grid = {};
-	loadObjFile(MeshDir + "axis.obj", &_grid, false);
-	generate_and_load_buffers(true, &_grid);
-	Object obj = {};
-	obj.mesh = _grid;
-	obj.material = MaterialType::COPPER;
-	obj.shading = ShadingType::BLINN;
-	obj.name = "axis_";
-	obj.M = glm::scale(glm::mat4(1), glm::vec3(2.f, 2.f, 2.f));
-	Axis = obj;
-	objects.push_back(obj);
-}
-
-void init_grid() {
-	Mesh _grid = {};
-	loadObjFile(MeshDir + "reference_grid.obj", &_grid, false);
-	generate_and_load_buffers(true, &_grid);
-	Object obj = {};
-	obj.mesh = _grid;
-	obj.material = MaterialType::NO_MATERIAL;
-	obj.shading = ShadingType::PASS_THROUGH;
-	obj.name = "grid_";
-	obj.M = glm::mat4(1);
-	Grid = obj;
-}
 
 
 void initShader()
@@ -344,7 +181,7 @@ void initShader()
 	base_unif.P_Matrix_pointer = glGetUniformLocation(shaders_IDs[PASS_THROUGH], "P");
 	base_unif.V_Matrix_pointer = glGetUniformLocation(shaders_IDs[PASS_THROUGH], "V");
 	base_unif.M_Matrix_pointer = glGetUniformLocation(shaders_IDs[PASS_THROUGH], "M");
-	base_uniforms[ShadingType::PASS_THROUGH] = base_unif;
+	base_uniforms[PASS_THROUGH] = base_unif;
 	glUseProgram(shaders_IDs[PASS_THROUGH]);
 	glUniform4fv(glGetUniformLocation(shaders_IDs[PASS_THROUGH], "Color"), 1, value_ptr(glm::vec4(1.0, 1.0, 1.0, 1.0)));
 
@@ -354,7 +191,7 @@ void initShader()
 	base_unif.P_Matrix_pointer = glGetUniformLocation(shaders_IDs[GOURAUD], "P");
 	base_unif.V_Matrix_pointer = glGetUniformLocation(shaders_IDs[GOURAUD], "V");
 	base_unif.M_Matrix_pointer = glGetUniformLocation(shaders_IDs[GOURAUD], "M");
-	base_uniforms[ShadingType::GOURAUD] = base_unif;
+	base_uniforms[GOURAUD] = base_unif;
 	light_unif.material_ambient = glGetUniformLocation(shaders_IDs[GOURAUD], "material.ambient");
 	light_unif.material_diffuse = glGetUniformLocation(shaders_IDs[GOURAUD], "material.diffuse");
 	light_unif.material_specular = glGetUniformLocation(shaders_IDs[GOURAUD], "material.specular");
@@ -362,7 +199,7 @@ void initShader()
 	light_unif.light_position_pointer = glGetUniformLocation(shaders_IDs[GOURAUD], "light.position");
 	light_unif.light_color_pointer = glGetUniformLocation(shaders_IDs[GOURAUD], "light.color");
 	light_unif.light_power_pointer = glGetUniformLocation(shaders_IDs[GOURAUD], "light.power");
-	light_uniforms[ShadingType::GOURAUD] = light_unif;
+	light_uniforms[GOURAUD] = light_unif;
 	// Rendiamo attivo lo shader
 	glUseProgram(shaders_IDs[GOURAUD]);
 	// Shader uniforms initialization
@@ -376,7 +213,7 @@ void initShader()
 	base_unif.P_Matrix_pointer = glGetUniformLocation(shaders_IDs[PHONG], "P");
 	base_unif.V_Matrix_pointer = glGetUniformLocation(shaders_IDs[PHONG], "V");
 	base_unif.M_Matrix_pointer = glGetUniformLocation(shaders_IDs[PHONG], "M");
-	base_uniforms[ShadingType::PHONG] = base_unif;
+	base_uniforms[PHONG] = base_unif;
 	light_unif.material_ambient = glGetUniformLocation(shaders_IDs[PHONG], "material.ambient");
 	light_unif.material_diffuse = glGetUniformLocation(shaders_IDs[PHONG], "material.diffuse");
 	light_unif.material_specular = glGetUniformLocation(shaders_IDs[PHONG], "material.specular");
@@ -384,7 +221,7 @@ void initShader()
 	light_unif.light_position_pointer = glGetUniformLocation(shaders_IDs[PHONG], "light.position");
 	light_unif.light_color_pointer = glGetUniformLocation(shaders_IDs[PHONG], "light.color");
 	light_unif.light_power_pointer = glGetUniformLocation(shaders_IDs[PHONG], "light.power");
-	light_uniforms[ShadingType::PHONG] = light_unif;
+	light_uniforms[PHONG] = light_unif;
 	// Rendiamo attivo lo shader
 	glUseProgram(shaders_IDs[PHONG]);
 	// Shader uniforms initialization
@@ -397,7 +234,7 @@ void initShader()
 	base_unif.P_Matrix_pointer = glGetUniformLocation(shaders_IDs[BLINN], "P");
 	base_unif.V_Matrix_pointer = glGetUniformLocation(shaders_IDs[BLINN], "V");
 	base_unif.M_Matrix_pointer = glGetUniformLocation(shaders_IDs[BLINN], "M");
-	base_uniforms[ShadingType::BLINN] = base_unif;
+	base_uniforms[BLINN] = base_unif;
 	light_unif.material_ambient = glGetUniformLocation(shaders_IDs[BLINN], "material.ambient");
 	light_unif.material_diffuse = glGetUniformLocation(shaders_IDs[BLINN], "material.diffuse");
 	light_unif.material_specular = glGetUniformLocation(shaders_IDs[BLINN], "material.specular");
@@ -405,7 +242,7 @@ void initShader()
 	light_unif.light_position_pointer = glGetUniformLocation(shaders_IDs[BLINN], "light.position");
 	light_unif.light_color_pointer = glGetUniformLocation(shaders_IDs[BLINN], "light.color");
 	light_unif.light_power_pointer = glGetUniformLocation(shaders_IDs[BLINN], "light.power");
-	light_uniforms[ShadingType::BLINN] = light_unif;
+	light_uniforms[BLINN] = light_unif;
 	// Rendiamo attivo lo shader
 	glUseProgram(shaders_IDs[BLINN]);
 	// Shader uniforms initialization
@@ -420,7 +257,7 @@ void initShader()
 	base_unif.V_Matrix_pointer = glGetUniformLocation(shaders_IDs[WAVE], "V");
 	base_unif.M_Matrix_pointer = glGetUniformLocation(shaders_IDs[WAVE], "M");
 	base_unif.time_delta_pointer = glGetUniformLocation(shaders_IDs[WAVE], "time");
-	base_uniforms[ShadingType::WAVE] = base_unif;
+	base_uniforms[WAVE] = base_unif;
 	// Rendiamo attivo lo shader
 	glUseProgram(shaders_IDs[WAVE]);
 
@@ -431,7 +268,7 @@ void initShader()
 	base_unif.V_Matrix_pointer = glGetUniformLocation(shaders_IDs[WAVE_COLOR], "V");
 	base_unif.M_Matrix_pointer = glGetUniformLocation(shaders_IDs[WAVE_COLOR], "M");
 	base_unif.time_delta_pointer = glGetUniformLocation(shaders_IDs[WAVE_COLOR], "time");
-	base_uniforms[ShadingType::WAVE_COLOR] = base_unif;
+	base_uniforms[WAVE_COLOR] = base_unif;
 	// Rendiamo attivo lo shader
 	glUseProgram(shaders_IDs[WAVE_COLOR]);
 
@@ -442,7 +279,7 @@ void initShader()
 	base_unif.V_Matrix_pointer = glGetUniformLocation(shaders_IDs[WAVE_LIGHT], "V");
 	base_unif.M_Matrix_pointer = glGetUniformLocation(shaders_IDs[WAVE_LIGHT], "M");
 	base_unif.time_delta_pointer = glGetUniformLocation(shaders_IDs[WAVE_LIGHT], "time");
-	base_uniforms[ShadingType::WAVE_LIGHT] = base_unif;
+	base_uniforms[WAVE_LIGHT] = base_unif;
 	// Rendiamo attivo lo shader
 	glUseProgram(shaders_IDs[WAVE_LIGHT]);
 	light_unif.light_position_pointer = glGetUniformLocation(shaders_IDs[WAVE_LIGHT], "light.position");
@@ -452,7 +289,7 @@ void initShader()
 	light_unif.material_diffuse = glGetUniformLocation(shaders_IDs[WAVE_LIGHT], "material.diffuse");
 	light_unif.material_specular = glGetUniformLocation(shaders_IDs[WAVE_LIGHT], "material.specular");
 	light_unif.material_shininess = glGetUniformLocation(shaders_IDs[WAVE_LIGHT], "material.shininess");
-	light_uniforms[ShadingType::WAVE_LIGHT] = light_unif;
+	light_uniforms[WAVE_LIGHT] = light_unif;
 	// Shader uniforms initialization
 	glUniform3f(light_uniforms[WAVE_LIGHT].light_position_pointer, light.position.x, light.position.y, light.position.z);
 	glUniform3f(light_uniforms[WAVE_LIGHT].light_color_pointer, light.color.r, light.color.g, light.color.b);
@@ -464,9 +301,9 @@ void initShader()
 	base_unif.P_Matrix_pointer = glGetUniformLocation(shaders_IDs[TOON], "P");
 	base_unif.V_Matrix_pointer = glGetUniformLocation(shaders_IDs[TOON], "V");
 	base_unif.M_Matrix_pointer = glGetUniformLocation(shaders_IDs[TOON], "M");
-	base_uniforms[ShadingType::TOON] = base_unif;
+	base_uniforms[TOON] = base_unif;
 	light_unif.light_position_pointer = glGetUniformLocation(shaders_IDs[TOON], "light.position");
-	light_uniforms[ShadingType::TOON] = light_unif;
+	light_uniforms[TOON] = light_unif;
 	// Rendiamo attivo lo shader
 	glUseProgram(shaders_IDs[TOON]);
 	// Shader uniforms initialization
@@ -480,7 +317,7 @@ void initShader()
 	base_unif.P_Matrix_pointer = glGetUniformLocation(shaders_IDs[TOON_V2], "P");
 	base_unif.V_Matrix_pointer = glGetUniformLocation(shaders_IDs[TOON_V2], "V");
 	base_unif.M_Matrix_pointer = glGetUniformLocation(shaders_IDs[TOON_V2], "M");
-	base_uniforms[ShadingType::TOON_V2] = base_unif;
+	base_uniforms[TOON_V2] = base_unif;
 	// Rendiamo attivo lo shader
 	glUseProgram(shaders_IDs[TOON_V2]);
 	light_unif.light_position_pointer = glGetUniformLocation(shaders_IDs[TOON_V2], "light.position");
@@ -490,28 +327,28 @@ void initShader()
 	light_unif.material_diffuse = glGetUniformLocation(shaders_IDs[TOON_V2], "material.diffuse");
 	light_unif.material_specular = glGetUniformLocation(shaders_IDs[TOON_V2], "material.specular");
 	light_unif.material_shininess = glGetUniformLocation(shaders_IDs[TOON_V2], "material.shininess");
-	light_uniforms[ShadingType::TOON_V2] = light_unif;
+	light_uniforms[TOON_V2] = light_unif;
 	// Shader uniforms initialization
 	glUniform3f(light_uniforms[TOON_V2].light_position_pointer, light.position.x, light.position.y, light.position.z);
 	glUniform3f(light_uniforms[TOON_V2].light_color_pointer, light.color.r, light.color.g, light.color.b);
 	glUniform1f(light_uniforms[TOON_V2].light_power_pointer, light.power);
 }
 
-string getShaderName(int shadingType)
+std::string getShaderName(int shadingType)
 {
-	string result = "Unknown";
+	std::string result = "Unknown";
 
 	switch (shadingType)
 	{
-		case ShadingType::PASS_THROUGH: result = "Pass Through"; break;
-		case ShadingType::GOURAUD: result = "Gouraud"; break;
-		case ShadingType::PHONG: result = "Phong"; break;
-		case ShadingType::BLINN: result = "Blinn"; break;
-		case ShadingType::WAVE: result = "Wave"; break;
-		case ShadingType::WAVE_COLOR: result = "Wave Color"; break;
-		case ShadingType::WAVE_LIGHT: result = "Wave Light"; break;
-		case ShadingType::TOON: result = "Toon"; break;
-		case ShadingType::TOON_V2: result = "Toon v2"; break;
+		case PASS_THROUGH: result = "Pass Through"; break;
+		case GOURAUD: result = "Gouraud"; break;
+		case PHONG: result = "Phong"; break;
+		case BLINN: result = "Blinn"; break;
+		case WAVE: result = "Wave"; break;
+		case WAVE_COLOR: result = "Wave Color"; break;
+		case WAVE_LIGHT: result = "Wave Light"; break;
+		case TOON: result = "Toon"; break;
+		case TOON_V2: result = "Toon v2"; break;
 		default:
 			break;
 	}
@@ -521,7 +358,7 @@ string getShaderName(int shadingType)
 
 void init() {
 	// Default render settings
-	OperationMode = NAVIGATION;
+	operationMode = MODE_NAVIGATION;
 	glEnable(GL_DEPTH_TEST);	// Hidden surface removal
 	glCullFace(GL_BACK);	// remove faces facing the background
 	glEnable(GL_LINE_SMOOTH);
@@ -542,38 +379,8 @@ void init() {
 	PerspectiveSetup.far_plane = 2000.0f;
 	PerspectiveSetup.near_plane = 1.0f;
 
-	//////////////////////////////////////////////////////////////////////
-	//				OBJECTS IN SCENE
-	//////////////////////////////////////////////////////////////////////
-	// FLAT SPHERE (face normals) uses a shader with lighting
-	init_sphere_FLAT();
 
-	// SMOOTH SPHERE (vertex normals)  uses a shader with lighting
-	init_sphere_SMOOTH();
-
-	// Reference point of the position of the light
-	init_light_object();
-
-	// White Axis for reference
-	init_axis();
-
-	// White Grid for reference
-	init_grid();
-
-	// Waving plane
-	init_waving_plane();
-
-	// Bunny Red plastic (vertices normals)
-	init_mesh("bunny.obj", "Bunny", true, glm::vec3(0., 0., -2.), glm::vec3(), glm::vec3(2., 2., 2.), MaterialType::RED_PLASTIC, ShadingType::TOON);
-
-	// Airplane model with PHONG shading (vertices normals)
-	init_mesh("airplane.obj", "Airplane", true, glm::vec3(-10., 5., 0.), glm::vec3(0.0 ,0.0, -40.0), glm::vec3(5., 5., 5.), MaterialType::RED_PLASTIC, ShadingType::PHONG);
-
-	// Horse model with PHONG shading (vertices normals)
-	init_mesh("horse.obj", "Horse", true, glm::vec3(-3., 2., 5.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5), MaterialType::GOLD, ShadingType::PHONG);
-
-	// Horse model with PHONG shading (face normals)
-	init_mesh("horse.obj", "Horse", false, glm::vec3(-5., 2., 7.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5), MaterialType::SLATE, ShadingType::PHONG);
+	initMeshes();
 }
 
 void drawScene() {
@@ -585,15 +392,15 @@ void drawScene() {
 
 	for (int i = 0; i < objects.size(); i++) {
 		// Shader selection
-		switch (objects.at(i).shading)
+		switch (objects.at(i).shader)
 		{
-			case ShadingType::PASS_THROUGH:
+			case PASS_THROUGH:
 				glUseProgram(shaders_IDs[PASS_THROUGH]);
 				// Caricamento matrice trasformazione del modello
 				glUniformMatrix4fv(base_uniforms[PASS_THROUGH].M_Matrix_pointer, 1, GL_FALSE, value_ptr(objects.at(i).M));
 				break;
 		
-			case ShadingType::GOURAUD:
+			case GOURAUD:
 				glUseProgram(shaders_IDs[GOURAUD]);
 				// Caricamento matrice trasformazione del modello
 				glUniformMatrix4fv(base_uniforms[GOURAUD].M_Matrix_pointer, 1, GL_FALSE, value_ptr(objects.at(i).M));
@@ -605,7 +412,7 @@ void drawScene() {
 				glUniform3f(light_uniforms[GOURAUD].light_position_pointer, light.position.x, light.position.y, light.position.z);
 				break;
 
-			case ShadingType::PHONG:
+			case PHONG:
 				glUseProgram(shaders_IDs[PHONG]);
 				// Caricamento matrice trasformazione del modello
 				glUniformMatrix4fv(base_uniforms[PHONG].M_Matrix_pointer, 1, GL_FALSE, value_ptr(objects.at(i).M));
@@ -617,7 +424,7 @@ void drawScene() {
 				glUniform3f(light_uniforms[PHONG].light_position_pointer, light.position.x, light.position.y, light.position.z);
 				break;
 
-			case ShadingType::BLINN:
+			case BLINN:
 				glUseProgram(shaders_IDs[BLINN]);
 				// Caricamento matrice trasformazione del modello
 				glUniformMatrix4fv(base_uniforms[BLINN].M_Matrix_pointer, 1, GL_FALSE, value_ptr(objects.at(i).M));
@@ -629,7 +436,7 @@ void drawScene() {
 				glUniform3f(light_uniforms[BLINN].light_position_pointer, light.position.x, light.position.y, light.position.z);
 				break;
 
-			case ShadingType::WAVE:
+			case WAVE:
 				glUseProgram(shaders_IDs[WAVE]);
 				// Caricamento matrice trasformazione del modello
 				glUniformMatrix4fv(base_uniforms[WAVE].M_Matrix_pointer, 1, GL_FALSE, value_ptr(objects.at(i).M));
@@ -637,7 +444,7 @@ void drawScene() {
 				glUniform1f(base_uniforms[WAVE].time_delta_pointer, clock());
 				break;
 
-			case ShadingType::WAVE_COLOR:
+			case WAVE_COLOR:
 				glUseProgram(shaders_IDs[WAVE_COLOR]);
 				// Caricamento matrice trasformazione del modello
 				glUniformMatrix4fv(base_uniforms[WAVE_COLOR].M_Matrix_pointer, 1, GL_FALSE, value_ptr(objects.at(i).M));
@@ -645,7 +452,7 @@ void drawScene() {
 				glUniform1f(base_uniforms[WAVE_COLOR].time_delta_pointer, clock());
 				break;
 
-			case ShadingType::WAVE_LIGHT:
+			case WAVE_LIGHT:
 				glUseProgram(shaders_IDs[WAVE_LIGHT]);
 				// Caricamento matrice trasformazione del modello
 				glUniformMatrix4fv(base_uniforms[WAVE_LIGHT].M_Matrix_pointer, 1, GL_FALSE, value_ptr(objects.at(i).M));
@@ -659,14 +466,14 @@ void drawScene() {
 				glUniform3f(light_uniforms[WAVE_LIGHT].light_position_pointer, light.position.x, light.position.y, light.position.z);
 				break;
 
-			case ShadingType::TOON:
+			case TOON:
 				glUseProgram(shaders_IDs[TOON]);
 				// Caricamento matrice trasformazione del modello
 				glUniformMatrix4fv(base_uniforms[TOON].M_Matrix_pointer, 1, GL_FALSE, value_ptr(objects.at(i).M));
 				glUniform3f(light_uniforms[TOON].light_position_pointer, light.position.x, light.position.y, light.position.z);
 				break;
 
-			case ShadingType::TOON_V2:
+			case TOON_V2:
 				glUseProgram(shaders_IDs[TOON_V2]);
 				// Caricamento matrice trasformazione del modello
 				glUniformMatrix4fv(base_uniforms[TOON_V2].M_Matrix_pointer, 1, GL_FALSE, value_ptr(objects.at(i).M));
@@ -770,7 +577,7 @@ void mouseInput(int button, int state, int x, int y)
 	}
 
 	glm::vec4 axis;
-	float amount = 0.5f;
+	float amount = 0.1f;
 	// Imposto il valore della trasformazione
 	switch (button)
 	{
@@ -788,7 +595,7 @@ void mouseInput(int button, int state, int x, int y)
 			// If the user is pressing the left mouse button, we are moving the trackball
 			moving_trackball = state == GLUT_DOWN;
 
-			OperationMode = NAVIGATION;
+			operationMode = MODE_NAVIGATION;
 			last_mouse_pos_X = x;
 			last_mouse_pos_Y = y;
 			break;
@@ -797,24 +604,24 @@ void mouseInput(int button, int state, int x, int y)
 			break;
 	}
 	// Selezione dell'asse per le trasformazioni
-	switch (WorkingAxis)
+	switch (workingAxis)
 	{
-		case X:	axis = glm::vec4(1.0, 0.0, 0.0, 0.0);
+		case AXIS_X:	axis = glm::vec4(1.0, 0.0, 0.0, 0.0);
 			break;
 
-		case Y: axis = glm::vec4(0.0, 1.0, 0.0, 0.0);
+		case AXIS_Y: axis = glm::vec4(0.0, 1.0, 0.0, 0.0);
 			break;
 
-		case Z: axis = glm::vec4(0.0, 0.0, 1.0, 0.0);
+		case AXIS_Z: axis = glm::vec4(0.0, 0.0, 1.0, 0.0);
 			break;
 
 		default:
 			break;
 	}
 
-	switch (OperationMode)
+	switch (operationMode)
 	{
-		case NAVIGATION:
+		case MODE_NAVIGATION:
 			// Wheel reports as button 3(scroll up) and button 4(scroll down)
 			if (button == 3) {
 				moveCameraBack();
@@ -824,24 +631,24 @@ void mouseInput(int button, int state, int x, int y)
 			}
 			break;
 
-		case TRASLATING:
+		case MODE_TRASLATING:
 			modifyModelMatrix(axis * amount, axis, 0.0f, 1.0f);
-			if (objects.at(selected_obj).name == "light")
-			{
-				light.position = objects.at(selected_obj).M[3];
-			}
 			break;
 
-		case ROTATING:
+		case MODE_ROTATING:
 			modifyModelMatrix(glm::vec3(0), axis, amount * 20.0f, 1.0f);
 			break;
 
-		case SCALING:
+		case MODE_SCALING:
 			modifyModelMatrix(glm::vec3(0), axis, 0.0f, 1.0f + amount);
 			break;
 
 		default:
 			break;
+	}
+	if (objects.at(selected_obj).name == "light")
+	{
+		light.position = objects.at(selected_obj).M[3];
 	}
 }
 
@@ -875,43 +682,43 @@ void mouseActiveMotion(int x, int y)
 
 void keyboardDown(unsigned char key, int x, int y)
 {
-	int st = objects[selected_obj].shading;
+	int st = objects[selected_obj].shader;
 	
 	switch (key) {
 		// Selezione della modalità di trasformazione
 	case 'g':
-		OperationMode = TRASLATING;
+		operationMode = MODE_TRASLATING;
 		break;
 	case 'r':
-		OperationMode = ROTATING;
+		operationMode = MODE_ROTATING;
 		break;
 	case 's':
-		OperationMode = SCALING;
+		operationMode = MODE_SCALING;
 		break;
 	case 27:
 		glutLeaveMainLoop();
 		break;
 		// Selezione dell'asse
 	case 'x':
-		WorkingAxis = X;
+		workingAxis = AXIS_X;
 		break;
 	case 'y':
-		WorkingAxis = Y;
+		workingAxis = AXIS_Y;
 		break;
 	case 'z':
-		WorkingAxis = Z;
+		workingAxis = AXIS_Z;
 		break;
 	case '-':
 		st--;
 		if (st < 0)
-			st = ShadingType::NUM_SHADERS - 1;
-		objects.at(selected_obj).shading = ShadingType(st);
+			st = NUM_SHADERS - 1;
+		objects.at(selected_obj).shader = st;
 		break;
 	case '+':
 		st++;
-		if (st == ShadingType::NUM_SHADERS)
+		if (st == NUM_SHADERS)
 			st = 0;
-		objects.at(selected_obj).shading = ShadingType(st);
+		objects.at(selected_obj).shader = st;
 		break;
 	default:
 		break;
@@ -943,27 +750,27 @@ void updateMenu(int option)
 {
 	switch (option)
 	{
-	case MenuOption::CHANGE_TO_OCS:
+	case CHANGE_TO_OCS:
 		glutChangeToSubMenu(3, "Transform Mode: OCS", subMenuTransformMode);
 		transformMode = OCS;
 		break;
-	case MenuOption::CHANGE_TO_WCS:
+	case CHANGE_TO_WCS:
 		glutChangeToSubMenu(3, "Transform Mode: WCS", subMenuTransformMode);
 		transformMode = WCS;
 		break;
-	case MenuOption::FACE_FILL:
+	case FACE_FILL:
 		glutChangeToSubMenu(4, "Rendering: Face fill", subMenuRendering);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		break;
-	case MenuOption::WIRE_FRAME:
+	case WIRE_FRAME:
 		glutChangeToSubMenu(4, "Rendering: Wireframe", subMenuRendering);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		break;
-	case MenuOption::CULLING_OFF:
+	case CULLING_OFF:
 		glutChangeToSubMenu(5, "Culling: OFF", subMenuCulling);
 		glDisable(GL_CULL_FACE);
 		break;
-	case MenuOption::CULLING_ON:
+	case CULLING_ON:
 		glutChangeToSubMenu(5, "Culling: ON", subMenuCulling);
 		glEnable(GL_CULL_FACE);
 		break;
@@ -992,38 +799,38 @@ void setTransformMode(int option)
 
 void setMaterial(int option)
 {
-	objects.at(selected_obj).material = MaterialType(option);
+	objects.at(selected_obj).material = option;
 }
 
 void setShader(int option)
 {
-	objects.at(selected_obj).shading = ShadingType(option);
+	objects.at(selected_obj).shader = option;
 }
 
 void buildOpenGLMenu()
 {
 	subMenuTransformMode = glutCreateMenu(setTransformMode);
-	glutAddMenuEntry("OCS", MenuOption::CHANGE_TO_OCS);
-	glutAddMenuEntry("WCS", MenuOption::CHANGE_TO_WCS);
+	glutAddMenuEntry("OCS", CHANGE_TO_OCS);
+	glutAddMenuEntry("WCS", CHANGE_TO_WCS);
 
 	subMenuRendering = glutCreateMenu(setMeshRenderingMode);
-	glutAddMenuEntry("Face fill", MenuOption::FACE_FILL);
-	glutAddMenuEntry("Wireframe", MenuOption::WIRE_FRAME);
+	glutAddMenuEntry("Face fill", FACE_FILL);
+	glutAddMenuEntry("Wireframe", WIRE_FRAME);
 
 	subMenuCulling = glutCreateMenu(setCulling);
-	glutAddMenuEntry("OFF", MenuOption::CULLING_OFF);
-	glutAddMenuEntry("ON", MenuOption::CULLING_ON);
+	glutAddMenuEntry("OFF", CULLING_OFF);
+	glutAddMenuEntry("ON", CULLING_ON);
 
 	materialSubmenu = glutCreateMenu(setMaterial);
 	// add Material menu entries
-	for (int i = 0; i < MaterialType::NUM_MATERIALS; i++)
+	for (int i = 0; i < NUM_MATERIALS; i++)
 	{
 		glutAddMenuEntry(materials[i].name.c_str(), i);
 	}
 
 	shaderSubmenu = glutCreateMenu(setShader);
 	// add Shading menu entries
-	for (int i = 0; i < ShadingType::NUM_SHADERS; i++)
+	for (int i = 0; i < NUM_SHADERS; i++)
 	{
 		glutAddMenuEntry(getShaderName(i).c_str(), i);
 	}
@@ -1116,7 +923,7 @@ void modifyModelMatrix(glm::vec3 translation_vector, glm::vec3 rotation_vector, 
 	{
 		// Rotation with pivot on the scene center
 		glm::vec3 objectPosition = newModelMatrix[3];
-		glm::vec3 origin = Axis.M[3]; // [3] gets the 4th column of the matrix, which is a vector4 and contains the position (x, y, z, 0/1)
+		glm::vec3 origin = glm::vec3(0, 0, 0); // [3] gets the 4th column of the matrix, which is a vector4 and contains the position (x, y, z, 0/1)
 
 		newModelMatrix = glm::translate(newModelMatrix, origin - objectPosition);
 		newModelMatrix = glm::rotate(newModelMatrix, glm::radians(angle), rotation_vector);
@@ -1168,7 +975,7 @@ void generate_and_load_buffers(bool generate, Mesh* mesh)
 	glDisableVertexAttribArray(1);
 }
 
-void loadObjFile(string file_path, Mesh* mesh, bool vertices_normals)
+void loadObjFile(std::string file_path, Mesh* mesh, bool vertices_normals)
 {
 	FILE* file = fopen(file_path.c_str(), "r");
 	if (file == NULL) {
@@ -1177,9 +984,9 @@ void loadObjFile(string file_path, Mesh* mesh, bool vertices_normals)
 		exit(EXIT_FAILURE);
 	}
 	// tmp data structures
-	vector<GLuint> vertexIndices, normalIndices, uvIndices;
-	vector<glm::vec3> tmp_vertices, tmp_normals;
-	vector<glm::vec2> tmp_uvs;
+	std::vector<GLuint> vertexIndices, normalIndices, uvIndices;
+	std::vector<glm::vec3> tmp_vertices, tmp_normals;
+	std::vector<glm::vec2> tmp_uvs;
 
 	char lineHeader[128];
 	while (fscanf(file, "%s", lineHeader) != EOF) {
@@ -1278,8 +1085,8 @@ void loadObjFile(string file_path, Mesh* mesh, bool vertices_normals)
 }
 void drawAxisAndGrid()
 {
-	glUseProgram(shaders_IDs[Grid.shading]);
-	glUniformMatrix4fv(base_uniforms[Grid.shading].M_Matrix_pointer, 1, GL_FALSE, value_ptr(Grid.M));
+	glUseProgram(shaders_IDs[Grid.shader]);
+	glUniformMatrix4fv(base_uniforms[Grid.shader].M_Matrix_pointer, 1, GL_FALSE, value_ptr(Grid.M));
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glBindVertexArray(Grid.mesh.vertexArrayObjID);
@@ -1287,8 +1094,8 @@ void drawAxisAndGrid()
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	
-	glUseProgram(shaders_IDs[Axis.shading]);
-	glUniformMatrix4fv(base_uniforms[Axis.shading].M_Matrix_pointer, 1, GL_FALSE, value_ptr(Axis.M));
+	glUseProgram(shaders_IDs[Axis.shader]);
+	glUniformMatrix4fv(base_uniforms[Axis.shader].M_Matrix_pointer, 1, GL_FALSE, value_ptr(Axis.M));
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glBindVertexArray(Axis.mesh.vertexArrayObjID);
@@ -1299,33 +1106,33 @@ void drawAxisAndGrid()
 
 void printToScreen()
 {
-	string ref = "Transform Mode: ";
-	string mode = "Navigate/Modify: ";
-	string axis = "Axis: ";
-	string obj = "Object: " + objects[selected_obj].name;
-	string mat = "  Material: " + materials[objects[selected_obj].material].name;
-	string shad = "  Shading: ";
+	std::string ref = "Transform Mode: ";
+	std::string mode = "Navigate/Modify: ";
+	std::string axis = "Axis: ";
+	std::string obj = "Object: " + objects[selected_obj].name;
+	std::string mat = "  Material: " + materials[objects[selected_obj].material].name;
+	std::string shad = "  Shading: ";
 
 	switch (transformMode)
 	{
 		case OCS: ref += "OCS"; break;
 		case WCS: ref += "WCS"; break;
 	}
-	switch (OperationMode)
+	switch (operationMode)
 	{
-		case TRASLATING: mode += "Translate"; break;
-		case ROTATING: mode += "Rotate"; break;
-		case SCALING: mode += "Scale"; break;
-		case NAVIGATION: mode += "Navigate"; break;
+		case MODE_TRASLATING: mode += "Translate"; break;
+		case MODE_ROTATING: mode += "Rotate"; break;
+		case MODE_SCALING: mode += "Scale"; break;
+		case MODE_NAVIGATION: mode += "Navigate"; break;
 	}
-	switch (WorkingAxis)
+	switch (workingAxis)
 	{
-		case X: axis += "X"; break;
-		case Y: axis += "Y"; break;
-		case Z: axis += "Z"; break;
+		case AXIS_X: axis += "X"; break;
+		case AXIS_Y: axis += "Y"; break;
+		case AXIS_Z: axis += "Z"; break;
 	}
 
-	shad += getShaderName(objects.at(selected_obj).shading);
+	shad += getShaderName(objects.at(selected_obj).shader);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -1335,7 +1142,7 @@ void printToScreen()
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	vector<string> lines;
+	std::vector<std::string> lines;
 	lines.push_back(shad);
 	lines.push_back(mat);
 	lines.push_back(obj);

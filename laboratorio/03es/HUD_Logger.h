@@ -1,6 +1,6 @@
 #pragma once
-#include <string>
-#include <vector>
+
+#include "commons.h"
 
 /*
 Questa classe statica contiene un singleton utilizzato come ipotetico logger a schermo.

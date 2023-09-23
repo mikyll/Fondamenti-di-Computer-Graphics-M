@@ -1,4 +1,3 @@
-#define _CRT_SECURE_NO_WARNINGS // for fscanf
 #include "ShaderMaker.h"
 
 //  Helper function to load vertex and fragment shader files
