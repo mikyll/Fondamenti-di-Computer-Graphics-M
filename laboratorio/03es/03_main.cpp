@@ -56,12 +56,13 @@ using namespace std;
 #define CTRL_WHEEL_DOWN 20
 
 typedef enum {
+	CHANGE_TO_OCS,
+	CHANGE_TO_WCS,
 	WIRE_FRAME,
 	FACE_FILL,
-	CULLING_ON,
 	CULLING_OFF,
-	CHANGE_TO_WCS,
-	CHANGE_TO_OCS
+	CULLING_ON,
+	NUM_OPTIONS,
 } MenuOption;
 
 enum {
@@ -163,6 +164,8 @@ extern vector<Material> materials;
 static int selected_obj = 0;
 static PointLight light;
 
+int transformMode = WCS;
+
 // Camera structures
 constexpr float CAMERA_ZOOM_SPEED = 0.1f;
 constexpr float CAMERA_TRASLATION_SPEED = 0.01f;
@@ -176,6 +179,10 @@ static vector<LightShaderUniform> light_uniforms; // for shaders with light
 static vector<BaseShaderUniform> base_uniforms; // for ALL shaders
 static vector<GLuint> shaders_IDs; //Pointers to the shader programs
 
+static int menu;
+static int materialSubmenu;
+static int shaderSubmenu;
+
 // Main initialization funtion
 void init();
 // Reshape Function
@@ -188,8 +195,6 @@ void mouseInput(int button, int state, int x, int y);
 void keyboardDown(unsigned char key, int x, int y);
 // Special key arrow: select active object (arrows left,right)
 void special(int key, int x, int y);
-// gestione delle voci principali del menu
-void main_menu_func(int option);
 // gestione delle voci principali del sub menu per i matriali
 void material_menu_function(int option);
 // costruisce i menu openGL
@@ -211,7 +216,7 @@ void modifyModelMatrix(glm::vec3 translation_vector, glm::vec3 rotation_vector, 
 // Genera i buffer per la mesh in input e ne salva i puntatori di openGL
 void generate_and_load_buffers(bool generate, Mesh* mesh);
 // legge un file obj ed inizializza i vector della mesh in input
-void loadObjFile(string file_path, Mesh* mesh);
+void loadObjFile(string file_path, Mesh* mesh, bool vertices_normals);
 // disegna l'origine del assi
 void drawAxisAndGrid();
 // 2D fixed pipeline Font rendering on screen
@@ -219,7 +224,7 @@ void printToScreen();
 
 void init_light_object() {
 	Mesh sphereS = {};
-	loadObjFile(MeshDir + "sphere_n_t_smooth.obj", &sphereS);
+	loadObjFile(MeshDir + "sphere_n_t_smooth.obj", &sphereS, false);
 	generate_and_load_buffers(true, &sphereS);
 	// Object Setup, use the light shader and a material for color and light behavior
 	Object obj = {};
@@ -233,7 +238,7 @@ void init_light_object() {
 
 void init_waving_plane() {
 	Mesh sphereS = {};
-	loadObjFile(MeshDir + "GridPlane.obj", &sphereS);
+	loadObjFile(MeshDir + "GridPlane.obj", &sphereS, false);
 	generate_and_load_buffers(true, &sphereS);
 	// Object Setup use the light shader and a material for color and light behavior
 	Object obj = {};
@@ -245,10 +250,10 @@ void init_waving_plane() {
 	objects.push_back(obj);
 }
 
-void init_mesh(string filename, string name, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, MaterialType material, ShadingType shading) {
+void init_mesh(string filename, string name, bool vertices_normals, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, MaterialType material, ShadingType shading) {
 	Mesh sphereS = {};
 	//	loadObjFile(MeshDir + "airplane.obj", &sphereS);
-	loadObjFile(MeshDir + filename, &sphereS);
+	loadObjFile(MeshDir + filename, &sphereS, vertices_normals);
 	generate_and_load_buffers(true, &sphereS);
 	// Object Setup use the light shader and a material for color and light behavior
 	Object obj = {};
@@ -269,7 +274,7 @@ void init_mesh(string filename, string name, glm::vec3 position, glm::vec3 rotat
 
 void init_sphere_FLAT() {
 	Mesh sphereF = {};
-	loadObjFile(MeshDir + "sphere_n_t_flat.obj", &sphereF);
+	loadObjFile(MeshDir + "sphere_n_t_flat.obj", &sphereF, false);
 	generate_and_load_buffers(true, &sphereF);
 	// Object Setup  use the light shader and a material for color and light behavior
 	Object obj = {};
@@ -283,7 +288,7 @@ void init_sphere_FLAT() {
 
 void init_sphere_SMOOTH() {
 	Mesh sphereS = {};
-	loadObjFile(MeshDir + "sphere_n_t_smooth.obj", &sphereS);
+	loadObjFile(MeshDir + "sphere_n_t_smooth.obj", &sphereS, false);
 	generate_and_load_buffers(true, &sphereS);
 	// Object Setup use the light shader and a material for color and light behavior
 	Object obj = {};
@@ -297,7 +302,7 @@ void init_sphere_SMOOTH() {
 
 void init_axis() {
 	Mesh _grid = {};
-	loadObjFile(MeshDir + "axis.obj", &_grid);
+	loadObjFile(MeshDir + "axis.obj", &_grid, false);
 	generate_and_load_buffers(true, &_grid);
 	Object obj = {};
 	obj.mesh = _grid;
@@ -311,7 +316,7 @@ void init_axis() {
 
 void init_grid() {
 	Mesh _grid = {};
-	loadObjFile(MeshDir + "reference_grid.obj", &_grid);
+	loadObjFile(MeshDir + "reference_grid.obj", &_grid, false);
 	generate_and_load_buffers(true, &_grid);
 	Object obj = {};
 	obj.mesh = _grid;
@@ -558,14 +563,17 @@ void init() {
 	// Waving plane
 	init_waving_plane();
 
-	// Bunny Red plastic
-	init_mesh("bunny.obj", "Bunny", glm::vec3(0., 0., -2.), glm::vec3(), glm::vec3(2., 2., 2.), MaterialType::RED_PLASTIC, ShadingType::TOON);
+	// Bunny Red plastic (vertices normals)
+	init_mesh("bunny.obj", "Bunny", true, glm::vec3(0., 0., -2.), glm::vec3(), glm::vec3(2., 2., 2.), MaterialType::RED_PLASTIC, ShadingType::TOON);
 
-	// Airplane model with PHONG shading
-	init_mesh("airplane.obj", "Airplane", glm::vec3(-10., 5., 0.), glm::vec3(0.0 ,0.0, -40.0), glm::vec3(5., 5., 5.), MaterialType::RED_PLASTIC, ShadingType::PHONG);
+	// Airplane model with PHONG shading (vertices normals)
+	init_mesh("airplane.obj", "Airplane", true, glm::vec3(-10., 5., 0.), glm::vec3(0.0 ,0.0, -40.0), glm::vec3(5., 5., 5.), MaterialType::RED_PLASTIC, ShadingType::PHONG);
 
-	// Horse model with PHONG shading
-	init_mesh("horse.obj", "Horse", glm::vec3(-4., 2., 5.), glm::vec3(0.0, 180.0f, 0.0), glm::vec3(0.5, 0.5, 0.5), MaterialType::GOLD, ShadingType::PHONG);
+	// Horse model with PHONG shading (vertices normals)
+	init_mesh("horse.obj", "Horse", true, glm::vec3(-3., 2., 5.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5), MaterialType::GOLD, ShadingType::PHONG);
+
+	// Horse model with PHONG shading (face normals)
+	init_mesh("horse.obj", "Horse", false, glm::vec3(-5., 2., 7.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5), MaterialType::SLATE, ShadingType::PHONG);
 }
 
 void drawScene() {
@@ -756,7 +764,7 @@ void mouseInput(int button, int state, int x, int y)
 	}
 
 	glm::vec4 axis;
-	float amount = 0.01f;
+	float amount = 0.1f;
 	// Imposto il valore della trasformazione
 	switch (button)
 	{
@@ -917,65 +925,107 @@ void special(int key, int x, int y)
 	glutPostRedisplay();
 }
 
-void main_menu_func(int option)
+int subMenuRendering;
+int subMenuCulling;
+int subMenuTransformMode;
+
+void updateMenu(int option)
 {
 	switch (option)
 	{
-	case MenuOption::WIRE_FRAME: glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	case MenuOption::CHANGE_TO_OCS:
+		glutChangeToSubMenu(3, "Transform Mode: OCS", subMenuTransformMode);
+		transformMode = OCS;
 		break;
-	case MenuOption::FACE_FILL: glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	case MenuOption::CHANGE_TO_WCS:
+		glutChangeToSubMenu(3, "Transform Mode: WCS", subMenuTransformMode);
+		transformMode = WCS;
 		break;
-	case MenuOption::CULLING_ON: glEnable(GL_CULL_FACE);
+	case MenuOption::FACE_FILL:
+		glutChangeToSubMenu(4, "Rendering: Face fill", subMenuRendering);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		break;
-	case MenuOption::CULLING_OFF: glDisable(GL_CULL_FACE);
+	case MenuOption::WIRE_FRAME:
+		glutChangeToSubMenu(4, "Rendering: Wireframe", subMenuRendering);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		break;
-	case MenuOption::CHANGE_TO_OCS: TransformMode = OCS;
+	case MenuOption::CULLING_OFF:
+		glutChangeToSubMenu(5, "Culling: OFF", subMenuCulling);
+		glDisable(GL_CULL_FACE);
 		break;
-	case MenuOption::CHANGE_TO_WCS: TransformMode = WCS;
+	case MenuOption::CULLING_ON:
+		glutChangeToSubMenu(5, "Culling: ON", subMenuCulling);
+		glEnable(GL_CULL_FACE);
 		break;
+	
 	default:
 		break;
 	}
 }
+void setMeshRenderingMode(int option)
+{
+	glutSetMenu(menu);
+	glutTimerFunc(1, updateMenu, option);
+}
 
-void material_menu_function(int option)
+void setCulling(int option)
+{
+	glutSetMenu(menu);
+	glutTimerFunc(1, updateMenu, option);
+}
+
+void setTransformMode(int option)
+{
+	glutSetMenu(menu);
+	glutTimerFunc(1, updateMenu, option);
+}
+
+void setMaterial(int option)
 {
 	objects.at(selected_obj).material = MaterialType(option);
 }
 
-void shading_menu_function(int option)
+void setShader(int option)
 {
 	objects.at(selected_obj).shading = ShadingType(option);
 }
 
 void buildOpenGLMenu()
 {
-	int materialSubMenu = glutCreateMenu(material_menu_function);
-	
+	subMenuTransformMode = glutCreateMenu(setTransformMode);
+	glutAddMenuEntry("OCS", MenuOption::CHANGE_TO_OCS);
+	glutAddMenuEntry("WCS", MenuOption::CHANGE_TO_WCS);
+
+	subMenuRendering = glutCreateMenu(setMeshRenderingMode);
+	glutAddMenuEntry("Face fill", MenuOption::FACE_FILL);
+	glutAddMenuEntry("Wireframe", MenuOption::WIRE_FRAME);
+
+	subMenuCulling = glutCreateMenu(setCulling);
+	glutAddMenuEntry("OFF", MenuOption::CULLING_OFF);
+	glutAddMenuEntry("ON", MenuOption::CULLING_ON);
+
+	materialSubmenu = glutCreateMenu(setMaterial);
 	// add Material menu entries
 	for (int i = 0; i < MaterialType::NUM_MATERIALS; i++)
 	{
 		glutAddMenuEntry(materials[i].name.c_str(), i);
 	}
 
-	int shaderSubMenu = glutCreateMenu(shading_menu_function);
+	shaderSubmenu = glutCreateMenu(setShader);
 	// add Shading menu entries
 	for (int i = 0; i < ShadingType::NUM_SHADERS; i++)
 	{
 		glutAddMenuEntry(getShaderName(i).c_str(), i);
 	}
 
-	glutCreateMenu(main_menu_func); // richiama main_menu_func() alla selezione di una voce menu
+	menu = glutCreateMenu(NULL); // richiama main_menu_func() alla selezione di una voce menu
 	glutAddMenuEntry("Opzioni", -1); // -1 significa che non si vuole gestire questa riga
 	glutAddMenuEntry("", -1);
-	glutAddMenuEntry("Wireframe", MenuOption::WIRE_FRAME);
-	glutAddMenuEntry("Face fill", MenuOption::FACE_FILL);
-	glutAddMenuEntry("Culling: ON", MenuOption::CULLING_ON);
-	glutAddMenuEntry("Culling: OFF", MenuOption::CULLING_OFF);
-	glutAddSubMenu("Material", materialSubMenu);
-	glutAddSubMenu("Shader", shaderSubMenu);
-	glutAddMenuEntry("World coordinate system", MenuOption::CHANGE_TO_WCS);
-	glutAddMenuEntry("Object coordinate system", MenuOption::CHANGE_TO_OCS);
+	glutAddSubMenu("Transform Mode: WCS", subMenuTransformMode);
+	glutAddSubMenu("Rendering: Face fill", subMenuRendering);
+	glutAddSubMenu("Culling: OFF", subMenuCulling);
+	glutAddSubMenu("Material", materialSubmenu);
+	glutAddSubMenu("Shader", shaderSubmenu);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
 
@@ -1047,7 +1097,21 @@ void modifyModelMatrix(glm::vec3 translation_vector, glm::vec3 rotation_vector, 
 	// Translation
 	newModelMatrix = glm::translate(newModelMatrix, translation_vector);
 	// Rotation
-	newModelMatrix = glm::rotate(newModelMatrix, glm::radians(angle), rotation_vector);
+	if (transformMode == OCS)
+	{
+		// Rotation with pivot on the object's center
+		newModelMatrix = glm::rotate(newModelMatrix, glm::radians(angle), rotation_vector);
+	}
+	else if (transformMode == WCS)
+	{
+		// Rotation with pivot on the scene center
+		glm::vec3 objectPosition = newModelMatrix[3];
+		glm::vec3 origin = Axis.M[3];
+
+		newModelMatrix = glm::translate(newModelMatrix, origin - objectPosition);
+		newModelMatrix = glm::rotate(newModelMatrix, glm::radians(angle), rotation_vector);
+		newModelMatrix = glm::translate(newModelMatrix, objectPosition - origin);
+	}
 	// Scaling
 	newModelMatrix = glm::scale(newModelMatrix, glm::vec3(scale_factor, scale_factor, scale_factor));
 	objects.at(selected_obj).M = newModelMatrix;
@@ -1094,7 +1158,7 @@ void generate_and_load_buffers(bool generate, Mesh* mesh)
 	glDisableVertexAttribArray(1);
 }
 
-void loadObjFile(string file_path, Mesh* mesh)
+void loadObjFile(string file_path, Mesh* mesh, bool vertices_normals)
 {
 	FILE* file = fopen(file_path.c_str(), "r");
 	if (file == NULL) {
@@ -1168,21 +1232,26 @@ void loadObjFile(string file_path, Mesh* mesh)
 				glm::vec3(tmp_vertices[ib]) - glm::vec3(tmp_vertices[ia]),
 				glm::vec3(tmp_vertices[ic]) - glm::vec3(tmp_vertices[ia])));
 			
-			// Normali ai vertici
-			/*tmp_normals[ia] += normal;
-			tmp_normals[ib] += normal;
-			tmp_normals[ic] += normal;
-			// Put an index to the normal for all 3 vertex of the face
-			normalIndices.push_back(ia);
-			normalIndices.push_back(ib);
-			normalIndices.push_back(ic);*/
-
-			// Normali alle facce
-			tmp_normals[i / 3] = normal;
-			// Put an index to the normal for all 3 vertex of the face
-			normalIndices.push_back(i / 3);
-			normalIndices.push_back(i / 3);
-			normalIndices.push_back(i / 3);
+			if (vertices_normals)
+			{
+				// Normali ai vertici
+				tmp_normals[ia] += normal;
+				tmp_normals[ib] += normal;
+				tmp_normals[ic] += normal;
+				// Put an index to the normal for all 3 vertex of the face
+				normalIndices.push_back(ia);
+				normalIndices.push_back(ib);
+				normalIndices.push_back(ic);
+			}
+			else
+			{
+				// Normali alle facce
+				tmp_normals[i / 3] = normal;
+				// Put an index to the normal for all 3 vertex of the face
+				normalIndices.push_back(i / 3);
+				normalIndices.push_back(i / 3);
+				normalIndices.push_back(i / 3);
+			}
 		}
 	}
 
@@ -1220,14 +1289,14 @@ void drawAxisAndGrid()
 
 void printToScreen()
 {
-	string ref = "WCS/OCS: ";
+	string ref = "Transform Mode: ";
 	string mode = "Navigate/Modify: ";
 	string axis = "Axis: ";
 	string obj = "Object: " + objects[selected_obj].name;
 	string mat = "  Material: " + materials[objects[selected_obj].material].name;
 	string shad = "  Shading: ";
 
-	switch (TransformMode)
+	switch (transformMode)
 	{
 		case OCS: ref += "OCS"; break;
 		case WCS: ref += "WCS"; break;
