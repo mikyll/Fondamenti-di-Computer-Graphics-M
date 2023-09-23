@@ -602,6 +602,7 @@ void drawScene() {
 				glUniform3fv(light_uniforms[GOURAUD].material_diffuse, 1, glm::value_ptr(materials[objects.at(i).material].diffuse));
 				glUniform3fv(light_uniforms[GOURAUD].material_specular, 1, glm::value_ptr(materials[objects.at(i).material].specular));
 				glUniform1f(light_uniforms[GOURAUD].material_shininess, materials[objects.at(i).material].shininess);
+				glUniform3f(light_uniforms[GOURAUD].light_position_pointer, light.position.x, light.position.y, light.position.z);
 				break;
 
 			case ShadingType::PHONG:
@@ -613,6 +614,7 @@ void drawScene() {
 				glUniform3fv(light_uniforms[PHONG].material_diffuse, 1, glm::value_ptr(materials[objects.at(i).material].diffuse));
 				glUniform3fv(light_uniforms[PHONG].material_specular, 1, glm::value_ptr(materials[objects.at(i).material].specular));
 				glUniform1f(light_uniforms[PHONG].material_shininess, materials[objects.at(i).material].shininess);
+				glUniform3f(light_uniforms[PHONG].light_position_pointer, light.position.x, light.position.y, light.position.z);
 				break;
 
 			case ShadingType::BLINN:
@@ -624,6 +626,7 @@ void drawScene() {
 				glUniform3fv(light_uniforms[BLINN].material_diffuse, 1, glm::value_ptr(materials[objects.at(i).material].diffuse));
 				glUniform3fv(light_uniforms[BLINN].material_specular, 1, glm::value_ptr(materials[objects.at(i).material].specular));
 				glUniform1f(light_uniforms[BLINN].material_shininess, materials[objects.at(i).material].shininess);
+				glUniform3f(light_uniforms[BLINN].light_position_pointer, light.position.x, light.position.y, light.position.z);
 				break;
 
 			case ShadingType::WAVE:
@@ -653,12 +656,14 @@ void drawScene() {
 				glUniform3fv(light_uniforms[WAVE_LIGHT].material_diffuse, 1, glm::value_ptr(materials[objects.at(i).material].diffuse));
 				glUniform3fv(light_uniforms[WAVE_LIGHT].material_specular, 1, glm::value_ptr(materials[objects.at(i).material].specular));
 				glUniform1f(light_uniforms[WAVE_LIGHT].material_shininess, materials[objects.at(i).material].shininess);
+				glUniform3f(light_uniforms[WAVE_LIGHT].light_position_pointer, light.position.x, light.position.y, light.position.z);
 				break;
 
 			case ShadingType::TOON:
 				glUseProgram(shaders_IDs[TOON]);
 				// Caricamento matrice trasformazione del modello
 				glUniformMatrix4fv(base_uniforms[TOON].M_Matrix_pointer, 1, GL_FALSE, value_ptr(objects.at(i).M));
+				glUniform3f(light_uniforms[TOON].light_position_pointer, light.position.x, light.position.y, light.position.z);
 				break;
 
 			case ShadingType::TOON_V2:
@@ -670,6 +675,7 @@ void drawScene() {
 				glUniform3fv(light_uniforms[TOON_V2].material_diffuse, 1, glm::value_ptr(materials[objects.at(i).material].diffuse));
 				glUniform3fv(light_uniforms[TOON_V2].material_specular, 1, glm::value_ptr(materials[objects.at(i).material].specular));
 				glUniform1f(light_uniforms[TOON_V2].material_shininess, materials[objects.at(i).material].shininess);
+				glUniform3f(light_uniforms[TOON_V2].light_position_pointer, light.position.x, light.position.y, light.position.z);
 				break;
 
 			default:
@@ -764,7 +770,7 @@ void mouseInput(int button, int state, int x, int y)
 	}
 
 	glm::vec4 axis;
-	float amount = 0.1f;
+	float amount = 0.5f;
 	// Imposto il valore della trasformazione
 	switch (button)
 	{
@@ -820,6 +826,10 @@ void mouseInput(int button, int state, int x, int y)
 
 		case TRASLATING:
 			modifyModelMatrix(axis * amount, axis, 0.0f, 1.0f);
+			if (objects.at(selected_obj).name == "light")
+			{
+				light.position = objects.at(selected_obj).M[3];
+			}
 			break;
 
 		case ROTATING:
@@ -1106,7 +1116,7 @@ void modifyModelMatrix(glm::vec3 translation_vector, glm::vec3 rotation_vector, 
 	{
 		// Rotation with pivot on the scene center
 		glm::vec3 objectPosition = newModelMatrix[3];
-		glm::vec3 origin = Axis.M[3];
+		glm::vec3 origin = Axis.M[3]; // [3] gets the 4th column of the matrix, which is a vector4 and contains the position (x, y, z, 0/1)
 
 		newModelMatrix = glm::translate(newModelMatrix, origin - objectPosition);
 		newModelMatrix = glm::rotate(newModelMatrix, glm::radians(angle), rotation_vector);
