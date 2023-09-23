@@ -1,4 +1,4 @@
-// Vertex shader: Wave shading
+// Vertex shader: Wave Color shading
 // ================
 #version 450 core
 
