@@ -16,7 +16,7 @@ void initShaders(PointLight light)
 	BaseShaderUniform base_unif = {};
 	LightShaderUniform light_unif = {};
 
-	// Pass-Through Shader loading
+	// SHADER: Pass-Through --------------------------------------------------------------
 	shaders_IDs[PASS_THROUGH] = createProgram(SHADERS_DIR + "v_passthrough.glsl", SHADERS_DIR + "f_passthrough.glsl");
 	// Otteniamo i puntatori alle variabili uniform per poterle utilizzare in seguito
 	base_unif.P_Matrix_pointer = glGetUniformLocation(shaders_IDs[PASS_THROUGH], "P");
@@ -26,7 +26,7 @@ void initShaders(PointLight light)
 	glUseProgram(shaders_IDs[PASS_THROUGH]);
 	glUniform4fv(glGetUniformLocation(shaders_IDs[PASS_THROUGH], "Color"), 1, value_ptr(glm::vec4(1.0, 1.0, 1.0, 1.0)));
 
-	// Gourand Shader loading
+	// SHADER: Gourand -------------------------------------------------------------------
 	shaders_IDs[GOURAUD] = createProgram(SHADERS_DIR + "v_gouraud.glsl", SHADERS_DIR + "f_gouraud.glsl");
 	// Otteniamo i puntatori alle variabili uniform per poterle utilizzare in seguito
 	base_unif.P_Matrix_pointer = glGetUniformLocation(shaders_IDs[GOURAUD], "P");
@@ -48,7 +48,7 @@ void initShaders(PointLight light)
 	glUniform3f(light_uniforms[GOURAUD].light_color_pointer, light.color.r, light.color.g, light.color.b);
 	glUniform1f(light_uniforms[GOURAUD].light_power_pointer, light.power);
 
-	// Phong Shader loading
+	// SHADER: Phong ---------------------------------------------------------------------
 	shaders_IDs[PHONG] = createProgram(SHADERS_DIR + "v_phong.glsl", SHADERS_DIR + "f_phong.glsl");
 	// Otteniamo i puntatori alle variabili uniform per poterle utilizzare in seguito
 	base_unif.P_Matrix_pointer = glGetUniformLocation(shaders_IDs[PHONG], "P");
@@ -70,7 +70,7 @@ void initShaders(PointLight light)
 	glUniform3f(light_uniforms[PHONG].light_color_pointer, light.color.r, light.color.g, light.color.b);
 	glUniform1f(light_uniforms[PHONG].light_power_pointer, light.power);
 
-	// Blinn Shader loading
+	// SHADER: Blinn ---------------------------------------------------------------------
 	shaders_IDs[BLINN] = createProgram(SHADERS_DIR + "v_blinn.glsl", SHADERS_DIR + "f_blinn.glsl");
 	base_unif.P_Matrix_pointer = glGetUniformLocation(shaders_IDs[BLINN], "P");
 	base_unif.V_Matrix_pointer = glGetUniformLocation(shaders_IDs[BLINN], "V");
@@ -91,8 +91,8 @@ void initShaders(PointLight light)
 	glUniform3f(light_uniforms[BLINN].light_color_pointer, light.color.r, light.color.g, light.color.b);
 	glUniform1f(light_uniforms[BLINN].light_power_pointer, light.power);
 
-	// Wave Shader Loading
 	// TO-DO: OK
+	// SHADER: Wave ----------------------------------------------------------------------
 	shaders_IDs[WAVE] = createProgram(SHADERS_DIR + "v_wave.glsl", SHADERS_DIR + "f_wave.glsl");
 	base_unif.P_Matrix_pointer = glGetUniformLocation(shaders_IDs[WAVE], "P");
 	base_unif.V_Matrix_pointer = glGetUniformLocation(shaders_IDs[WAVE], "V");
@@ -102,8 +102,8 @@ void initShaders(PointLight light)
 	// Rendiamo attivo lo shader
 	glUseProgram(shaders_IDs[WAVE]);
 
-	// Wave Shader Loading
 	// TO-DO Extra: OK
+	// SHADER: Wave Color ----------------------------------------------------------------
 	shaders_IDs[WAVE_COLOR] = createProgram(SHADERS_DIR + "v_wave_color.glsl", SHADERS_DIR + "f_wave_color.glsl");
 	base_unif.P_Matrix_pointer = glGetUniformLocation(shaders_IDs[WAVE_COLOR], "P");
 	base_unif.V_Matrix_pointer = glGetUniformLocation(shaders_IDs[WAVE_COLOR], "V");
@@ -113,8 +113,8 @@ void initShaders(PointLight light)
 	// Rendiamo attivo lo shader
 	glUseProgram(shaders_IDs[WAVE_COLOR]);
 
-	// Wave Light Shader Loading
 	// TO-DO Extra: OK
+	// SHADER: Wave Light ----------------------------------------------------------------
 	shaders_IDs[WAVE_LIGHT] = createProgram(SHADERS_DIR + "v_wave_light.glsl", SHADERS_DIR + "f_wave_light.glsl");
 	base_unif.P_Matrix_pointer = glGetUniformLocation(shaders_IDs[WAVE_LIGHT], "P");
 	base_unif.V_Matrix_pointer = glGetUniformLocation(shaders_IDs[WAVE_LIGHT], "V");
@@ -136,8 +136,8 @@ void initShaders(PointLight light)
 	glUniform3f(light_uniforms[WAVE_LIGHT].light_color_pointer, light.color.r, light.color.g, light.color.b);
 	glUniform1f(light_uniforms[WAVE_LIGHT].light_power_pointer, light.power);
 
-	// Toon Shader Loading
-	// TO-DO: OK
+	// TO-DO Extra: OK
+	// SHADER: Toon Shader ---------------------------------------------------------------
 	shaders_IDs[TOON] = createProgram(SHADERS_DIR + "v_toon.glsl", SHADERS_DIR + "f_toon.glsl");
 	base_unif.P_Matrix_pointer = glGetUniformLocation(shaders_IDs[TOON], "P");
 	base_unif.V_Matrix_pointer = glGetUniformLocation(shaders_IDs[TOON], "V");
@@ -152,8 +152,8 @@ void initShaders(PointLight light)
 	// Set light color
 	glUniform4fv(glGetUniformLocation(shaders_IDs[TOON], "color"), 1, value_ptr(glm::vec4(1.0, 1.0, 1.0, 1.0)));
 
-	// Toon Shader Loading
 	// TO-DO Extra: OK
+	// SHADER: Toon V2 Shader ------------------------------------------------------------
 	shaders_IDs[TOON_V2] = createProgram(SHADERS_DIR + "v_toon_v2.glsl", SHADERS_DIR + "f_toon_v2.glsl");
 	base_unif.P_Matrix_pointer = glGetUniformLocation(shaders_IDs[TOON_V2], "P");
 	base_unif.V_Matrix_pointer = glGetUniformLocation(shaders_IDs[TOON_V2], "V");
