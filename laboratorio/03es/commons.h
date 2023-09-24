@@ -24,6 +24,8 @@
 // Personal libraries
 #include "defs.h"
 #include "structs.h"
+#include "utils.h"
 
 #include "materials.h"
 #include "mesh.h"
+#include "camera.h"

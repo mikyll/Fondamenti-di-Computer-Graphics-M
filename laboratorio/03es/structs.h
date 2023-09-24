@@ -56,12 +56,18 @@ typedef struct {
 } PointLight;
 
 // Camera "look at": è indirizzata verso un punto specifico.
-struct {
+typedef struct {
 	glm::vec4 position; // Posizione della camera
 	glm::vec4 target; // Punto verso cui la camera è puntata
 	glm::vec4 upVector; // Vettore VUP, "View Up Vector"
 } ViewSetup;
 
-struct {
+typedef struct {
 	float fovY, aspect, near_plane, far_plane;
 } PerspectiveSetup;
+
+/*typedef struct {
+	int transformMode = WCS;
+	int operationMode = MODE_NAVIGATION;
+	int workingAxis = AXIS_X;
+} Application;*/

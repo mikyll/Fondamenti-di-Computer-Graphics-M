@@ -131,21 +131,29 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="03_main.cpp" />
+    <ClCompile Include="camera.cpp" />
     <ClCompile Include="HUD_Logger.cpp" />
+    <ClCompile Include="input.cpp" />
     <ClCompile Include="lights.cpp" />
     <ClCompile Include="material.cpp" />
+    <ClCompile Include="menu.cpp" />
     <ClCompile Include="mesh.cpp" />
     <ClCompile Include="ShaderMaker.cpp" />
+    <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="camera.h" />
     <ClInclude Include="commons.h" />
     <ClInclude Include="defs.h" />
     <ClInclude Include="HUD_Logger.h" />
+    <ClInclude Include="input.h" />
     <ClInclude Include="lights.h" />
     <ClInclude Include="materials.h" />
+    <ClInclude Include="menu.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="ShaderMaker.h" />
     <ClInclude Include="structs.h" />
+    <ClInclude Include="utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

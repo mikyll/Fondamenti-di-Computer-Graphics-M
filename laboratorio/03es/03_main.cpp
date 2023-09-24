@@ -30,27 +30,23 @@ based on the OpenGL Shading Language (GLSL) specifications.
 
 #include "commons.h"
 
-// Viewport size
-int WindowWidth = 1120;
-int WindowHeight = 630;
-GLfloat aspect_ratio = 16.0f / 9.0f;
 
-const std::string MeshDir = "Mesh/";
 const std::string ShaderDir = "Shaders/";
+
+extern int windowWidth, windowHeight;
+extern ViewSetup viewSetup;
+extern PerspectiveSetup perspectiveSetup;
+
 static Object Axis, Grid;
 extern std::vector<Object> objects;
 extern std::vector<Material> materials;
-static int selected_obj = 0;
+
+int selectedObj = 0;
 static PointLight light;
 
 int transformMode = WCS;
 int operationMode = MODE_NAVIGATION;
-
 int workingAxis = AXIS_X;
-
-// Camera structures
-constexpr float CAMERA_ZOOM_SPEED = 0.1f;
-constexpr float CAMERA_TRASLATION_SPEED = 0.01f;
 
 static bool moving_trackball = 0;
 static int last_mouse_pos_Y;
@@ -61,19 +57,22 @@ static std::vector<LightShaderUniform> light_uniforms; // for shaders with light
 static std::vector<BaseShaderUniform> base_uniforms; // for ALL shaders
 static std::vector<GLuint> shaders_IDs; //Pointers to the shader programs
 
-static int menu;
-static int materialSubmenu;
-static int shaderSubmenu;
 
+
+
+void initMeshes();
+extern std::string getShaderName(ShadingType shadingType);
 
 void initMeshes()
 {
 	// Axis for reference
 	initMesh("axis.obj", "axis_", true, glm::vec3(), glm::vec3(), glm::vec3(2., 2., 2.), COPPER, BLINN);
-	//objects.pop_back();
+	Axis = objects.at(objects.size() - 1);
 
 	// White Grid Plane for reference
 	initMesh("reference_grid.obj", "grid_", true, glm::vec3(), glm::vec3(), glm::vec3(1., 1., 1.), NO_MATERIAL, PASS_THROUGH);
+	Grid = objects.at(objects.size() - 1);
+	objects.pop_back();
 
 	// Point Light
 	initMesh("sphere_n_t_smooth.obj", "light", false, light.position, glm::vec3(), glm::vec3(0.2, 0.2, 0.2), NO_MATERIAL, GOURAUD);
@@ -99,7 +98,7 @@ void initMeshes()
 	// Horse model
 	initMesh("horse.obj", "Horse", false, glm::vec3(-5., 2., 7.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5), SLATE, PHONG);
 }
-void initMeshes();
+
 // Main initialization funtion
 void init();
 // Reshape Function
@@ -120,12 +119,9 @@ void buildOpenGLMenu();
 glm::vec3 getTrackBallPoint(float x, float y);
 // Trackball: Effettua la rotazione del vettore posizione sulla trackball
 void mouseActiveMotion(int x, int y);
-void moveCameraForeward();
-void moveCameraBack();
-void moveCameraLeft();
-void moveCameraRight();
-void moveCameraUp();
-void moveCameraDown();
+
+
+
 //	Crea ed applica la matrice di trasformazione alla matrice dell'oggetto discriminando tra WCS e OCS.
 //	La funzione è gia invocata con un input corretto, è sufficiente concludere la sua implementazione.
 void modifyModelMatrix(glm::vec3 translation_vector, glm::vec3 rotation_vector, GLfloat angle, GLfloat scale_factor);
@@ -138,30 +134,6 @@ void loadObjFile(std::string file_path, Mesh* mesh, bool vertices_normals);
 void drawAxisAndGrid();
 // 2D fixed pipeline Font rendering on screen
 void printToScreen();
-
-
-
-void init_mesh(std::string filename, std::string name, bool vertices_normals, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, int material, int shading) {
-	Mesh sphereS = {};
-	//	loadObjFile(MeshDir + "airplane.obj", &sphereS);
-	loadObjFile(MeshDir + filename, &sphereS, vertices_normals);
-	generate_and_load_buffers(true, &sphereS);
-	// Object Setup use the light shader and a material for color and light behavior
-	Object obj = {};
-	obj.mesh = sphereS;
-	obj.material = material;
-	obj.shader = shading;
-	obj.name = name;
-	obj.M = glm::scale(glm::translate(glm::mat4(1), position), scale);
-	if (rotation != glm::vec3(0.0f, 0.0f, 0.0f))
-	{
-		obj.M = glm::rotate(obj.M, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-		obj.M = glm::rotate(obj.M, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-		obj.M = glm::rotate(obj.M, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-	}
-	objects.push_back(obj);
-}
-
 
 
 
@@ -334,31 +306,8 @@ void initShader()
 	glUniform1f(light_uniforms[TOON_V2].light_power_pointer, light.power);
 }
 
-std::string getShaderName(int shadingType)
-{
-	std::string result = "Unknown";
-
-	switch (shadingType)
-	{
-		case PASS_THROUGH: result = "Pass Through"; break;
-		case GOURAUD: result = "Gouraud"; break;
-		case PHONG: result = "Phong"; break;
-		case BLINN: result = "Blinn"; break;
-		case WAVE: result = "Wave"; break;
-		case WAVE_COLOR: result = "Wave Color"; break;
-		case WAVE_LIGHT: result = "Wave Light"; break;
-		case TOON: result = "Toon"; break;
-		case TOON_V2: result = "Toon v2"; break;
-		default:
-			break;
-	}
-
-	return result;
-}
-
 void init() {
 	// Default render settings
-	operationMode = MODE_NAVIGATION;
 	glEnable(GL_DEPTH_TEST);	// Hidden surface removal
 	glCullFace(GL_BACK);	// remove faces facing the background
 	glEnable(GL_LINE_SMOOTH);
@@ -368,17 +317,7 @@ void init() {
 	light.color = { 1.0,1.0,1.0 };
 	light.power = 1.f;
 
-	// Camera Setup
-	ViewSetup = {};
-	ViewSetup.position = glm::vec4(10.0, 10.0, 10.0, 0.0);
-	ViewSetup.target = glm::vec4(0.0, 0.0, 0.0, 0.0);
-	ViewSetup.upVector = glm::vec4(0.0, 1.0, 0.0, 0.0);
-	PerspectiveSetup = {};
-	PerspectiveSetup.aspect = (GLfloat)WindowWidth / (GLfloat)WindowHeight;
-	PerspectiveSetup.fovY = 45.0f;
-	PerspectiveSetup.far_plane = 2000.0f;
-	PerspectiveSetup.near_plane = 1.0f;
-
+	initCamera();
 
 	initMeshes();
 }
@@ -510,27 +449,27 @@ void resize(int w, int h)
 {
 	if (h == 0)	// Window is minimized
 		return;
-	int width = h * aspect_ratio; // width is adjusted for aspect ratio
+	int width = h * ASPECT_RATIO; // width is adjusted for aspect ratio
 	int left = (w - width) / 2;
 	// Set Viewport to window dimensions
 	glViewport(left, 0, width, h);
-	WindowWidth = w;
-	WindowHeight = h;
+	windowWidth = w;
+	windowHeight = h;
 
 	// Fixed Pipeline matrices for retro compatibility
 	glUseProgram(0); // Embedded openGL shader
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(PerspectiveSetup.fovY, PerspectiveSetup.aspect, PerspectiveSetup.near_plane, PerspectiveSetup.far_plane);
+	gluPerspective(perspectiveSetup.fovY, perspectiveSetup.aspect, perspectiveSetup.near_plane, perspectiveSetup.far_plane);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(ViewSetup.position.x, ViewSetup.position.y, ViewSetup.position.z,
-		ViewSetup.target.x, ViewSetup.target.y, ViewSetup.target.z,
-		ViewSetup.upVector.x, ViewSetup.upVector.y, ViewSetup.upVector.z);
+	gluLookAt(viewSetup.position.x, viewSetup.position.y, viewSetup.position.z,
+		viewSetup.target.x, viewSetup.target.y, viewSetup.target.z,
+		viewSetup.upVector.x, viewSetup.upVector.y, viewSetup.upVector.z);
 
 	// Programmable Pipeline matrices for object rendering
-	glm::mat4 P = glm::perspective(PerspectiveSetup.fovY, PerspectiveSetup.aspect, PerspectiveSetup.near_plane, PerspectiveSetup.far_plane);
-	glm::mat4 V = glm::lookAt(glm::vec3(ViewSetup.position), glm::vec3(ViewSetup.target), glm::vec3(ViewSetup.upVector));
+	glm::mat4 P = glm::perspective(perspectiveSetup.fovY, perspectiveSetup.aspect, perspectiveSetup.near_plane, perspectiveSetup.far_plane);
+	glm::mat4 V = glm::lookAt(glm::vec3(viewSetup.position), glm::vec3(viewSetup.target), glm::vec3(viewSetup.upVector));
 
 	for (int i = 0; i < shaders_IDs.size(); i++) {
 		glUseProgram(shaders_IDs[i]);
@@ -646,9 +585,9 @@ void mouseInput(int button, int state, int x, int y)
 		default:
 			break;
 	}
-	if (objects.at(selected_obj).name == "light")
+	if (objects.at(selectedObj).name == "light")
 	{
-		light.position = objects.at(selected_obj).M[3];
+		light.position = objects.at(selectedObj).M[3];
 	}
 }
 
@@ -671,10 +610,10 @@ void mouseActiveMotion(int x, int y)
 		// rotation axis = (dest vec orig) / (len(dest vec orig))
 		glm::vec3 rotation_vec = glm::cross(origin, destination);
 		// calcolo del vettore direzione w = C - A
-		glm::vec4 direction = ViewSetup.position - ViewSetup.target;
+		glm::vec4 direction = viewSetup.position - viewSetup.target;
 		// rotazione del vettore direzione w 
 		// determinazione della nuova posizione della camera 
-		ViewSetup.position = ViewSetup.target + glm::rotate(glm::mat4(1.0f), glm::radians(-angle), rotation_vec) * direction;
+		viewSetup.position = viewSetup.target + glm::rotate(glm::mat4(1.0f), glm::radians(-angle), rotation_vec) * direction;
 	}
 	last_mouse_pos_X = x; last_mouse_pos_Y = y;
 	glutPostRedisplay();
@@ -682,7 +621,7 @@ void mouseActiveMotion(int x, int y)
 
 void keyboardDown(unsigned char key, int x, int y)
 {
-	int st = objects[selected_obj].shader;
+	int st = objects.at(selectedObj).shader;
 	
 	switch (key) {
 		// Selezione della modalità di trasformazione
@@ -712,13 +651,13 @@ void keyboardDown(unsigned char key, int x, int y)
 		st--;
 		if (st < 0)
 			st = NUM_SHADERS - 1;
-		objects.at(selected_obj).shader = st;
+		objects.at(selectedObj).shader = st;
 		break;
 	case '+':
 		st++;
 		if (st == NUM_SHADERS)
 			st = 0;
-		objects.at(selected_obj).shader = st;
+		objects.at(selectedObj).shader = st;
 		break;
 	default:
 		break;
@@ -731,10 +670,10 @@ void special(int key, int x, int y)
 	switch (key)
 	{
 	case GLUT_KEY_LEFT:
-		selected_obj = selected_obj > 0 ? selected_obj - 1 : objects.size() - 1;
+		selectedObj = selectedObj > 0 ? selectedObj - 1 : objects.size() - 1;
 		break;
 	case GLUT_KEY_RIGHT:
-		selected_obj = (selected_obj + 1) < objects.size() ? selected_obj + 1 : 0;
+		selectedObj = (selectedObj + 1) < objects.size() ? selectedObj + 1 : 0;
 		break;
 	default:
 		break;
@@ -742,175 +681,23 @@ void special(int key, int x, int y)
 	glutPostRedisplay();
 }
 
-int subMenuRendering;
-int subMenuCulling;
-int subMenuTransformMode;
-
-void updateMenu(int option)
-{
-	switch (option)
-	{
-	case CHANGE_TO_OCS:
-		glutChangeToSubMenu(3, "Transform Mode: OCS", subMenuTransformMode);
-		transformMode = OCS;
-		break;
-	case CHANGE_TO_WCS:
-		glutChangeToSubMenu(3, "Transform Mode: WCS", subMenuTransformMode);
-		transformMode = WCS;
-		break;
-	case FACE_FILL:
-		glutChangeToSubMenu(4, "Rendering: Face fill", subMenuRendering);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		break;
-	case WIRE_FRAME:
-		glutChangeToSubMenu(4, "Rendering: Wireframe", subMenuRendering);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		break;
-	case CULLING_OFF:
-		glutChangeToSubMenu(5, "Culling: OFF", subMenuCulling);
-		glDisable(GL_CULL_FACE);
-		break;
-	case CULLING_ON:
-		glutChangeToSubMenu(5, "Culling: ON", subMenuCulling);
-		glEnable(GL_CULL_FACE);
-		break;
-	
-	default:
-		break;
-	}
-}
-void setMeshRenderingMode(int option)
-{
-	glutSetMenu(menu);
-	glutTimerFunc(1, updateMenu, option);
-}
-
-void setCulling(int option)
-{
-	glutSetMenu(menu);
-	glutTimerFunc(1, updateMenu, option);
-}
-
-void setTransformMode(int option)
-{
-	glutSetMenu(menu);
-	glutTimerFunc(1, updateMenu, option);
-}
-
-void setMaterial(int option)
-{
-	objects.at(selected_obj).material = option;
-}
-
-void setShader(int option)
-{
-	objects.at(selected_obj).shader = option;
-}
-
-void buildOpenGLMenu()
-{
-	subMenuTransformMode = glutCreateMenu(setTransformMode);
-	glutAddMenuEntry("OCS", CHANGE_TO_OCS);
-	glutAddMenuEntry("WCS", CHANGE_TO_WCS);
-
-	subMenuRendering = glutCreateMenu(setMeshRenderingMode);
-	glutAddMenuEntry("Face fill", FACE_FILL);
-	glutAddMenuEntry("Wireframe", WIRE_FRAME);
-
-	subMenuCulling = glutCreateMenu(setCulling);
-	glutAddMenuEntry("OFF", CULLING_OFF);
-	glutAddMenuEntry("ON", CULLING_ON);
-
-	materialSubmenu = glutCreateMenu(setMaterial);
-	// add Material menu entries
-	for (int i = 0; i < NUM_MATERIALS; i++)
-	{
-		glutAddMenuEntry(materials[i].name.c_str(), i);
-	}
-
-	shaderSubmenu = glutCreateMenu(setShader);
-	// add Shading menu entries
-	for (int i = 0; i < NUM_SHADERS; i++)
-	{
-		glutAddMenuEntry(getShaderName(i).c_str(), i);
-	}
-
-	menu = glutCreateMenu(NULL); // richiama main_menu_func() alla selezione di una voce menu
-	glutAddMenuEntry("Opzioni", -1); // -1 significa che non si vuole gestire questa riga
-	glutAddMenuEntry("", -1);
-	glutAddSubMenu("Transform Mode: WCS", subMenuTransformMode);
-	glutAddSubMenu("Rendering: Face fill", subMenuRendering);
-	glutAddSubMenu("Culling: OFF", subMenuCulling);
-	glutAddSubMenu("Material", materialSubmenu);
-	glutAddSubMenu("Shader", shaderSubmenu);
-	glutAttachMenu(GLUT_RIGHT_BUTTON);
-}
-
 glm::vec3 getTrackBallPoint(float x, float y)
 {
 	float zTemp;
 	glm::vec3 point;
 	//map to [-1;1]
-	point.x = (2.0f * x - WindowWidth) / WindowWidth;
-	point.y = (WindowHeight - 2.0f * y) / WindowHeight;
+	point.x = (2.0f * x - windowWidth) / windowWidth;
+	point.y = (windowHeight - 2.0f * y) / windowHeight;
 
 	zTemp = 1.0f - pow(point.x, 2.0) - pow(point.y, 2.0);
 	point.z = (zTemp > 0.0f) ? sqrt(zTemp) : 0.0;
 	return point;
 }
 
-void moveCameraForeward()
-{
-	glm::vec4 direction = ViewSetup.target - ViewSetup.position;
-	ViewSetup.position += direction * CAMERA_ZOOM_SPEED;
-}
-
-void moveCameraBack()
-{
-	glm::vec4 direction = ViewSetup.target - ViewSetup.position;
-	ViewSetup.position -= direction * CAMERA_ZOOM_SPEED;
-}
-
-void moveCameraLeft()
-{
-	// TO-DO: OK
-	glm::vec3 cameraDirection = ViewSetup.target - ViewSetup.position;
-	glm::vec3 rightDirection = glm::cross(cameraDirection, glm::vec3(ViewSetup.upVector)) * CAMERA_TRASLATION_SPEED;
-	ViewSetup.position -= glm::vec4(rightDirection, 0.0);
-	ViewSetup.target -= glm::vec4(rightDirection, 0.0);
-}
-
-void moveCameraRight()
-{
-	// TO-DO: OK
-	glm::vec3 cameraDirection = ViewSetup.target - ViewSetup.position;
-	glm::vec3 rightDirection = glm::cross(cameraDirection, glm::vec3(ViewSetup.upVector)) * CAMERA_TRASLATION_SPEED;
-	ViewSetup.position += glm::vec4(rightDirection, 0.0);
-	ViewSetup.target += glm::vec4(rightDirection, 0.0);
-}
-
-void moveCameraUp()
-{
-	glm::vec3 direction = ViewSetup.target - ViewSetup.position;
-	glm::vec3 slide_vector = glm::normalize(glm::cross(direction, glm::vec3(ViewSetup.upVector)));
-	glm::vec3 upDirection = glm::cross(direction, slide_vector) * CAMERA_TRASLATION_SPEED;
-	ViewSetup.position -= glm::vec4(upDirection, 0.0);
-	ViewSetup.target -= glm::vec4(upDirection, 0.0);
-}
-
-void moveCameraDown()
-{
-	glm::vec4 direction = ViewSetup.target - ViewSetup.position;
-	glm::vec3 slide_vector = glm::normalize(glm::cross(glm::vec3(direction), glm::vec3(ViewSetup.upVector)));
-	glm::vec3 upDirection = glm::cross(glm::vec3(direction), slide_vector) * CAMERA_TRASLATION_SPEED;
-	ViewSetup.position += glm::vec4(upDirection, 0.0);
-	ViewSetup.target += glm::vec4(upDirection, 0.0);
-}
-
 void modifyModelMatrix(glm::vec3 translation_vector, glm::vec3 rotation_vector, GLfloat angle, GLfloat scale_factor)
 {
 	// TO-DO: OK
-	glm::mat4 newModelMatrix = objects.at(selected_obj).M;
+	glm::mat4 newModelMatrix = objects.at(selectedObj).M;
 	// Translation
 	newModelMatrix = glm::translate(newModelMatrix, translation_vector);
 	// Rotation
@@ -931,158 +718,9 @@ void modifyModelMatrix(glm::vec3 translation_vector, glm::vec3 rotation_vector, 
 	}
 	// Scaling
 	newModelMatrix = glm::scale(newModelMatrix, glm::vec3(scale_factor, scale_factor, scale_factor));
-	objects.at(selected_obj).M = newModelMatrix;
+	objects.at(selectedObj).M = newModelMatrix;
 }
 
-void generate_and_load_buffers(bool generate, Mesh* mesh)
-{
-	if (generate) {
-		// Genero 1 Vertex Array Object
-		glGenVertexArrays(1, &mesh->vertexArrayObjID);
-		// Genero 1 Vertex Buffer Object per i vertici
-		glGenBuffers(1, &mesh->vertexBufferObjID);
-		// Genero 1 Buffer Object per le normali
-		glGenBuffers(1, &mesh->normalBufferObjID);
-	}
-
-	glBindVertexArray(mesh->vertexArrayObjID);
-
-	glBindBuffer(GL_ARRAY_BUFFER, mesh->vertexBufferObjID);
-	glBufferData(GL_ARRAY_BUFFER, mesh->vertices.size() * sizeof(glm::vec3), &mesh->vertices[0], GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(
-		0,					// attribute index in the shader
-		3,                  // size
-		GL_FLOAT,           // type
-		false,              // normalized 
-		0,					// stride
-		(void*)0            // array buffer offset
-	);
-
-	glBindBuffer(GL_ARRAY_BUFFER, mesh->normalBufferObjID);
-	glBufferData(GL_ARRAY_BUFFER, mesh->normals.size() * sizeof(glm::vec3), mesh->normals.data(), GL_STATIC_DRAW);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(
-		1,					// attribute index in the shader
-		3,                  // size
-		GL_FLOAT,           // type
-		false,              // normalized 
-		0,					// stride
-		(void*)0            // array buffer offset
-	);
-
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-}
-
-void loadObjFile(std::string file_path, Mesh* mesh, bool vertices_normals)
-{
-	FILE* file = fopen(file_path.c_str(), "r");
-	if (file == NULL) {
-		std::cerr << "\nFailed to open obj file! --> " << file_path << std::endl;
-		std::getchar();
-		exit(EXIT_FAILURE);
-	}
-	// tmp data structures
-	std::vector<GLuint> vertexIndices, normalIndices, uvIndices;
-	std::vector<glm::vec3> tmp_vertices, tmp_normals;
-	std::vector<glm::vec2> tmp_uvs;
-
-	char lineHeader[128];
-	while (fscanf(file, "%s", lineHeader) != EOF) {
-		if (strcmp(lineHeader, "v") == 0) {
-			glm::vec3 vertex;
-			fscanf(file, " %f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
-			tmp_vertices.push_back(vertex);
-		}
-		else if (strcmp(lineHeader, "vn") == 0) {
-			glm::vec3 normal;
-			fscanf(file, " %f %f %f\n", &normal.x, &normal.y, &normal.z);
-			tmp_normals.push_back(normal);
-		}
-		else if (strcmp(lineHeader, "vt") == 0) {
-			glm::vec2 uv;
-			fscanf(file, " %f %f\n", &uv.x, &uv.y);
-			uv.y = 1 - uv.y;
-			tmp_uvs.push_back(uv);
-		}
-		else if (strcmp(lineHeader, "f") == 0) {
-			GLuint v_a, v_b, v_c; // index in position array
-			GLuint n_a, n_b, n_c; // index in normal array
-			GLuint t_a, t_b, t_c; // index in UV array
-
-			fscanf(file, "%s", lineHeader);
-			if (strstr(lineHeader, "//")) { // case: v//n v//n v//n
-				sscanf(lineHeader, "%d//%d", &v_a, &n_a);
-				fscanf(file, "%d//%d %d//%d\n", &v_b, &n_b, &v_c, &n_c);
-				n_a--, n_b--, n_c--;
-				normalIndices.push_back(n_a); normalIndices.push_back(n_b); normalIndices.push_back(n_c);
-			}
-			else if (strstr(lineHeader, "/")) {// case: v/t/n v/t/n v/t/n
-				sscanf(lineHeader, "%d/%d/%d", &v_a, &t_a, &n_a);
-				fscanf(file, "%d/%d/%d %d/%d/%d\n", &v_b, &t_b, &n_b, &v_c, &t_c, &n_c);
-				n_a--, n_b--, n_c--;
-				t_a--, t_b--, t_c--;
-				normalIndices.push_back(n_a); normalIndices.push_back(n_b); normalIndices.push_back(n_c);
-				uvIndices.push_back(t_a); uvIndices.push_back(t_b); uvIndices.push_back(t_c);
-			}
-			else {// case: v v v
-				sscanf(lineHeader, "%d", &v_a);
-				fscanf(file, "%d %d\n", &v_b, &v_c);
-			}
-			v_a--; v_b--; v_c--;
-			vertexIndices.push_back(v_a); vertexIndices.push_back(v_b); vertexIndices.push_back(v_c);
-		}
-	}
-	fclose(file);
-
-	// If normals and uvs are not loaded, we calculate normals for vertex
-	if (tmp_normals.size() == 0) {
-		tmp_normals.resize(vertexIndices.size() / 3, glm::vec3(0.0, 0.0, 0.0));
-		// normal of each face saved 1 time PER FACE!
-		for (int i = 0; i < vertexIndices.size(); i += 3)
-		{
-			GLushort ia = vertexIndices[i];
-			GLushort ib = vertexIndices[i + 1];
-			GLushort ic = vertexIndices[i + 2];
-			glm::vec3 normal = glm::normalize(glm::cross(
-				glm::vec3(tmp_vertices[ib]) - glm::vec3(tmp_vertices[ia]),
-				glm::vec3(tmp_vertices[ic]) - glm::vec3(tmp_vertices[ia])));
-			
-			if (vertices_normals)
-			{
-				// Normali ai vertici
-				tmp_normals[ia] += normal;
-				tmp_normals[ib] += normal;
-				tmp_normals[ic] += normal;
-				// Put an index to the normal for all 3 vertex of the face
-				normalIndices.push_back(ia);
-				normalIndices.push_back(ib);
-				normalIndices.push_back(ic);
-			}
-			else
-			{
-				// Normali alle facce
-				tmp_normals[i / 3] = normal;
-				// Put an index to the normal for all 3 vertex of the face
-				normalIndices.push_back(i / 3);
-				normalIndices.push_back(i / 3);
-				normalIndices.push_back(i / 3);
-			}
-		}
-	}
-
-	// We prepare the data for glDrawArrays calls, this is a simple but non optimal way of storing mesh data.
-	// However, you could optimize the mesh data using a index array for both vertex positions, 
-	// normals and textures and later use glDrawElements
-	int i = 0;
-	// Now following the index arrays, we build the final arrays that will contain the data for glDrawArray...
-	for (int i = 0; i < vertexIndices.size(); i++) {
-		mesh->vertices.push_back(tmp_vertices[vertexIndices[i]]);
-		//mesh->normals.push_back(tmp_normals[normalIndices[i]]);
-		mesh->normals.push_back(glm::normalize(tmp_normals[normalIndices[i]]));
-	}
-}
 void drawAxisAndGrid()
 {
 	glUseProgram(shaders_IDs[Grid.shader]);
@@ -1109,8 +747,8 @@ void printToScreen()
 	std::string ref = "Transform Mode: ";
 	std::string mode = "Navigate/Modify: ";
 	std::string axis = "Axis: ";
-	std::string obj = "Object: " + objects[selected_obj].name;
-	std::string mat = "  Material: " + materials[objects[selected_obj].material].name;
+	std::string obj = "Object: " + objects[selectedObj].name;
+	std::string mat = "  Material: " + materials[objects[selectedObj].material].name;
 	std::string shad = "  Shading: ";
 
 	switch (transformMode)
@@ -1132,13 +770,13 @@ void printToScreen()
 		case AXIS_Z: axis += "Z"; break;
 	}
 
-	shad += getShaderName(objects.at(selected_obj).shader);
+	shad += getShaderName(objects.at(selectedObj).shader);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
 	// Handle output info layout 
-	gluOrtho2D(0, WindowHeight * aspect_ratio, 0, WindowHeight);
+	gluOrtho2D(0, windowHeight * ASPECT_RATIO, 0, windowHeight);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
@@ -1153,7 +791,7 @@ void printToScreen()
 	HUD_Logger::get()->printInfo(lines);
 	glEnable(GL_DEPTH_TEST);
 
-	resize(WindowWidth, WindowHeight);
+	resize(windowWidth, windowHeight);
 }
 
 
@@ -1163,7 +801,7 @@ int main(int argc, char** argv) {
 	glutInit(&argc, argv);
 	glutSetOption(GLUT_MULTISAMPLE, 4);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_MULTISAMPLE);
-	glutInitWindowSize(WindowWidth, WindowHeight);
+	glutInitWindowSize(windowWidth, windowHeight);
 	glutInitWindowPosition(100, 100);
 	glutCreateWindow("Model Viewer ");
 
@@ -1183,8 +821,8 @@ int main(int argc, char** argv) {
 	);
 
 	init();
-	initShader();
 	initMaterials();
+	initShader();
 
 	buildOpenGLMenu();
 	refresh_monitor(16);

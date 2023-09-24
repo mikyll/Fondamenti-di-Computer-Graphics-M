@@ -2,7 +2,7 @@
 
 using namespace std;
 
-extern float WindowWidth, WindowHeight;
+extern int windowWidth, windowHeight;
 
 HUD_Logger* HUD_Logger::logger;
 bool HUD_Logger::ready;
