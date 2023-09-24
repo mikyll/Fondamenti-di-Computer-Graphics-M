@@ -30,27 +30,36 @@ based on the OpenGL Shading Language (GLSL) specifications.
 
 #include "commons.h"
 
+// todo
+/*Application app = {};
+
+void initApplication()
+{
+	app.windowWidth = DEFAULT_WINDOW_WIDTH;
+	app.windowHeight = DEFAULT_WINDOW_HEIGHT;
+	app.coordinateSystem = WCS;
+	app.operationMode = MODE_NAVIGATION;
+	app.workingAxis = AXIS_X;
+}*/
 
 const std::string ShaderDir = "Shaders/";
 
 extern int windowWidth, windowHeight;
-extern ViewSetup viewSetup;
-extern PerspectiveSetup perspectiveSetup;
+extern Camera camera;
 
-static Object Axis, Grid;
 extern std::vector<Object> objects;
+static Object Axis, Grid;
+
 extern std::vector<Material> materials;
 
+extern std::string getShaderName(ShadingType shadingType);
+
 int selectedObj = 0;
-static PointLight light;
+PointLight light;
 
-int transformMode = WCS;
-int operationMode = MODE_NAVIGATION;
-int workingAxis = AXIS_X;
-
-static bool moving_trackball = 0;
-static int last_mouse_pos_Y;
-static int last_mouse_pos_X;
+CoordinateSystem coordinateSystem = WCS;
+OpeartionMode operationMode = MODE_NAVIGATION;
+WorkingAxis workingAxis = AXIS_X;
 
 // Shaders Uniforms 
 static std::vector<LightShaderUniform> light_uniforms; // for shaders with light
@@ -58,10 +67,8 @@ static std::vector<BaseShaderUniform> base_uniforms; // for ALL shaders
 static std::vector<GLuint> shaders_IDs; //Pointers to the shader programs
 
 
-
-
 void initMeshes();
-extern std::string getShaderName(ShadingType shadingType);
+
 
 void initMeshes()
 {
@@ -348,7 +355,9 @@ void drawScene() {
 				glUniform3fv(light_uniforms[GOURAUD].material_diffuse, 1, glm::value_ptr(materials[objects.at(i).material].diffuse));
 				glUniform3fv(light_uniforms[GOURAUD].material_specular, 1, glm::value_ptr(materials[objects.at(i).material].specular));
 				glUniform1f(light_uniforms[GOURAUD].material_shininess, materials[objects.at(i).material].shininess);
+				// Update light properties
 				glUniform3f(light_uniforms[GOURAUD].light_position_pointer, light.position.x, light.position.y, light.position.z);
+				glUniform1f(light_uniforms[GOURAUD].light_power_pointer, light.power);
 				break;
 
 			case PHONG:
@@ -360,7 +369,9 @@ void drawScene() {
 				glUniform3fv(light_uniforms[PHONG].material_diffuse, 1, glm::value_ptr(materials[objects.at(i).material].diffuse));
 				glUniform3fv(light_uniforms[PHONG].material_specular, 1, glm::value_ptr(materials[objects.at(i).material].specular));
 				glUniform1f(light_uniforms[PHONG].material_shininess, materials[objects.at(i).material].shininess);
+				// Update light properties
 				glUniform3f(light_uniforms[PHONG].light_position_pointer, light.position.x, light.position.y, light.position.z);
+				glUniform1f(light_uniforms[PHONG].light_power_pointer, light.power);
 				break;
 
 			case BLINN:
@@ -372,7 +383,9 @@ void drawScene() {
 				glUniform3fv(light_uniforms[BLINN].material_diffuse, 1, glm::value_ptr(materials[objects.at(i).material].diffuse));
 				glUniform3fv(light_uniforms[BLINN].material_specular, 1, glm::value_ptr(materials[objects.at(i).material].specular));
 				glUniform1f(light_uniforms[BLINN].material_shininess, materials[objects.at(i).material].shininess);
+				// Update light properties
 				glUniform3f(light_uniforms[BLINN].light_position_pointer, light.position.x, light.position.y, light.position.z);
+				glUniform1f(light_uniforms[BLINN].light_power_pointer, light.power);
 				break;
 
 			case WAVE:
@@ -402,7 +415,9 @@ void drawScene() {
 				glUniform3fv(light_uniforms[WAVE_LIGHT].material_diffuse, 1, glm::value_ptr(materials[objects.at(i).material].diffuse));
 				glUniform3fv(light_uniforms[WAVE_LIGHT].material_specular, 1, glm::value_ptr(materials[objects.at(i).material].specular));
 				glUniform1f(light_uniforms[WAVE_LIGHT].material_shininess, materials[objects.at(i).material].shininess);
+				// Update light properties
 				glUniform3f(light_uniforms[WAVE_LIGHT].light_position_pointer, light.position.x, light.position.y, light.position.z);
+				glUniform1f(light_uniforms[WAVE_LIGHT].light_power_pointer, light.power);
 				break;
 
 			case TOON:
@@ -410,6 +425,7 @@ void drawScene() {
 				// Caricamento matrice trasformazione del modello
 				glUniformMatrix4fv(base_uniforms[TOON].M_Matrix_pointer, 1, GL_FALSE, value_ptr(objects.at(i).M));
 				glUniform3f(light_uniforms[TOON].light_position_pointer, light.position.x, light.position.y, light.position.z);
+				glUniform1f(light_uniforms[TOON].light_power_pointer, light.power);
 				break;
 
 			case TOON_V2:
@@ -421,7 +437,9 @@ void drawScene() {
 				glUniform3fv(light_uniforms[TOON_V2].material_diffuse, 1, glm::value_ptr(materials[objects.at(i).material].diffuse));
 				glUniform3fv(light_uniforms[TOON_V2].material_specular, 1, glm::value_ptr(materials[objects.at(i).material].specular));
 				glUniform1f(light_uniforms[TOON_V2].material_shininess, materials[objects.at(i).material].shininess);
+				// Update light properties
 				glUniform3f(light_uniforms[TOON_V2].light_position_pointer, light.position.x, light.position.y, light.position.z);
+				glUniform1f(light_uniforms[TOON_V2].light_power_pointer, light.power);
 				break;
 
 			default:
@@ -460,16 +478,16 @@ void resize(int w, int h)
 	glUseProgram(0); // Embedded openGL shader
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(perspectiveSetup.fovY, perspectiveSetup.aspect, perspectiveSetup.near_plane, perspectiveSetup.far_plane);
+	gluPerspective(camera.perspectiveSetup.fovY, camera.perspectiveSetup.aspect, camera.perspectiveSetup.near_plane, camera.perspectiveSetup.far_plane);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	gluLookAt(viewSetup.position.x, viewSetup.position.y, viewSetup.position.z,
-		viewSetup.target.x, viewSetup.target.y, viewSetup.target.z,
-		viewSetup.upVector.x, viewSetup.upVector.y, viewSetup.upVector.z);
+	gluLookAt(camera.viewSetup.position.x, camera.viewSetup.position.y, camera.viewSetup.position.z,
+		camera.viewSetup.target.x, camera.viewSetup.target.y, camera.viewSetup.target.z,
+		camera.viewSetup.upVector.x, camera.viewSetup.upVector.y, camera.viewSetup.upVector.z);
 
 	// Programmable Pipeline matrices for object rendering
-	glm::mat4 P = glm::perspective(perspectiveSetup.fovY, perspectiveSetup.aspect, perspectiveSetup.near_plane, perspectiveSetup.far_plane);
-	glm::mat4 V = glm::lookAt(glm::vec3(viewSetup.position), glm::vec3(viewSetup.target), glm::vec3(viewSetup.upVector));
+	glm::mat4 P = glm::perspective(camera.perspectiveSetup.fovY, camera.perspectiveSetup.aspect, camera.perspectiveSetup.near_plane, camera.perspectiveSetup.far_plane);
+	glm::mat4 V = glm::lookAt(glm::vec3(camera.viewSetup.position), glm::vec3(camera.viewSetup.target), glm::vec3(camera.viewSetup.upVector));
 
 	for (int i = 0; i < shaders_IDs.size(); i++) {
 		glUseProgram(shaders_IDs[i]);
@@ -484,216 +502,6 @@ void refresh_monitor(int millis)
 	glutTimerFunc(millis, refresh_monitor, millis);
 }
 
-void mouseInput(int button, int state, int x, int y)
-{
-	glutPostRedisplay();
-	int modifiers = glutGetModifiers();
-	if (modifiers == GLUT_ACTIVE_SHIFT)
-	{
-		switch (button)
-		{
-			case SHIFT_WHEEL_UP:
-				moveCameraUp();
-				break;
-			case SHIFT_WHEEL_DOWN:
-				moveCameraDown();
-				break;
-		}
-		return;
-	}
-	else if (modifiers == GLUT_ACTIVE_CTRL)
-	{
-		switch (button)
-		{
-			case CTRL_WHEEL_UP:
-				moveCameraRight();
-				break;
-			case CTRL_WHEEL_DOWN:
-				moveCameraLeft();
-				break;
-		}
-		return;
-	}
-
-	glm::vec4 axis;
-	float amount = 0.1f;
-	// Imposto il valore della trasformazione
-	switch (button)
-	{
-		// scroll wheel up
-		case 3:
-			amount *= 1;
-			break;
-
-		// scroll wheel down
-		case 4:
-			amount *= -1;
-			break;
-
-		case GLUT_LEFT_BUTTON:
-			// If the user is pressing the left mouse button, we are moving the trackball
-			moving_trackball = state == GLUT_DOWN;
-
-			operationMode = MODE_NAVIGATION;
-			last_mouse_pos_X = x;
-			last_mouse_pos_Y = y;
-			break;
-
-		default:
-			break;
-	}
-	// Selezione dell'asse per le trasformazioni
-	switch (workingAxis)
-	{
-		case AXIS_X:	axis = glm::vec4(1.0, 0.0, 0.0, 0.0);
-			break;
-
-		case AXIS_Y: axis = glm::vec4(0.0, 1.0, 0.0, 0.0);
-			break;
-
-		case AXIS_Z: axis = glm::vec4(0.0, 0.0, 1.0, 0.0);
-			break;
-
-		default:
-			break;
-	}
-
-	switch (operationMode)
-	{
-		case MODE_NAVIGATION:
-			// Wheel reports as button 3(scroll up) and button 4(scroll down)
-			if (button == 3) {
-				moveCameraBack();
-			}
-			else if (button == 4) {
-				moveCameraForeward();
-			}
-			break;
-
-		case MODE_TRASLATING:
-			modifyModelMatrix(axis * amount, axis, 0.0f, 1.0f);
-			break;
-
-		case MODE_ROTATING:
-			modifyModelMatrix(glm::vec3(0), axis, amount * 20.0f, 1.0f);
-			break;
-
-		case MODE_SCALING:
-			modifyModelMatrix(glm::vec3(0), axis, 0.0f, 1.0f + amount);
-			break;
-
-		default:
-			break;
-	}
-	if (objects.at(selectedObj).name == "light")
-	{
-		light.position = objects.at(selectedObj).M[3];
-	}
-}
-
-void mouseActiveMotion(int x, int y)
-{
-	// Spostamento su trackball del vettore posizione Camera 
-	if (!moving_trackball) {
-		return;
-	}
-	glm::vec3 destination = getTrackBallPoint(x, y);
-	glm::vec3 origin = getTrackBallPoint(last_mouse_pos_X, last_mouse_pos_Y);
-	float dx, dy, dz;
-	dx = destination.x - origin.x;
-	dy = destination.y - origin.y;
-	dz = destination.z - origin.z;
-	if (dx || dy || dz) {
-		// rotation angle = acos( (v dot w) / (len(v) * len(w)) ) o approssimato da ||dest-orig||;
-		float pi = glm::pi<float>();
-		float angle = sqrt(dx * dx + dy * dy + dz * dz) * (180.0 / pi);
-		// rotation axis = (dest vec orig) / (len(dest vec orig))
-		glm::vec3 rotation_vec = glm::cross(origin, destination);
-		// calcolo del vettore direzione w = C - A
-		glm::vec4 direction = viewSetup.position - viewSetup.target;
-		// rotazione del vettore direzione w 
-		// determinazione della nuova posizione della camera 
-		viewSetup.position = viewSetup.target + glm::rotate(glm::mat4(1.0f), glm::radians(-angle), rotation_vec) * direction;
-	}
-	last_mouse_pos_X = x; last_mouse_pos_Y = y;
-	glutPostRedisplay();
-}
-
-void keyboardDown(unsigned char key, int x, int y)
-{
-	int st = objects.at(selectedObj).shader;
-	
-	switch (key) {
-		// Selezione della modalità di trasformazione
-	case 'g':
-		operationMode = MODE_TRASLATING;
-		break;
-	case 'r':
-		operationMode = MODE_ROTATING;
-		break;
-	case 's':
-		operationMode = MODE_SCALING;
-		break;
-	case 27:
-		glutLeaveMainLoop();
-		break;
-		// Selezione dell'asse
-	case 'x':
-		workingAxis = AXIS_X;
-		break;
-	case 'y':
-		workingAxis = AXIS_Y;
-		break;
-	case 'z':
-		workingAxis = AXIS_Z;
-		break;
-	case '-':
-		st--;
-		if (st < 0)
-			st = NUM_SHADERS - 1;
-		objects.at(selectedObj).shader = st;
-		break;
-	case '+':
-		st++;
-		if (st == NUM_SHADERS)
-			st = 0;
-		objects.at(selectedObj).shader = st;
-		break;
-	default:
-		break;
-	}
-	glutPostRedisplay();
-}
-
-void special(int key, int x, int y)
-{
-	switch (key)
-	{
-	case GLUT_KEY_LEFT:
-		selectedObj = selectedObj > 0 ? selectedObj - 1 : objects.size() - 1;
-		break;
-	case GLUT_KEY_RIGHT:
-		selectedObj = (selectedObj + 1) < objects.size() ? selectedObj + 1 : 0;
-		break;
-	default:
-		break;
-	}
-	glutPostRedisplay();
-}
-
-glm::vec3 getTrackBallPoint(float x, float y)
-{
-	float zTemp;
-	glm::vec3 point;
-	//map to [-1;1]
-	point.x = (2.0f * x - windowWidth) / windowWidth;
-	point.y = (windowHeight - 2.0f * y) / windowHeight;
-
-	zTemp = 1.0f - pow(point.x, 2.0) - pow(point.y, 2.0);
-	point.z = (zTemp > 0.0f) ? sqrt(zTemp) : 0.0;
-	return point;
-}
-
 void modifyModelMatrix(glm::vec3 translation_vector, glm::vec3 rotation_vector, GLfloat angle, GLfloat scale_factor)
 {
 	// TO-DO: OK
@@ -701,12 +509,12 @@ void modifyModelMatrix(glm::vec3 translation_vector, glm::vec3 rotation_vector, 
 	// Translation
 	newModelMatrix = glm::translate(newModelMatrix, translation_vector);
 	// Rotation
-	if (transformMode == OCS)
+	if (coordinateSystem == OCS)
 	{
 		// Rotation with pivot on the object's center
 		newModelMatrix = glm::rotate(newModelMatrix, glm::radians(angle), rotation_vector);
 	}
-	else if (transformMode == WCS)
+	else if (coordinateSystem == WCS)
 	{
 		// Rotation with pivot on the scene center
 		glm::vec3 objectPosition = newModelMatrix[3];
@@ -751,7 +559,7 @@ void printToScreen()
 	std::string mat = "  Material: " + materials[objects[selectedObj].material].name;
 	std::string shad = "  Shading: ";
 
-	switch (transformMode)
+	switch (coordinateSystem)
 	{
 		case OCS: ref += "OCS"; break;
 		case WCS: ref += "WCS"; break;
@@ -807,10 +615,7 @@ int main(int argc, char** argv) {
 
 	glutDisplayFunc(drawScene);
 	glutReshapeFunc(resize);
-	glutKeyboardFunc(keyboardDown);
-	glutMouseFunc(mouseInput);
-	glutMotionFunc(mouseActiveMotion);
-	glutSpecialFunc(special);
+	initInput();
 
 	glewExperimental = GL_TRUE;
 	GlewInitResult = glewInit();

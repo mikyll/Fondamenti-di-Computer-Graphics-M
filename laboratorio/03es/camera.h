@@ -2,6 +2,7 @@
 
 #include "commons.h"
 
+
 void initCamera();
 
 void moveCameraForeward();

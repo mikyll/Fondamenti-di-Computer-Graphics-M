@@ -2,10 +2,6 @@
 
 #include "commons.h"
 
-typedef int MaterialType;
-typedef int ShadingType;
-typedef int MenuOption;
-
 typedef struct {
 	std::string name;
 	glm::vec3 ambient;
@@ -56,18 +52,26 @@ typedef struct {
 } PointLight;
 
 // Camera "look at": è indirizzata verso un punto specifico.
-typedef struct {
+struct ViewSetup {
 	glm::vec4 position; // Posizione della camera
 	glm::vec4 target; // Punto verso cui la camera è puntata
 	glm::vec4 upVector; // Vettore VUP, "View Up Vector"
-} ViewSetup;
+};
+
+struct PerspectiveSetup {
+	float fovY, aspect, near_plane, far_plane;
+};
 
 typedef struct {
-	float fovY, aspect, near_plane, far_plane;
-} PerspectiveSetup;
+	struct ViewSetup viewSetup;
+	struct PerspectiveSetup perspectiveSetup;
+} Camera;
 
+// todo
 /*typedef struct {
-	int transformMode = WCS;
-	int operationMode = MODE_NAVIGATION;
-	int workingAxis = AXIS_X;
+	int windowWidth;
+	int windowHeight;
+	CoordinateSystem coordinateSystem = WCS;
+	OpeartionMode operationMode = MODE_NAVIGATION;
+	WorkingAxis workingAxis = AXIS_X;
 } Application;*/

@@ -26,6 +26,7 @@
 #include "structs.h"
 #include "utils.h"
 
+#include "input.h"
+#include "camera.h"
 #include "materials.h"
 #include "mesh.h"
-#include "camera.h"

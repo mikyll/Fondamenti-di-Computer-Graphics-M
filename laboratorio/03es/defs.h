@@ -14,7 +14,7 @@
 
 const std::string MESH_DIR = "Mesh/";
 
-// TransformMode
+// CoordinateSystem
 enum {
 	OCS, // Object Coordinate System
 	WCS // World Coordinate System
@@ -76,3 +76,11 @@ enum {
 	TOON_V2,
 	NUM_SHADERS
 };
+
+typedef int MenuOption;
+typedef int MaterialType;
+typedef int ShadingType;
+
+typedef int CoordinateSystem;
+typedef int OpeartionMode;
+typedef int WorkingAxis;
