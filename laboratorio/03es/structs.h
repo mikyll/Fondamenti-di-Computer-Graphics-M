@@ -3,14 +3,6 @@
 #include "commons.h"
 
 typedef struct {
-	std::string name;
-	glm::vec3 ambient;
-	glm::vec3 diffuse;
-	glm::vec3 specular;
-	GLfloat shininess;
-} Material;
-
-typedef struct {
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec2> texCoords;
@@ -21,12 +13,19 @@ typedef struct {
 } Mesh;
 
 typedef struct {
-	Mesh mesh;
-	MaterialType material;
-	ShadingType shader;
-	glm::mat4 M;
 	std::string name;
-} Object;
+	glm::vec3 ambient;
+	glm::vec3 diffuse;
+	glm::vec3 specular;
+	GLfloat shininess;
+} Material;
+
+typedef struct {
+	GLuint P_Matrix_pointer;
+	GLuint V_Matrix_pointer;
+	GLuint M_Matrix_pointer;
+	GLfloat time_delta_pointer;
+} BaseShaderUniform;
 
 typedef struct {
 	GLuint light_position_pointer;
@@ -39,11 +38,20 @@ typedef struct {
 } LightShaderUniform;
 
 typedef struct {
-	GLuint P_Matrix_pointer;
-	GLuint V_Matrix_pointer;
-	GLuint M_Matrix_pointer;
-	GLfloat time_delta_pointer;
-} BaseShaderUniform;
+	GLuint id;
+	ShadingType type;
+	std::string name;
+	BaseShaderUniform baseUniform;
+	LightShaderUniform lightUniform;
+} Shader;
+
+typedef struct {
+	std::string name;
+	Mesh mesh;
+	Material material;
+	ShadingType shader;
+	glm::mat4 M;
+} Object;
 
 typedef struct {
 	glm::vec3 position;

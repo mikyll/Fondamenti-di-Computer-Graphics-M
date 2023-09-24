@@ -30,16 +30,15 @@ std::string getOperationModeName(OperationMode operationMode)
 	return result;
 }
 
-std::string getWorkingAxisName(ShadingType shadingType)
+std::string getWorkingAxisName(WorkingAxis workingAxis)
 {
 	std::string result = "Unknown";
 
-	switch (operationMode)
+	switch (workingAxis)
 	{
-		case MODE_TRASLATING: result = "Translate"; break;
-		case MODE_ROTATING: result = "Rotate"; break;
-		case MODE_SCALING: result = "Scale"; break;
-		case MODE_NAVIGATION: result = "Navigate"; break;
+		case AXIS_X: result = "X"; break;
+		case AXIS_Y: result = "Y"; break;
+		case AXIS_Z: result = "Z"; break;
 		default: break;
 	}
 

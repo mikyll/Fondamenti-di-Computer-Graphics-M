@@ -11,9 +11,9 @@ static int shaderSubmenu;
 static void updateMenu(int option);
 static void setMeshRenderingMode(int option);
 static void setCulling(int option);
-static void setTransformMode(int option);
-static void setMaterial(int option);
-static void setShader(int option);
+static void setTransformMode(CoordinateSystem option);
+static void setMaterial(MaterialType option);
+static void setShader(ShadingType option);
 
 
 static void updateMenu(int option)
@@ -62,18 +62,18 @@ static void setCulling(int option)
 	glutTimerFunc(1, updateMenu, option);
 }
 
-static void setTransformMode(int option)
+static void setTransformMode(CoordinateSystem option)
 {
 	glutSetMenu(menu);
 	glutTimerFunc(1, updateMenu, option);
 }
 
-static void setMaterial(int option)
+static void setMaterial(MaterialType option)
 {
-	objects.at(selectedObj).material = option;
+	objects.at(selectedObj).material = materials.at(option);
 }
 
-static void setShader(int option)
+static void setShader(ShadingType option)
 {
 	objects.at(selectedObj).shader = option;
 }

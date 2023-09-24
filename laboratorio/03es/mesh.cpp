@@ -4,11 +4,8 @@ static int loadObjFile(std::string file_path, Mesh* mesh, bool vertices_normals)
 static void generateAndLoadBuffers(bool generate, Mesh* mesh);
 
 
-std::vector<Object> objects;
-
-
 /*
-* Load a set of vertices and save it in a Mesh data structure
+* Reads a .obj file and initializes the mesh vectors of the Mesh data structure.
 */
 static int loadObjFile(std::string file_path, Mesh* mesh, bool vertices_normals)
 {
@@ -118,6 +115,9 @@ static int loadObjFile(std::string file_path, Mesh* mesh, bool vertices_normals)
 	}
 }
 
+/*
+* Generates buffers for the Mesh structure and saves its OpenGL pointers.
+*/
 static void generateAndLoadBuffers(bool generate, Mesh* mesh)
 {
 	if (generate) {
@@ -159,41 +159,22 @@ static void generateAndLoadBuffers(bool generate, Mesh* mesh)
 	glDisableVertexAttribArray(1);
 }
 
-void initMesh(
-	std::string filename,
-	std::string name,
-	bool verticesNormals,
-	glm::vec3 position,
-	glm::vec3 rotation,
-	glm::vec3 scale,
-	MaterialType material,
-	ShadingType shader)
+Mesh loadMesh(std::string filename, bool verticesNormals)
 {
-	Mesh sphereS = {};
-	if (!loadObjFile(MESH_DIR + filename, &sphereS, verticesNormals))
+	Mesh mesh = {};
+	if (!loadObjFile(MESH_DIR + filename, &mesh, verticesNormals))
 	{
 		std::getchar();
 		exit(EXIT_FAILURE);
 	}
-	generateAndLoadBuffers(true, &sphereS);
+	generateAndLoadBuffers(true, &mesh);
 
-	Object obj = {};
-	obj.mesh = sphereS;
-	obj.material = material;
-	obj.shader = shader;
-	obj.name = name;
-
-	// Transformations
-	obj.M = glm::translate(glm::mat4(1), position);
-	if (rotation != glm::vec3(0.0f, 0.0f, 0.0f))
-	{
-		obj.M = glm::rotate(obj.M, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-		obj.M = glm::rotate(obj.M, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-		obj.M = glm::rotate(obj.M, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
-	}
-	obj.M = glm::scale(obj.M, scale);
-	objects.push_back(obj);
+	return mesh;
 }
+
+
+
+
 
 // ====================================================================
 // ====================================================================
@@ -305,14 +286,14 @@ static int loadBrokenObjFile(std::string file_path, Mesh* mesh, bool vertices_no
 		mesh->normals.push_back(glm::normalize(tmp_normals[normalIndices[i]]));
 	}
 }
-void initBrokenMesh(
+/*void initBrokenMesh(
 	std::string filename,
 	std::string name,
 	bool verticesNormals,
 	glm::vec3 position,
 	glm::vec3 rotation,
 	glm::vec3 scale,
-	MaterialType material,
+	Material material,
 	ShadingType shader)
 {
 	Mesh sphereS = {};
@@ -339,4 +320,4 @@ void initBrokenMesh(
 	}
 	obj.M = glm::scale(obj.M, scale);
 	objects.push_back(obj);
-}
+}*/

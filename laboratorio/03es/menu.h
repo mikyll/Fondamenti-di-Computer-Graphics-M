@@ -6,9 +6,10 @@ void buildOpenGLMenu();
 
 extern std::string getShaderName(ShadingType shadingType);
 
+extern std::map<MaterialType, Material> materials;
+extern std::map<ShadingType, Shader> shaders;
 extern std::vector<Object> objects;
 extern int selectedObj;
-extern std::vector<Material> materials;
 
 extern CoordinateSystem coordinateSystem;
 extern OperationMode operationMode;

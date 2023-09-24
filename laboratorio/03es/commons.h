@@ -5,6 +5,7 @@
 #include <iostream>
 #include <math.h>
 #include <vector>
+#include <map>
 #include <string>
 #include <ctime>
 
@@ -28,5 +29,8 @@
 
 #include "input.h"
 #include "camera.h"
-#include "materials.h"
 #include "mesh.h"
+#include "material.h"
+//#include "shader.h"
+#include "object.h"
+#include "menu.h"

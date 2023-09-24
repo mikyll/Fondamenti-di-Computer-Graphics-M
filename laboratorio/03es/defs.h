@@ -12,12 +12,17 @@
 #define CTRL_WHEEL_UP 19
 #define CTRL_WHEEL_DOWN 20
 
+const bool VERTEX_NORMALS = true;
+const bool FACE_NORMALS = false;
+
 const std::string MESH_DIR = "Mesh/";
+const std::string SHADERS_DIR = "Shaders/";
+
 
 // CoordinateSystem
 enum {
-	OCS, // Object Coordinate System
-	WCS // World Coordinate System
+	OCS,	// Object Coordinate System
+	WCS		// World Coordinate System
 };
 
 // OperationMode

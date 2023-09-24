@@ -20,7 +20,7 @@ void initInput()
 	glutSpecialFunc(special);
 }
 
-void mouseInput(int button, int state, int x, int y)
+static void mouseInput(int button, int state, int x, int y)
 {
 	glutPostRedisplay();
 	int modifiers = glutGetModifiers();
@@ -128,7 +128,7 @@ void mouseInput(int button, int state, int x, int y)
 	}
 }
 
-void mouseActiveMotion(int x, int y)
+static void mouseActiveMotion(int x, int y)
 {
 	// Spostamento su trackball del vettore posizione Camera 
 	if (!moving_trackball) {
@@ -156,10 +156,8 @@ void mouseActiveMotion(int x, int y)
 	glutPostRedisplay();
 }
 
-void keyboardDown(unsigned char key, int x, int y)
+static void keyboardDown(unsigned char key, int x, int y)
 {
-	int st = objects.at(selectedObj).shader;
-
 	switch (key) {
 		// Selezione della modalità di trasformazione
 	case 'g':
@@ -184,25 +182,13 @@ void keyboardDown(unsigned char key, int x, int y)
 	case 'z':
 		workingAxis = AXIS_Z;
 		break;
-	case '-':
-		st--;
-		if (st < 0)
-			st = NUM_SHADERS - 1;
-		objects.at(selectedObj).shader = st;
-		break;
-	case '+':
-		st++;
-		if (st == NUM_SHADERS)
-			st = 0;
-		objects.at(selectedObj).shader = st;
-		break;
 	default:
 		break;
 	}
 	glutPostRedisplay();
 }
 
-void special(int key, int x, int y)
+static void special(int key, int x, int y)
 {
 	switch (key)
 	{
@@ -218,6 +204,9 @@ void special(int key, int x, int y)
 	glutPostRedisplay();
 }
 
+/*
+* Trackball: Converts a 2D-point on screen in a 3D-point on the trackball
+*/
 static glm::vec3 getTrackBallPoint(float x, float y)
 {
 	float zTemp;

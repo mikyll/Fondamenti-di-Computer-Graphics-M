@@ -134,10 +134,12 @@
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="HUD_Logger.cpp" />
     <ClCompile Include="input.cpp" />
-    <ClCompile Include="lights.cpp" />
+    <ClCompile Include="light.cpp" />
     <ClCompile Include="material.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="object.cpp" />
+    <ClCompile Include="shader.cpp" />
     <ClCompile Include="ShaderMaker.cpp" />
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
@@ -147,10 +149,12 @@
     <ClInclude Include="defs.h" />
     <ClInclude Include="HUD_Logger.h" />
     <ClInclude Include="input.h" />
-    <ClInclude Include="lights.h" />
-    <ClInclude Include="materials.h" />
+    <ClInclude Include="light.h" />
+    <ClInclude Include="material.h" />
     <ClInclude Include="menu.h" />
     <ClInclude Include="mesh.h" />
+    <ClInclude Include="object.h" />
+    <ClInclude Include="shader.h" />
     <ClInclude Include="ShaderMaker.h" />
     <ClInclude Include="structs.h" />
     <ClInclude Include="utils.h" />

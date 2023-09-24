@@ -1,4 +1,4 @@
-#include "lights.h"
+#include "light.h"
 
 /*PointLight light;
 
