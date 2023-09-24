@@ -82,5 +82,5 @@ typedef int MaterialType;
 typedef int ShadingType;
 
 typedef int CoordinateSystem;
-typedef int OpeartionMode;
+typedef int OperationMode;
 typedef int WorkingAxis;

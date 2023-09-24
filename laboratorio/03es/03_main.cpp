@@ -52,13 +52,16 @@ static Object Axis, Grid;
 
 extern std::vector<Material> materials;
 
+extern std::string getCoordinateSystemName(CoordinateSystem coordinateSystem);
+extern std::string getOperationModeName(OperationMode operationMode);
+extern std::string getWorkingAxisName(ShadingType shadingType);
 extern std::string getShaderName(ShadingType shadingType);
 
 int selectedObj = 0;
 PointLight light;
 
 CoordinateSystem coordinateSystem = WCS;
-OpeartionMode operationMode = MODE_NAVIGATION;
+OperationMode operationMode = MODE_NAVIGATION;
 WorkingAxis workingAxis = AXIS_X;
 
 // Shaders Uniforms 
@@ -75,6 +78,7 @@ void initMeshes()
 	// Axis for reference
 	initMesh("axis.obj", "axis_", true, glm::vec3(), glm::vec3(), glm::vec3(2., 2., 2.), COPPER, BLINN);
 	Axis = objects.at(objects.size() - 1);
+	objects.pop_back();
 
 	// White Grid Plane for reference
 	initMesh("reference_grid.obj", "grid_", true, glm::vec3(), glm::vec3(), glm::vec3(1., 1., 1.), NO_MATERIAL, PASS_THROUGH);
@@ -104,6 +108,9 @@ void initMeshes()
 
 	// Horse model
 	initMesh("horse.obj", "Horse", false, glm::vec3(-5., 2., 7.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5), SLATE, PHONG);
+
+	// Test
+	//initBrokenMesh("horse.obj", "Horse", false, glm::vec3(-5., 2., -5), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5), GOLD, PHONG);
 }
 
 // Main initialization funtion
@@ -140,7 +147,7 @@ void loadObjFile(std::string file_path, Mesh* mesh, bool vertices_normals);
 // disegna l'origine del assi
 void drawAxisAndGrid();
 // 2D fixed pipeline Font rendering on screen
-void printToScreen();
+void printSceneInfo();
 
 
 
@@ -458,7 +465,7 @@ void drawScene() {
 
 	// OLD fixed pipeline for simple graphics and symbols
 	glUseProgram(0);
-	printToScreen();
+	printSceneInfo();
 
 	glutSwapBuffers();
 }
@@ -550,35 +557,18 @@ void drawAxisAndGrid()
 	glDisableVertexAttribArray(1);
 }
 
-void printToScreen()
+
+void printSceneInfo()
 {
-	std::string ref = "Transform Mode: ";
-	std::string mode = "Navigate/Modify: ";
-	std::string axis = "Axis: ";
-	std::string obj = "Object: " + objects[selectedObj].name;
-	std::string mat = "  Material: " + materials[objects[selectedObj].material].name;
-	std::string shad = "  Shading: ";
-
-	switch (coordinateSystem)
-	{
-		case OCS: ref += "OCS"; break;
-		case WCS: ref += "WCS"; break;
-	}
-	switch (operationMode)
-	{
-		case MODE_TRASLATING: mode += "Translate"; break;
-		case MODE_ROTATING: mode += "Rotate"; break;
-		case MODE_SCALING: mode += "Scale"; break;
-		case MODE_NAVIGATION: mode += "Navigate"; break;
-	}
-	switch (workingAxis)
-	{
-		case AXIS_X: axis += "X"; break;
-		case AXIS_Y: axis += "Y"; break;
-		case AXIS_Z: axis += "Z"; break;
-	}
-
-	shad += getShaderName(objects.at(selectedObj).shader);
+	std::string refSystem =	"Ref. System: " + getCoordinateSystemName(coordinateSystem);
+	std::string mode =		"Navigate/Modify: " + getOperationModeName(operationMode);
+	std::string axis =		"Axis: " + getWorkingAxisName(workingAxis);
+	std::string object =	"Object: " + objects[selectedObj].name;
+	std::string position =	" Pos.:  " + objects[selectedObj].name;
+	std::string rotation =	" Rot.:  " + objects[selectedObj].name;
+	std::string scale =		" Scale: " + objects[selectedObj].name;
+	std::string material =	" Material: " + materials[objects[selectedObj].material].name;
+	std::string shader =	" Shading: " + getShaderName(objects.at(selectedObj).shader);;
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -589,12 +579,12 @@ void printToScreen()
 	glLoadIdentity();
 
 	std::vector<std::string> lines;
-	lines.push_back(shad);
-	lines.push_back(mat);
-	lines.push_back(obj);
+	lines.push_back(shader);
+	lines.push_back(material);
+	lines.push_back(object);
 	lines.push_back(axis);
 	lines.push_back(mode);
-	lines.push_back(ref);
+	lines.push_back(refSystem);
 	glDisable(GL_DEPTH_TEST);
 	HUD_Logger::get()->printInfo(lines);
 	glEnable(GL_DEPTH_TEST);

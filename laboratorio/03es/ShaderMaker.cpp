@@ -4,9 +4,11 @@
 // Create a NULL-terminated string by reading the provided file
 static char* readShaderSource(const char* shaderFile)
 {
-	FILE* fp = fopen(shaderFile, "rb");
-
-	if (fp == NULL) { return NULL; }
+	FILE* fp;
+	if (fopen_s(&fp, shaderFile, "rb") < 0)
+	{
+		return NULL;
+	}
 
 	fseek(fp, 0L, SEEK_END);
 	long size = ftell(fp);

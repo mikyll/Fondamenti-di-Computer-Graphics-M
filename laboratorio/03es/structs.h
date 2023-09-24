@@ -53,9 +53,9 @@ typedef struct {
 
 // Camera "look at": è indirizzata verso un punto specifico.
 struct ViewSetup {
-	glm::vec4 position; // Posizione della camera
-	glm::vec4 target; // Punto verso cui la camera è puntata
-	glm::vec4 upVector; // Vettore VUP, "View Up Vector"
+	glm::vec4 position;	// Posizione della camera
+	glm::vec4 target;	// Punto verso cui la camera è puntata
+	glm::vec4 upVector;	// Vettore VUP, "View Up Vector"
 };
 
 struct PerspectiveSetup {
@@ -72,6 +72,6 @@ typedef struct {
 	int windowWidth;
 	int windowHeight;
 	CoordinateSystem coordinateSystem = WCS;
-	OpeartionMode operationMode = MODE_NAVIGATION;
+	OperationMode operationMode = MODE_NAVIGATION;
 	WorkingAxis workingAxis = AXIS_X;
 } Application;*/

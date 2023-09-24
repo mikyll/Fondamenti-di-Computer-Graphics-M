@@ -11,3 +11,4 @@
 *	rotated (in degrees) for each axis (X, Y, Z)
 */
 void initMesh(std::string filename, std::string name, bool vertices_normals, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, int material, int shading);
+void initBrokenMesh(std::string filename, std::string name, bool vertices_normals, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, int material, int shading);

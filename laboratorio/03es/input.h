@@ -10,7 +10,7 @@ extern int windowWidth;
 extern int windowHeight;
 extern Camera camera;
 
-extern OpeartionMode operationMode;
+extern OperationMode operationMode;
 extern WorkingAxis workingAxis;
 
 extern std::vector<Object> objects;

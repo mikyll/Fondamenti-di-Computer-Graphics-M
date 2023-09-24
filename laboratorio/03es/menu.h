@@ -11,5 +11,5 @@ extern int selectedObj;
 extern std::vector<Material> materials;
 
 extern CoordinateSystem coordinateSystem;
-extern OpeartionMode operationMode;
+extern OperationMode operationMode;
 extern WorkingAxis workingAxis;
