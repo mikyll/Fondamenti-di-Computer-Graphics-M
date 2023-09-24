@@ -31,6 +31,6 @@
 #include "camera.h"
 #include "mesh.h"
 #include "material.h"
-//#include "shader.h"
+#include "shader.h"
 #include "object.h"
 #include "menu.h"
