@@ -75,7 +75,7 @@ static void setMaterial(MaterialType option)
 
 static void setShader(ShadingType option)
 {
-	objects.at(selectedObj).shader = option;
+	objects.at(selectedObj).shader = shaders.at(option);
 }
 
 void buildOpenGLMenu()

@@ -64,10 +64,10 @@ OperationMode operationMode = MODE_NAVIGATION;
 WorkingAxis workingAxis = AXIS_X;
 
 // Shaders Uniforms 
-extern std::vector<LightShaderUniform> light_uniforms; // for shaders with light
+/*extern std::vector<LightShaderUniform> light_uniforms; // for shaders with light
 extern std::vector<BaseShaderUniform> base_uniforms; // for ALL shaders
 extern std::vector<GLuint> shaders_IDs; //Pointers to the shader programs
-
+*/
 void initObjects();
 
 
@@ -78,62 +78,62 @@ void initObjects()
 
 	// Axis for reference
 	mesh = loadMesh("axis.obj", VERTEX_NORMALS);
-	//obj = createObject("axis_", mesh, materials.at(COPPER), shaders.at(BLINN), glm::vec3(), glm::vec3(), glm::vec3(2., 2., 2.));
-	obj = createObject("axis_", mesh, materials.at(COPPER), BLINN, glm::vec3(), glm::vec3(), glm::vec3(2., 2., 2.));
+	obj = createObject("axis_", mesh, materials.at(COPPER), shaders.at(BLINN), glm::vec3(), glm::vec3(), glm::vec3(2., 2., 2.));
+	//obj = createObject("axis_", mesh, materials.at(COPPER), BLINN, glm::vec3(), glm::vec3(), glm::vec3(2., 2., 2.));
 	Axis = obj;
 
 	// White Grid Plane for reference
 	mesh = loadMesh("reference_grid.obj", VERTEX_NORMALS);
-	//obj = createObject("grid_", mesh, materials.at(NO_MATERIAL), shaders.at(PASS_THROUGH), glm::vec3(), glm::vec3(), glm::vec3(1., 1., 1.));
-	obj = createObject("grid_", mesh, materials.at(NO_MATERIAL), PASS_THROUGH, glm::vec3(), glm::vec3(), glm::vec3(1., 1., 1.));
+	obj = createObject("grid_", mesh, materials.at(NONE), shaders.at(PASS_THROUGH), glm::vec3(), glm::vec3(), glm::vec3(1., 1., 1.));
+	//obj = createObject("grid_", mesh, materials.at(NONE), PASS_THROUGH, glm::vec3(), glm::vec3(), glm::vec3(1., 1., 1.));
 	Grid = obj;
 
 	// Point Light
 	mesh = loadMesh("sphere_n_t_smooth.obj", FACE_NORMALS);
-	//obj = createObject("light", mesh, materials.at(NO_MATERIAL), shaders.at(GOURAUD), light.position, glm::vec3(), glm::vec3(0.2, 0.2, 0.2));
-	obj = createObject("light", mesh, materials.at(NO_MATERIAL), GOURAUD, light.position, glm::vec3(), glm::vec3(0.2, 0.2, 0.2));
+	obj = createObject("light", mesh, materials.at(NONE), shaders.at(PASS_THROUGH), light.position, glm::vec3(), glm::vec3(0.2, 0.2, 0.2));
+	//obj = createObject("light", mesh, materials.at(NONE), PASS_THROUGH, light.position, glm::vec3(), glm::vec3(0.2, 0.2, 0.2));
 	objects.push_back(obj);
 
 	// FLAT Sphere (face normals)
 	mesh = loadMesh("sphere_n_t_flat.obj", FACE_NORMALS);
-	//obj = createObject("Sphere FLAT", mesh, materials.at(EMERALD), shaders.at(PHONG), glm::vec3(3., 1., -6.), glm::vec3(), glm::vec3(1., 1., 1.));
-	obj = createObject("Sphere FLAT", mesh, materials.at(EMERALD), PHONG, glm::vec3(3., 1., -6.), glm::vec3(), glm::vec3(1., 1., 1.));
+	obj = createObject("Sphere FLAT", mesh, materials.at(EMERALD), shaders.at(PHONG), glm::vec3(3., 1., -6.), glm::vec3(), glm::vec3(1., 1., 1.));
+	//obj = createObject("Sphere FLAT", mesh, materials.at(EMERALD), PHONG, glm::vec3(3., 1., -6.), glm::vec3(), glm::vec3(1., 1., 1.));
 	objects.push_back(obj);
 	
 	// SMOOTH Sphere (vertex normals)
 	mesh = loadMesh("sphere_n_t_smooth.obj", FACE_NORMALS);
-	//obj = createObject("Sphere SMOOTH", mesh, materials.at(SILVER), shaders.at(BLINN), glm::vec3(6., 1., -3.), glm::vec3(), glm::vec3(1., 1., 1.));
-	obj = createObject("Sphere SMOOTH", mesh, materials.at(SILVER), BLINN, glm::vec3(6., 1., -3.), glm::vec3(), glm::vec3(1., 1., 1.));
+	obj = createObject("Sphere SMOOTH", mesh, materials.at(SILVER), shaders.at(BLINN), glm::vec3(6., 1., -3.), glm::vec3(), glm::vec3(1., 1., 1.));
+	//obj = createObject("Sphere SMOOTH", mesh, materials.at(SILVER), BLINN, glm::vec3(6., 1., -3.), glm::vec3(), glm::vec3(1., 1., 1.));
 	objects.push_back(obj);
 	
 	// Waving plane
 	mesh = loadMesh("GridPlane.obj", FACE_NORMALS);
-	//obj = createObject("Waves", mesh, materials.at(TURQUOISE), shaders.at(WAVE_LIGHT), glm::vec3(0., -2., 0.), glm::vec3(), glm::vec3(8., 8., 8.));
-	obj = createObject("Waves", mesh, materials.at(TURQUOISE), WAVE_LIGHT, glm::vec3(0., -2., 0.), glm::vec3(), glm::vec3(8., 8., 8.));
+	obj = createObject("Waves", mesh, materials.at(TURQUOISE), shaders.at(WAVE_LIGHT), glm::vec3(0., -2., 0.), glm::vec3(), glm::vec3(8., 8., 8.));
+	//obj = createObject("Waves", mesh, materials.at(TURQUOISE), WAVE_LIGHT, glm::vec3(0., -2., 0.), glm::vec3(), glm::vec3(8., 8., 8.));
 	objects.push_back(obj);
 	
 	// Bunny model
 	mesh = loadMesh("bunny.obj", VERTEX_NORMALS);
-	//obj = createObject("Bunny", mesh, materials.at(RED_PLASTIC), shaders.at(TOON), glm::vec3(0., 0., -2.), glm::vec3(), glm::vec3(2., 2., 2.));
-	obj = createObject("Bunny", mesh, materials.at(RED_PLASTIC), TOON, glm::vec3(0., 0., -2.), glm::vec3(), glm::vec3(2., 2., 2.));
+	obj = createObject("Bunny", mesh, materials.at(RED_PLASTIC), shaders.at(TOON), glm::vec3(0., 0., -2.), glm::vec3(), glm::vec3(2., 2., 2.));
+	//obj = createObject("Bunny", mesh, materials.at(RED_PLASTIC), TOON, glm::vec3(0., 0., -2.), glm::vec3(), glm::vec3(2., 2., 2.));
 	objects.push_back(obj);
 	
 	// Airplane model
 	mesh = loadMesh("airplane.obj", VERTEX_NORMALS);
-	//obj = createObject("Airplane", mesh, materials.at(RED_PLASTIC), shaders.at(PHONG), glm::vec3(-10., 5., 0.), glm::vec3(0.0, 0.0, -40.0), glm::vec3(5., 5., 5.));
-	obj = createObject("Airplane", mesh, materials.at(RED_PLASTIC), PHONG, glm::vec3(-10., 5., 0.), glm::vec3(0.0, 0.0, -40.0), glm::vec3(5., 5., 5.));
+	obj = createObject("Airplane", mesh, materials.at(RED_PLASTIC), shaders.at(PHONG), glm::vec3(-10., 5., 0.), glm::vec3(0.0, 0.0, -40.0), glm::vec3(5., 5., 5.));
+	//obj = createObject("Airplane", mesh, materials.at(RED_PLASTIC), PHONG, glm::vec3(-10., 5., 0.), glm::vec3(0.0, 0.0, -40.0), glm::vec3(5., 5., 5.));
 	objects.push_back(obj);
 	
 	// Horse model
 	mesh = loadMesh("horse.obj", VERTEX_NORMALS);
-	//obj = createObject("Horse FLAT", mesh, materials.at(GOLD), shaders.at(PHONG), glm::vec3(-3., 2., 5.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5));
-	obj = createObject("Horse FLAT", mesh, materials.at(GOLD), PHONG, glm::vec3(-3., 2., 5.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5));
+	obj = createObject("Horse FLAT", mesh, materials.at(GOLD), shaders.at(PHONG), glm::vec3(-3., 2., 5.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5));
+	//obj = createObject("Horse FLAT", mesh, materials.at(GOLD), PHONG, glm::vec3(-3., 2., 5.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5));
 	objects.push_back(obj);
 	
 	// Horse model
 	mesh = loadMesh("horse.obj", FACE_NORMALS);
-	//obj = createObject("Horse SMOOTH", mesh, materials.at(SLATE), shaders.at(PHONG), glm::vec3(-5., 2., 7.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5));
-	obj = createObject("Horse SMOOTH", mesh, materials.at(SLATE), PHONG, glm::vec3(-5., 2., 7.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5));
+	obj = createObject("Horse SMOOTH", mesh, materials.at(SLATE), shaders.at(PHONG), glm::vec3(-5., 2., 7.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5));
+	//obj = createObject("Horse SMOOTH", mesh, materials.at(SLATE), PHONG, glm::vec3(-5., 2., 7.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5));
 	objects.push_back(obj);
 	
 	// Test
@@ -188,7 +188,7 @@ void drawScene() {
 
 	for (int i = 0; i < objects.size(); i++) {
 
-		glUseProgram(shaders_IDs[objects.at(i).shader]);
+		glUseProgram(objects.at(i).shader.id);//shaders_IDs[objects.at(i).shader]);
 		
 		updateUniforms(objects.at(i), light);
 
@@ -234,10 +234,10 @@ void resize(int w, int h)
 	glm::mat4 P = glm::perspective(camera.perspectiveSetup.fovY, camera.perspectiveSetup.aspect, camera.perspectiveSetup.near_plane, camera.perspectiveSetup.far_plane);
 	glm::mat4 V = glm::lookAt(glm::vec3(camera.viewSetup.position), glm::vec3(camera.viewSetup.target), glm::vec3(camera.viewSetup.upVector));
 
-	for (int i = 0; i < shaders_IDs.size(); i++) {
-		glUseProgram(shaders_IDs[i]);
-		glUniformMatrix4fv(base_uniforms[i].P_Matrix_pointer, 1, GL_FALSE, value_ptr(P));
-		glUniformMatrix4fv(base_uniforms[i].V_Matrix_pointer, 1, GL_FALSE, value_ptr(V));
+	for (int i = 0; i < shaders.size(); i++) {
+		glUseProgram(shaders.at(i).id);
+		glUniformMatrix4fv(shaders.at(i).baseUniform.P_Matrix_pointer, 1, GL_FALSE, value_ptr(P));
+		glUniformMatrix4fv(shaders.at(i).baseUniform.V_Matrix_pointer, 1, GL_FALSE, value_ptr(V));
 	}
 }
 
@@ -276,8 +276,8 @@ void modifyModelMatrix(glm::vec3 translation_vector, glm::vec3 rotation_vector, 
 
 void drawAxisAndGrid()
 {
-	glUseProgram(shaders_IDs[Grid.shader]);
-	glUniformMatrix4fv(base_uniforms[Grid.shader].M_Matrix_pointer, 1, GL_FALSE, value_ptr(Grid.M));
+	glUseProgram(Grid.shader.id);
+	glUniformMatrix4fv(Grid.shader.baseUniform.M_Matrix_pointer, 1, GL_FALSE, value_ptr(Grid.M));
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glBindVertexArray(Grid.mesh.vertexArrayObjID);
@@ -285,8 +285,8 @@ void drawAxisAndGrid()
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	
-	glUseProgram(shaders_IDs[Axis.shader]);
-	glUniformMatrix4fv(base_uniforms[Axis.shader].M_Matrix_pointer, 1, GL_FALSE, value_ptr(Axis.M));
+	glUseProgram(Axis.shader.id);
+	glUniformMatrix4fv(Axis.shader.baseUniform.M_Matrix_pointer, 1, GL_FALSE, value_ptr(Axis.M));
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glBindVertexArray(Axis.mesh.vertexArrayObjID);
@@ -306,7 +306,7 @@ void printSceneInfo()
 	std::string rotation =	" Rot.: " + objects[selectedObj].name;
 	std::string scale =		" Scale: " + objects[selectedObj].name;
 	std::string material =	" Material: " + objects.at(selectedObj).material.name;
-	std::string shader = " Shading: " + getShaderName(objects.at(selectedObj).shader);
+	std::string shader = " Shading: " + getShaderName(objects.at(selectedObj).shader.type);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();

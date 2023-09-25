@@ -54,7 +54,7 @@ enum {
 
 // MaterialType
 enum {
-	NO_MATERIAL = 0,
+	NONE = 0,
 	RED_PLASTIC,
 	EMERALD,
 	BRASS,

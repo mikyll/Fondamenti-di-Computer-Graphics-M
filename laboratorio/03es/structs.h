@@ -49,7 +49,7 @@ typedef struct {
 	std::string name;
 	Mesh mesh;
 	Material material;
-	ShadingType shader;
+	Shader shader;
 	glm::mat4 M;
 } Object;
 

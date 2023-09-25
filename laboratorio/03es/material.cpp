@@ -28,7 +28,7 @@ void initMaterials()
 	material.diffuse = glm::vec3(0, 0, 0);
 	material.specular = glm::vec3(0, 0, 0);
 	material.shininess = 1.f;
-	materials.insert({ NO_MATERIAL, material });
+	materials.insert({ NONE, material });
 
 	material = {};
 	material.name = "Red Plastic";
