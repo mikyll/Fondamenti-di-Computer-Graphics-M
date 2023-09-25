@@ -9,11 +9,65 @@
 * This program implements a scene filled with 3D object, that
 * the user can interact with, by using mouse and keyboard controls.
 * Objects are characterized by:
-*	- a polygonal mesh, that gives them a geometric structure;
+*	- a polygonal mesh (loaded from a .obj file), that gives them a geometric structure;
 *	- a material, that indicates how their surface "behave" when hit by light;
-*	- a shader, that do some processing in order to implement the lighting and
+*	- a shader (vertex + fragment), that does some processing in order to implement the lighting and
 *		motion effects (on GPU);
 * 
+* 
+* Materials:
+* - None;
+* - Red Plastic;
+* - Emerald;
+* - Brass;
+* - Slate;
+* - Black Plastic (New);
+* - Gold (New);
+* - Silver (New);
+* - Bronze (New);
+* - Copper (New);
+* - Turquoise (New);
+* 
+* Shaders:
+* - Pass Through;
+* - Gouraud;
+* - Phong;
+* - Blinn;
+* - Wave (New);
+* - Wave Color (New);
+* - Wave Light (New);
+* - Toon (New);
+* - Toon V2 (New);
+* 
+* 
+* Controls:
+* - Scene setup:
+*	- 'F1' reset the scene to defaults;
+*	- 'F2', 'F3', 'F4', 'F5' moves the light in different points;
+* 
+* - Navigation:
+*	- Mouse drag & drop: trackball that moves the camera;
+*	- 'CTRL' + Mouse wheel: horizontal camera pan;
+*	- 'SHIFT' + Mouse wheel: vertical camera pan;
+* 
+* - Transform Operations:
+*	When in modify mode, the user can scroll the Mouse wheel
+*	to perform transform operations.
+*	To select the transformation:
+*		- 'g' set the operation mode to "Translation";
+*		- 'r' set the operation mode to "Rotation";
+*		- 's' set the operation mode to "Scaling";
+*	To select the transform axis:
+*		- 'x' set the X-axis;
+*		- 'y' set the Y-axis;
+*		- 'z' set the Z-axis;
+* 
+* - Select scene objects:
+*	- Left/Right arrow to scroll through scene objects:
+* 
+* - Scene Menu:
+*	- Left Mouse click opens a context menu, that allows the user to
+*		select the Reference Coordinate System (WCS/OCS) and
 */
 
 

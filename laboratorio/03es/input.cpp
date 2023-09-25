@@ -23,7 +23,10 @@ void initInput()
 static void keyboardDown(unsigned char key, int x, int y)
 {
 	switch (key) {
-		// Selezione della modalità di trasformazione
+	case 27:
+		glutLeaveMainLoop();
+		break;
+		// Transform operation selection
 	case 'g':
 		app.operationMode = MODE_TRASLATING;
 		break;
@@ -33,10 +36,7 @@ static void keyboardDown(unsigned char key, int x, int y)
 	case 's':
 		app.operationMode = MODE_SCALING;
 		break;
-	case 27:
-		glutLeaveMainLoop();
-		break;
-		// Selezione dell'asse
+		// Transform axis selection
 	case 'x':
 		app.workingAxis = AXIS_X;
 		break;
