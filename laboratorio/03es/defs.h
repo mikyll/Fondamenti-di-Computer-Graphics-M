@@ -12,12 +12,15 @@
 #define CTRL_WHEEL_UP 19
 #define CTRL_WHEEL_DOWN 20
 
+#define LIGHT_SCALE_FACTOR 5
+
 const bool VERTEX_NORMALS = true;
 const bool FACE_NORMALS = false;
 
 const std::string MESH_DIR = "Mesh/";
 const std::string SHADERS_DIR = "Shaders/";
 
+const glm::vec3 DEFAULT_LIGHT_COLOR = { 1.0f, 1.0f, 1.0f };
 
 // CoordinateSystem
 enum {

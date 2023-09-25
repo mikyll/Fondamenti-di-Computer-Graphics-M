@@ -34,5 +34,6 @@
 #include "mesh.h"
 #include "material.h"
 #include "shader.h"
+#include "light.h"
 #include "object.h"
 #include "menu.h"

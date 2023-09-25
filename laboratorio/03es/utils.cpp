@@ -1,5 +1,40 @@
 #include "utils.h"
 
+glm::vec3 getPosition(glm::mat4 modelMatrix)
+{
+	// [3] gets the 4th column of the matrix, which is a vector4 and contains the position (x, y, z, 0/1)
+	return modelMatrix[3];
+}
+
+glm::vec3 getRotation(glm::mat4 modelMatrix, bool degrees)
+{
+	glm::vec3 rotation = glm::vec3();
+
+	rotation.x = atan2f(modelMatrix[1][2], modelMatrix[2][2]);
+	rotation.y = atan2f(-modelMatrix[0][2], sqrtf(modelMatrix[1][2] * modelMatrix[1][2] + modelMatrix[2][2] * modelMatrix[2][2]));
+	rotation.z = atan2f(modelMatrix[0][1], modelMatrix[0][0]);
+
+	if (degrees)
+	{
+		rotation.x = glm::degrees(rotation.x);
+		rotation.y = glm::degrees(rotation.y);
+		rotation.z = glm::degrees(rotation.z);
+	}
+
+	return rotation;
+}
+
+float getScalingFactor(glm::mat4 modelMatrix)
+{
+	float scalingFactor;
+	
+	scalingFactor = sqrt(modelMatrix[0][0] * modelMatrix[0][0] +
+		modelMatrix[0][1] * modelMatrix[0][1] + 
+		modelMatrix[0][2] * modelMatrix[0][2]);
+
+	return scalingFactor;
+}
+
 std::string getCoordinateSystemName(ReferenceSystem coordinateSystem)
 {
 	std::string result = "Unknown";

@@ -46,11 +46,16 @@ std::vector<Object> objects;
 int selectedObj = 0;
 
 static Object axisObject, gridObject;
-PointLight light;
+extern PointLight light;
 
 extern void initMaterials();
 extern void initShaders(PointLight light);
+extern void initLight();
+extern void initLightObject();
 extern void initCamera();
+extern glm::vec3 getPosition(glm::mat4 modelMatrix);
+extern glm::vec3 getRotation(glm::mat4 modelMatrix, bool degrees);
+extern float getScalingFactor(glm::mat4 modelMatrix);
 extern std::string getCoordinateSystemName(ReferenceSystem coordinateSystem);
 extern std::string getOperationModeName(OperationMode operationMode);
 extern std::string getWorkingAxisName(WorkingAxis workingAxis);
@@ -58,7 +63,6 @@ extern std::string getWorkingAxisName(WorkingAxis workingAxis);
 
 void init();
 void initApplication();
-void initLight(glm::vec3 pos);
 void initGridAxis();
 void initObjects();
 
@@ -69,15 +73,16 @@ void drawObject(Object object);
 void printSceneInfo();
 
 
-void init() {
+void init()
+{
 	// Default render settings
 	glEnable(GL_DEPTH_TEST);	// Hidden surface removal
-	//glCullFace(GL_BACK);		// remove faces facing the background
+	glCullFace(GL_BACK);		// remove faces facing the background
 	glEnable(GL_LINE_SMOOTH);
 
 	initApplication();
-	initLight(glm::vec3());
 	initCamera();
+	initLight();
 
 	initMaterials();
 	initShaders(light);
@@ -94,15 +99,6 @@ void initApplication()
 	app.workingAxis = AXIS_X;
 	app.showTransformInfo = true;
 	app.showGridAxis = true;
-}
-
-void initLight(glm::vec3 pos)
-{
-	if (pos == glm::vec3())
-		light.position = { 5.0,5.0,-5.0 };
-	else light.position = pos;
-	light.color = { 1.0,1.0,1.0 };
-	light.power = 1.f;
 }
 
 void initGridAxis()
@@ -134,12 +130,7 @@ void initObjects()
 
 	objects.clear();
 
-	// Point Light
-	if (loadMesh("sphere_n_t_smooth.obj", FACE_NORMALS, &mesh) == 0)
-	{
-		obj = createObject("light", mesh, materials.at(NONE), shaders.at(PASS_THROUGH), light.position, glm::vec3(), glm::vec3(0.2, 0.2, 0.2));
-		objects.push_back(obj);
-	}
+	initLightObject();
 
 	// FLAT Sphere (face normals)
 	if (loadMesh("sphere_n_t_flat.obj", FACE_NORMALS, &mesh) == 0)
@@ -221,8 +212,8 @@ void modifyModelMatrix(glm::vec3 translation_vector, glm::vec3 rotation_vector, 
 	else if (app.coordinateSystem == WCS)
 	{
 		// Rotation with pivot on the scene center
-		glm::vec3 objectPosition = newModelMatrix[3];
-		glm::vec3 origin = glm::vec3(0, 0, 0); // [3] gets the 4th column of the matrix, which is a vector4 and contains the position (x, y, z, 0/1)
+		glm::vec3 objectPosition = getPosition(newModelMatrix);
+		glm::vec3 origin = glm::vec3(0, 0, 0);
 
 		newModelMatrix = glm::translate(newModelMatrix, origin - objectPosition);
 		newModelMatrix = glm::rotate(newModelMatrix, glm::radians(angle), rotation_vector);
@@ -295,7 +286,8 @@ void drawObject(Object object)
 	glDisableVertexAttribArray(1);
 }
 
-void drawScene() {
+void drawScene()
+{
 
 	glClearColor(0.4, 0.4, 0.4, 1);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
@@ -323,26 +315,23 @@ void drawScene() {
 */
 void printSceneInfo()
 {
-	glm::mat4 modelM = objects[selectedObj].M;
-	glm::vec3 pos = modelM[3];
+	glm::mat4 modelM = objects.at(selectedObj).M;
+	glm::vec3 pos = getPosition(modelM);
 	std::stringstream posStream;
 	posStream << std::fixed << std::setprecision(1) << pos.x << ", " << pos.y << ", " << pos.z;
 	
-	float scalingFactor = sqrt(modelM[0][0] * modelM[0][0] + modelM[0][1] * modelM[0][1] + modelM[0][2] * modelM[0][2]);
-	std::stringstream scaleStream;
-	scaleStream << std::fixed << std::setprecision(5) << scalingFactor;
-
-	glm::vec3 rot = modelM[3];
-	rot.x = glm::degrees(atan2f(modelM[1][2], modelM[2][2]));
-	rot.y = glm::degrees(atan2f(-modelM[0][2], sqrtf(modelM[1][2] * modelM[1][2] + modelM[2][2] * modelM[2][2])));
-	rot.z = glm::degrees(atan2f(modelM[0][1], modelM[0][0]));
+	glm::vec3 rot = getRotation(modelM, true);
 	std::stringstream rotationStream;
 	rotationStream << std::fixed << std::setprecision(1) << rot.x << ", " << rot.y << ", " << rot.z;
+
+	float scalingFactor = getScalingFactor(modelM);
+	std::stringstream scaleStream;
+	scaleStream << std::fixed << std::setprecision(5) << scalingFactor;
 
 	std::string refSystem = "Ref. System: " + getCoordinateSystemName(app.coordinateSystem);
 	std::string mode = "Operation: " + getOperationModeName(app.operationMode);
 	std::string axis = "Axis: " + getWorkingAxisName(app.workingAxis);
-	std::string object = "Object: " + objects[selectedObj].name;
+	std::string object = "Object: " + objects.at(selectedObj).name;
 	std::string position = " Pos.: (" + posStream.str() + ")";
 	std::string rotation = " Rot.: (" + rotationStream.str() + ")";
 	std::string scale = " Scale: " + scaleStream.str();

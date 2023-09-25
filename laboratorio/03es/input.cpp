@@ -46,6 +46,9 @@ static void keyboardDown(unsigned char key, int x, int y)
 	case 'z':
 		app.workingAxis = AXIS_Z;
 		break;
+	case 'c':
+		initCamera();
+		break;
 	default:
 		break;
 	}
@@ -62,25 +65,23 @@ static void specialKeyDown(int key, int x, int y)
 	case GLUT_KEY_RIGHT:
 		selectedObj = (selectedObj + 1) < objects.size() ? selectedObj + 1 : 0;
 		break;
+	// Reset Scene
 	case GLUT_KEY_F1:
-		initLight(glm::vec3());
+		initLight();
 		initShaders(light);
 		initObjects();
 		break;
 	case GLUT_KEY_F2:
-		initLight(glm::vec3(5., 5., 5.));
-		initShaders(light);
-		initObjects();
+		updateLight(glm::vec3(5., 5., 5.), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f);
 		break;
 	case GLUT_KEY_F3:
-		initLight(glm::vec3(-5., 5., 5.));
-		initShaders(light);
-		initObjects();
+		updateLight(glm::vec3(-5., 5., 5.), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f);
 		break;
 	case GLUT_KEY_F4:
-		initLight(glm::vec3(-5., 5., -5.));
-		initShaders(light);
-		initObjects();
+		updateLight(glm::vec3(-5., 5., -5.), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f);
+		break;
+	case GLUT_KEY_F5:
+		updateLight(glm::vec3(80., 100., 50.), glm::vec3(1., .89, .52), 1.0f);
 		break;
 	default:
 		break;
@@ -191,8 +192,8 @@ static void mouseInput(int button, int state, int x, int y)
 	}
 	if (objects.at(selectedObj).name == "light")
 	{
-		light.position = objects.at(selectedObj).M[3];
-		light.power = objects.at(selectedObj).M[0][0] * 5;
+		light.position = getPosition(objects.at(selectedObj).M);
+		light.power = getScalingFactor(objects.at(selectedObj).M) * LIGHT_SCALE_FACTOR;
 	}
 }
 
