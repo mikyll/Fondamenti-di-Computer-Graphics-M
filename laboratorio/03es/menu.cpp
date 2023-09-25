@@ -22,11 +22,11 @@ static void updateMenu(int option)
 	{
 	case CHANGE_TO_OCS:
 		glutChangeToSubMenu(3, "Transform Mode: OCS", subMenuTransformMode);
-		coordinateSystem = OCS;
+		app.coordinateSystem = OCS;
 		break;
 	case CHANGE_TO_WCS:
 		glutChangeToSubMenu(3, "Transform Mode: WCS", subMenuTransformMode);
-		coordinateSystem = WCS;
+		app.coordinateSystem = WCS;
 		break;
 	case FACE_FILL:
 		glutChangeToSubMenu(4, "Rendering: Face fill", subMenuRendering);

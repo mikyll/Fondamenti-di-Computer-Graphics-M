@@ -6,7 +6,13 @@
 * 
 * 
 * Description:
-* 
+* This program implements a scene filled with 3D object, that
+* the user can interact with, by using mouse and keyboard controls.
+* Objects are characterized by:
+*	- a polygonal mesh, that gives them a geometric structure;
+*	- a material, that indicates how their surface "behave" when hit by light;
+*	- a shader, that do some processing in order to implement the lighting and
+*		motion effects (on GPU);
 * 
 */
 
@@ -31,45 +37,64 @@ based on the OpenGL Shading Language (GLSL) specifications.
 #include "commons.h"
 
 // todo
-/*Application app = {};
-
-void initApplication()
-{
-	app.windowWidth = DEFAULT_WINDOW_WIDTH;
-	app.windowHeight = DEFAULT_WINDOW_HEIGHT;
-	app.coordinateSystem = WCS;
-	app.operationMode = MODE_NAVIGATION;
-	app.workingAxis = AXIS_X;
-}*/
-
 extern int windowWidth, windowHeight;
+Application app = {};
 extern Camera camera;
 
 extern std::map<MaterialType, Material> materials;
 extern std::map<ShadingType, Shader> shaders;
 std::vector<Object> objects;
-static Object Axis, Grid;
-
-//extern void initShaders(PointLight light);
-extern void initMaterials();
-extern std::string getCoordinateSystemName(CoordinateSystem coordinateSystem);
-extern std::string getOperationModeName(OperationMode operationMode);
-extern std::string getWorkingAxisName(ShadingType shadingType);
-
 int selectedObj = 0;
+
+static Object axisObject, gridObject;
 PointLight light;
 
-CoordinateSystem coordinateSystem = WCS;
-OperationMode operationMode = MODE_NAVIGATION;
-WorkingAxis workingAxis = AXIS_X;
+extern void initMaterials();
+extern void initShaders(PointLight light);
+extern void initCamera();
+extern std::string getCoordinateSystemName(CoordinateSystem coordinateSystem);
+extern std::string getOperationModeName(OperationMode operationMode);
+extern std::string getWorkingAxisName(WorkingAxis workingAxis);
 
-// Shaders Uniforms 
-/*extern std::vector<LightShaderUniform> light_uniforms; // for shaders with light
-extern std::vector<BaseShaderUniform> base_uniforms; // for ALL shaders
-extern std::vector<GLuint> shaders_IDs; //Pointers to the shader programs
-*/
+
+void init();
+void initApplication();
 void initObjects();
 
+void modifyModelMatrix(glm::vec3 translation_vector, glm::vec3 rotation_vector, GLfloat angle, GLfloat scale_factor);
+void resize(int w, int h);
+void refresh_monitor(int millis);
+void drawObject(Object object);
+void printSceneInfo();
+
+
+void init() {
+	// Default render settings
+	glEnable(GL_DEPTH_TEST);	// Hidden surface removal
+	glCullFace(GL_BACK);		// remove faces facing the background
+	glEnable(GL_LINE_SMOOTH);
+
+	// Light initialization
+	light.position = { 5.0,5.0,-5.0 };
+	light.color = { 1.0,1.0,1.0 };
+	light.power = 1.f;
+
+	initApplication();
+	initCamera();
+
+	initMaterials();
+	initShaders(light);
+	initObjects();
+}
+
+void initApplication()
+{
+	app.coordinateSystem = WCS;
+	app.operationMode = MODE_NAVIGATION;
+	app.workingAxis = AXIS_X;
+	app.showTransform = false;
+	app.showTransform = true;
+}
 
 void initObjects()
 {
@@ -79,135 +104,93 @@ void initObjects()
 	// Axis for reference
 	mesh = loadMesh("axis.obj", VERTEX_NORMALS);
 	obj = createObject("axis_", mesh, materials.at(COPPER), shaders.at(BLINN), glm::vec3(), glm::vec3(), glm::vec3(2., 2., 2.));
-	//obj = createObject("axis_", mesh, materials.at(COPPER), BLINN, glm::vec3(), glm::vec3(), glm::vec3(2., 2., 2.));
-	Axis = obj;
+	axisObject = obj;
 
 	// White Grid Plane for reference
 	mesh = loadMesh("reference_grid.obj", VERTEX_NORMALS);
-	obj = createObject("grid_", mesh, materials.at(NONE), shaders.at(PASS_THROUGH), glm::vec3(), glm::vec3(), glm::vec3(1., 1., 1.));
-	//obj = createObject("grid_", mesh, materials.at(NONE), PASS_THROUGH, glm::vec3(), glm::vec3(), glm::vec3(1., 1., 1.));
-	Grid = obj;
+	obj = createObject("grid_", mesh, materials.at(NONE), shaders.at(GOURAUD), glm::vec3(), glm::vec3(), glm::vec3(1., 1., 1.));
+	gridObject = obj;
 
 	// Point Light
 	mesh = loadMesh("sphere_n_t_smooth.obj", FACE_NORMALS);
 	obj = createObject("light", mesh, materials.at(NONE), shaders.at(PASS_THROUGH), light.position, glm::vec3(), glm::vec3(0.2, 0.2, 0.2));
-	//obj = createObject("light", mesh, materials.at(NONE), PASS_THROUGH, light.position, glm::vec3(), glm::vec3(0.2, 0.2, 0.2));
 	objects.push_back(obj);
 
 	// FLAT Sphere (face normals)
 	mesh = loadMesh("sphere_n_t_flat.obj", FACE_NORMALS);
 	obj = createObject("Sphere FLAT", mesh, materials.at(EMERALD), shaders.at(PHONG), glm::vec3(3., 1., -6.), glm::vec3(), glm::vec3(1., 1., 1.));
-	//obj = createObject("Sphere FLAT", mesh, materials.at(EMERALD), PHONG, glm::vec3(3., 1., -6.), glm::vec3(), glm::vec3(1., 1., 1.));
 	objects.push_back(obj);
-	
+
 	// SMOOTH Sphere (vertex normals)
 	mesh = loadMesh("sphere_n_t_smooth.obj", FACE_NORMALS);
 	obj = createObject("Sphere SMOOTH", mesh, materials.at(SILVER), shaders.at(BLINN), glm::vec3(6., 1., -3.), glm::vec3(), glm::vec3(1., 1., 1.));
-	//obj = createObject("Sphere SMOOTH", mesh, materials.at(SILVER), BLINN, glm::vec3(6., 1., -3.), glm::vec3(), glm::vec3(1., 1., 1.));
 	objects.push_back(obj);
-	
+
 	// Waving plane
 	mesh = loadMesh("GridPlane.obj", FACE_NORMALS);
 	obj = createObject("Waves", mesh, materials.at(TURQUOISE), shaders.at(WAVE_LIGHT), glm::vec3(0., -2., 0.), glm::vec3(), glm::vec3(8., 8., 8.));
-	//obj = createObject("Waves", mesh, materials.at(TURQUOISE), WAVE_LIGHT, glm::vec3(0., -2., 0.), glm::vec3(), glm::vec3(8., 8., 8.));
 	objects.push_back(obj);
-	
+
 	// Bunny model
 	mesh = loadMesh("bunny.obj", VERTEX_NORMALS);
 	obj = createObject("Bunny", mesh, materials.at(RED_PLASTIC), shaders.at(TOON), glm::vec3(0., 0., -2.), glm::vec3(), glm::vec3(2., 2., 2.));
-	//obj = createObject("Bunny", mesh, materials.at(RED_PLASTIC), TOON, glm::vec3(0., 0., -2.), glm::vec3(), glm::vec3(2., 2., 2.));
 	objects.push_back(obj);
-	
+
 	// Airplane model
 	mesh = loadMesh("airplane.obj", VERTEX_NORMALS);
 	obj = createObject("Airplane", mesh, materials.at(RED_PLASTIC), shaders.at(PHONG), glm::vec3(-10., 5., 0.), glm::vec3(0.0, 0.0, -40.0), glm::vec3(5., 5., 5.));
-	//obj = createObject("Airplane", mesh, materials.at(RED_PLASTIC), PHONG, glm::vec3(-10., 5., 0.), glm::vec3(0.0, 0.0, -40.0), glm::vec3(5., 5., 5.));
 	objects.push_back(obj);
-	
+
 	// Horse model
 	mesh = loadMesh("horse.obj", VERTEX_NORMALS);
 	obj = createObject("Horse FLAT", mesh, materials.at(GOLD), shaders.at(PHONG), glm::vec3(-3., 2., 5.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5));
-	//obj = createObject("Horse FLAT", mesh, materials.at(GOLD), PHONG, glm::vec3(-3., 2., 5.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5));
 	objects.push_back(obj);
-	
+
 	// Horse model
 	mesh = loadMesh("horse.obj", FACE_NORMALS);
 	obj = createObject("Horse SMOOTH", mesh, materials.at(SLATE), shaders.at(PHONG), glm::vec3(-5., 2., 7.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5));
-	//obj = createObject("Horse SMOOTH", mesh, materials.at(SLATE), PHONG, glm::vec3(-5., 2., 7.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5));
 	objects.push_back(obj);
-	
+
 	// Test
 	//initBrokenMesh("horse.obj", "Horse", FACE_NORMALS, glm::vec3(-5., 2., -5), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5), materials.at(GOLD), shaders.at(PHONG));
 }
 
-// Main initialization funtion
-void init();
-// Reshape Function
-void resize(int w, int h);
-// Calls glutPostRedisplay each millis milliseconds
-void refresh_monitor(int millis);
-// Trackball: Effettua la rotazione del vettore posizione sulla trackball
-void mouseActiveMotion(int x, int y);
-
-
-
-//	Crea ed applica la matrice di trasformazione alla matrice dell'oggetto discriminando tra WCS e OCS.
-//	La funzione è gia invocata con un input corretto, è sufficiente concludere la sua implementazione.
-void modifyModelMatrix(glm::vec3 translation_vector, glm::vec3 rotation_vector, GLfloat angle, GLfloat scale_factor);
-
-// disegna l'origine del assi
-void drawAxisAndGrid();
-// 2D fixed pipeline Font rendering on screen
-void printSceneInfo();
-
-
-void init() {
-	// Default render settings
-	glEnable(GL_DEPTH_TEST);	// Hidden surface removal
-	glCullFace(GL_BACK);	// remove faces facing the background
-	glEnable(GL_LINE_SMOOTH);
-
-	// Light initialization
-	light.position = { 5.0,5.0,-5.0 };
-	light.color = { 1.0,1.0,1.0 };
-	light.power = 1.f;
-
-	initMaterials();
-	initShaders(light);
-	initObjects();
-
-	initCamera();
-}
-
-void drawScene() {
-
-	glClearColor(0.4, 0.4, 0.4, 1);
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-	
-	drawAxisAndGrid(); // The central Axis point of reference
-
-	for (int i = 0; i < objects.size(); i++) {
-
-		glUseProgram(objects.at(i).shader.id);//shaders_IDs[objects.at(i).shader]);
-		
-		updateUniforms(objects.at(i), light);
-
-		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
-		glBindVertexArray(objects.at(i).mesh.vertexArrayObjID);
-		glDrawArrays(GL_TRIANGLES, 0, objects.at(i).mesh.vertices.size());
-
-		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
+/*
+* Crea ed applica la matrice di trasformazione alla matrice dell'oggetto discriminando
+* tra WCS e OCS. La funzione è gia invocata con un input corretto, è sufficiente
+* concludere la sua implementazione.
+*/
+void modifyModelMatrix(glm::vec3 translation_vector, glm::vec3 rotation_vector, GLfloat angle, GLfloat scale_factor)
+{
+	// TO-DO: OK
+	glm::mat4 newModelMatrix = objects.at(selectedObj).M;
+	// Translation
+	newModelMatrix = glm::translate(newModelMatrix, translation_vector);
+	// Rotation
+	if (app.coordinateSystem == OCS)
+	{
+		// Rotation with pivot on the object's center
+		newModelMatrix = glm::rotate(newModelMatrix, glm::radians(angle), rotation_vector);
 	}
+	else if (app.coordinateSystem == WCS)
+	{
+		// Rotation with pivot on the scene center
+		glm::vec3 objectPosition = newModelMatrix[3];
+		glm::vec3 origin = glm::vec3(0, 0, 0); // [3] gets the 4th column of the matrix, which is a vector4 and contains the position (x, y, z, 0/1)
 
-	// OLD fixed pipeline for simple graphics and symbols
-	glUseProgram(0);
-	printSceneInfo();
-
-	glutSwapBuffers();
+		newModelMatrix = glm::translate(newModelMatrix, origin - objectPosition);
+		newModelMatrix = glm::rotate(newModelMatrix, glm::radians(angle), rotation_vector);
+		newModelMatrix = glm::translate(newModelMatrix, objectPosition - origin);
+	}
+	// Scaling
+	newModelMatrix = glm::scale(newModelMatrix, glm::vec3(scale_factor, scale_factor, scale_factor));
+	objects.at(selectedObj).M = newModelMatrix;
 }
 
+
+/*
+* Updates the camera view port, when the windows is resized.
+*/
 void resize(int w, int h)
 {
 	if (h == 0)	// Window is minimized
@@ -241,72 +224,65 @@ void resize(int w, int h)
 	}
 }
 
+/*
+* Triggers the display redrawing each 'millis' milliseconds.
+*/
 void refresh_monitor(int millis)
 {
 	glutPostRedisplay();
 	glutTimerFunc(millis, refresh_monitor, millis);
 }
 
-void modifyModelMatrix(glm::vec3 translation_vector, glm::vec3 rotation_vector, GLfloat angle, GLfloat scale_factor)
+void drawObject(Object object)
 {
-	// TO-DO: OK
-	glm::mat4 newModelMatrix = objects.at(selectedObj).M;
-	// Translation
-	newModelMatrix = glm::translate(newModelMatrix, translation_vector);
-	// Rotation
-	if (coordinateSystem == OCS)
-	{
-		// Rotation with pivot on the object's center
-		newModelMatrix = glm::rotate(newModelMatrix, glm::radians(angle), rotation_vector);
-	}
-	else if (coordinateSystem == WCS)
-	{
-		// Rotation with pivot on the scene center
-		glm::vec3 objectPosition = newModelMatrix[3];
-		glm::vec3 origin = glm::vec3(0, 0, 0); // [3] gets the 4th column of the matrix, which is a vector4 and contains the position (x, y, z, 0/1)
+	// Select Shader program
+	glUseProgram(object.shader.id);
 
-		newModelMatrix = glm::translate(newModelMatrix, origin - objectPosition);
-		newModelMatrix = glm::rotate(newModelMatrix, glm::radians(angle), rotation_vector);
-		newModelMatrix = glm::translate(newModelMatrix, objectPosition - origin);
-	}
-	// Scaling
-	newModelMatrix = glm::scale(newModelMatrix, glm::vec3(scale_factor, scale_factor, scale_factor));
-	objects.at(selectedObj).M = newModelMatrix;
-}
+	updateUniforms(object, light);
 
-void drawAxisAndGrid()
-{
-	glUseProgram(Grid.shader.id);
-	glUniformMatrix4fv(Grid.shader.baseUniform.M_Matrix_pointer, 1, GL_FALSE, value_ptr(Grid.M));
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-	glBindVertexArray(Grid.mesh.vertexArrayObjID);
-	glDrawArrays(GL_TRIANGLES, 0, Grid.mesh.vertices.size());
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-	
-	glUseProgram(Axis.shader.id);
-	glUniformMatrix4fv(Axis.shader.baseUniform.M_Matrix_pointer, 1, GL_FALSE, value_ptr(Axis.M));
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glBindVertexArray(Axis.mesh.vertexArrayObjID);
-	glDrawArrays(GL_TRIANGLES, 0, Axis.mesh.vertices.size());
+	glBindVertexArray(object.mesh.vertexArrayObjID);
+	glDrawArrays(GL_TRIANGLES, 0, object.mesh.vertices.size());
+
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 }
 
+void drawScene() {
 
+	glClearColor(0.4, 0.4, 0.4, 1);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+	drawObject(axisObject);
+	drawObject(gridObject);
+
+	for (int i = 0; i < objects.size(); i++)
+	{
+		drawObject(objects.at(i));
+	}
+
+	// OLD fixed pipeline for simple graphics and symbols
+	glUseProgram(0);
+	printSceneInfo();
+
+	glutSwapBuffers();
+}
+
+/*
+* 2D fixed pipeline Font rendering on screen
+*/
 void printSceneInfo()
 {
-	std::string refSystem =	"Ref. System: " + getCoordinateSystemName(coordinateSystem);
-	std::string mode =		"Operation: " + getOperationModeName(operationMode);
-	std::string axis =		"Axis: " + getWorkingAxisName(workingAxis);
-	std::string object =	"Object: " + objects[selectedObj].name;
-	std::string position =	" Pos.: " + objects[selectedObj].name;
-	std::string rotation =	" Rot.: " + objects[selectedObj].name;
-	std::string scale =		" Scale: " + objects[selectedObj].name;
-	std::string material =	" Material: " + objects.at(selectedObj).material.name;
-	std::string shader = " Shading: " + getShaderName(objects.at(selectedObj).shader.type);
+	std::string refSystem = "Ref. System: " + getCoordinateSystemName(app.coordinateSystem);
+	std::string mode = "Operation: " + getOperationModeName(app.operationMode);
+	std::string axis = "Axis: " + getWorkingAxisName(app.workingAxis);
+	std::string object = "Object: " + objects[selectedObj].name;
+	std::string position = " Pos.: " + objects[selectedObj].name;
+	std::string rotation = " Rot.: " + objects[selectedObj].name;
+	std::string scale = " Scale: " + objects[selectedObj].name;
+	std::string material = " Material: " + objects.at(selectedObj).material.name;
+	std::string shader = " Shading: " + objects.at(selectedObj).shader.name;
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -329,7 +305,6 @@ void printSceneInfo()
 
 	resize(windowWidth, windowHeight);
 }
-
 
 int main(int argc, char** argv) {
 

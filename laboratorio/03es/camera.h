@@ -11,3 +11,7 @@ void moveCameraLeft();
 void moveCameraRight();
 void moveCameraUp();
 void moveCameraDown();
+
+
+extern int windowWidth, windowHeight;
+extern Application app;

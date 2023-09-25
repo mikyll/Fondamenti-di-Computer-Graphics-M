@@ -40,7 +40,6 @@ void initShaders(PointLight light)
 	shader.lightUniform.light_position_pointer = glGetUniformLocation(shader.id, "light.position");
 	shader.lightUniform.light_color_pointer = glGetUniformLocation(shader.id, "light.color");
 	shader.lightUniform.light_power_pointer = glGetUniformLocation(shader.id, "light.power");
-	shader.lightUniform = {};
 	// 3. Activate the shader
 	glUseProgram(shader.id);
 	// 4. Shader uniforms initialization

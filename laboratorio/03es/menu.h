@@ -11,6 +11,4 @@ extern std::map<ShadingType, Shader> shaders;
 extern std::vector<Object> objects;
 extern int selectedObj;
 
-extern CoordinateSystem coordinateSystem;
-extern OperationMode operationMode;
-extern WorkingAxis workingAxis;
+extern Application app;

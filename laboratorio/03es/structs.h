@@ -75,11 +75,10 @@ typedef struct {
 	struct PerspectiveSetup perspectiveSetup;
 } Camera;
 
-// todo
-/*typedef struct {
-	int windowWidth;
-	int windowHeight;
-	CoordinateSystem coordinateSystem = WCS;
-	OperationMode operationMode = MODE_NAVIGATION;
-	WorkingAxis workingAxis = AXIS_X;
-} Application;*/
+typedef struct {
+	CoordinateSystem coordinateSystem;
+	OperationMode operationMode;
+	WorkingAxis workingAxis;
+	bool showTransform;
+	bool showReferenceSystem;
+} Application;

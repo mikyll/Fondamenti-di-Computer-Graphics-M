@@ -70,7 +70,7 @@ static void mouseInput(int button, int state, int x, int y)
 		// If the user is pressing the left mouse button, we are moving the trackball
 		moving_trackball = state == GLUT_DOWN;
 
-		operationMode = MODE_NAVIGATION;
+		app.operationMode = MODE_NAVIGATION;
 		last_mouse_pos_X = x;
 		last_mouse_pos_Y = y;
 		break;
@@ -79,7 +79,7 @@ static void mouseInput(int button, int state, int x, int y)
 		break;
 	}
 	// Selezione dell'asse per le trasformazioni
-	switch (workingAxis)
+	switch (app.workingAxis)
 	{
 	case AXIS_X:	axis = glm::vec4(1.0, 0.0, 0.0, 0.0);
 		break;
@@ -94,7 +94,7 @@ static void mouseInput(int button, int state, int x, int y)
 		break;
 	}
 
-	switch (operationMode)
+	switch (app.operationMode)
 	{
 	case MODE_NAVIGATION:
 		// Wheel reports as button 3(scroll up) and button 4(scroll down)
@@ -161,26 +161,26 @@ static void keyboardDown(unsigned char key, int x, int y)
 	switch (key) {
 		// Selezione della modalità di trasformazione
 	case 'g':
-		operationMode = MODE_TRASLATING;
+		app.operationMode = MODE_TRASLATING;
 		break;
 	case 'r':
-		operationMode = MODE_ROTATING;
+		app.operationMode = MODE_ROTATING;
 		break;
 	case 's':
-		operationMode = MODE_SCALING;
+		app.operationMode = MODE_SCALING;
 		break;
 	case 27:
 		glutLeaveMainLoop();
 		break;
 		// Selezione dell'asse
 	case 'x':
-		workingAxis = AXIS_X;
+		app.workingAxis = AXIS_X;
 		break;
 	case 'y':
-		workingAxis = AXIS_Y;
+		app.workingAxis = AXIS_Y;
 		break;
 	case 'z':
-		workingAxis = AXIS_Z;
+		app.workingAxis = AXIS_Z;
 		break;
 	default:
 		break;
