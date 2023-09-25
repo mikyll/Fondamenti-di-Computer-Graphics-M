@@ -5,6 +5,9 @@
 void initInput();
 
 extern void modifyModelMatrix(glm::vec3 translation_vector, glm::vec3 rotation_vector, GLfloat angle, GLfloat scale_factor);
+extern void initLight(glm::vec3 pos);
+extern void initShaders(PointLight light);
+extern void initObjects();
 
 extern int windowWidth, windowHeight;
 extern Application app;

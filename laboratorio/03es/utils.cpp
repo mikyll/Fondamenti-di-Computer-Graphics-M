@@ -1,6 +1,6 @@
 #include "utils.h"
 
-std::string getCoordinateSystemName(CoordinateSystem coordinateSystem)
+std::string getCoordinateSystemName(ReferenceSystem coordinateSystem)
 {
 	std::string result = "Unknown";
 

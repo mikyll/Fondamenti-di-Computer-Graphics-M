@@ -76,9 +76,9 @@ typedef struct {
 } Camera;
 
 typedef struct {
-	CoordinateSystem coordinateSystem;
+	ReferenceSystem coordinateSystem;
 	OperationMode operationMode;
 	WorkingAxis workingAxis;
-	bool showTransform;
-	bool showReferenceSystem;
+	bool showTransformInfo;
+	bool showGridAxis;
 } Application;

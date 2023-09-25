@@ -6,18 +6,86 @@ static int last_mouse_pos_X;
 
 
 static void mouseInput(int button, int state, int x, int y);
+static void specialKeyDown(int key, int x, int y);
 static void mouseActiveMotion(int x, int y);
 static void keyboardDown(unsigned char key, int x, int y);
-static void special(int key, int x, int y);
 static glm::vec3 getTrackBallPoint(float x, float y);
 
 
 void initInput()
 {
 	glutKeyboardFunc(keyboardDown);
+	glutSpecialFunc(specialKeyDown);
 	glutMouseFunc(mouseInput);
 	glutMotionFunc(mouseActiveMotion);
-	glutSpecialFunc(special);
+}
+
+static void keyboardDown(unsigned char key, int x, int y)
+{
+	switch (key) {
+		// Selezione della modalità di trasformazione
+	case 'g':
+		app.operationMode = MODE_TRASLATING;
+		break;
+	case 'r':
+		app.operationMode = MODE_ROTATING;
+		break;
+	case 's':
+		app.operationMode = MODE_SCALING;
+		break;
+	case 27:
+		glutLeaveMainLoop();
+		break;
+		// Selezione dell'asse
+	case 'x':
+		app.workingAxis = AXIS_X;
+		break;
+	case 'y':
+		app.workingAxis = AXIS_Y;
+		break;
+	case 'z':
+		app.workingAxis = AXIS_Z;
+		break;
+	default:
+		break;
+	}
+	glutPostRedisplay();
+}
+
+static void specialKeyDown(int key, int x, int y)
+{
+	switch (key)
+	{
+	case GLUT_KEY_LEFT:
+		selectedObj = selectedObj > 0 ? selectedObj - 1 : objects.size() - 1;
+		break;
+	case GLUT_KEY_RIGHT:
+		selectedObj = (selectedObj + 1) < objects.size() ? selectedObj + 1 : 0;
+		break;
+	case GLUT_KEY_F1:
+		initLight(glm::vec3());
+		initShaders(light);
+		initObjects();
+		break;
+	case GLUT_KEY_F2:
+		initLight(glm::vec3(5., 5., 5.));
+		initShaders(light);
+		initObjects();
+		break;
+	case GLUT_KEY_F3:
+		initLight(glm::vec3(-5., 5., 5.));
+		initShaders(light);
+		initObjects();
+		break;
+	case GLUT_KEY_F4:
+		initLight(glm::vec3(-5., 5., -5.));
+		initShaders(light);
+		initObjects();
+		break;
+	default:
+		break;
+	}
+	glutPostRedisplay();
 }
 
 static void mouseInput(int button, int state, int x, int y)
@@ -153,54 +221,6 @@ static void mouseActiveMotion(int x, int y)
 		camera.viewSetup.position = camera.viewSetup.target + glm::rotate(glm::mat4(1.0f), glm::radians(-angle), rotation_vec) * direction;
 	}
 	last_mouse_pos_X = x; last_mouse_pos_Y = y;
-	glutPostRedisplay();
-}
-
-static void keyboardDown(unsigned char key, int x, int y)
-{
-	switch (key) {
-		// Selezione della modalità di trasformazione
-	case 'g':
-		app.operationMode = MODE_TRASLATING;
-		break;
-	case 'r':
-		app.operationMode = MODE_ROTATING;
-		break;
-	case 's':
-		app.operationMode = MODE_SCALING;
-		break;
-	case 27:
-		glutLeaveMainLoop();
-		break;
-		// Selezione dell'asse
-	case 'x':
-		app.workingAxis = AXIS_X;
-		break;
-	case 'y':
-		app.workingAxis = AXIS_Y;
-		break;
-	case 'z':
-		app.workingAxis = AXIS_Z;
-		break;
-	default:
-		break;
-	}
-	glutPostRedisplay();
-}
-
-static void special(int key, int x, int y)
-{
-	switch (key)
-	{
-	case GLUT_KEY_LEFT:
-		selectedObj = selectedObj > 0 ? selectedObj - 1 : objects.size() - 1;
-		break;
-	case GLUT_KEY_RIGHT:
-		selectedObj = (selectedObj + 1) < objects.size() ? selectedObj + 1 : 0;
-		break;
-	default:
-		break;
-	}
 	glutPostRedisplay();
 }
 

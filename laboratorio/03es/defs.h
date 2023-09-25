@@ -21,8 +21,8 @@ const std::string SHADERS_DIR = "Shaders/";
 
 // CoordinateSystem
 enum {
-	OCS,	// Object Coordinate System
-	WCS		// World Coordinate System
+	OCS = 0,	// Object Coordinate System
+	WCS = 1			// World Coordinate System
 };
 
 // OperationMode
@@ -49,6 +49,10 @@ enum {
 	FACE_FILL,
 	CULLING_OFF,
 	CULLING_ON,
+	GRID_AXIS_OFF,
+	GRID_AXIS_ON,
+	TRANSFORM_INFO_OFF,
+	TRANSFORM_INFO_ON,
 	NUM_OPTIONS,
 };
 
@@ -86,6 +90,6 @@ typedef int MenuOption;
 typedef int MaterialType;
 typedef int ShadingType;
 
-typedef int CoordinateSystem;
+typedef int ReferenceSystem;
 typedef int OperationMode;
 typedef int WorkingAxis;

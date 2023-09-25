@@ -8,6 +8,8 @@
 #include <map>
 #include <string>
 #include <ctime>
+#include <sstream>
+#include <iomanip>
 
 // OpenGL
 #include <GL/glew.h>

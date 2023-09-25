@@ -36,9 +36,8 @@ based on the OpenGL Shading Language (GLSL) specifications.
 
 #include "commons.h"
 
-// todo
 extern int windowWidth, windowHeight;
-Application app = {};
+Application app;
 extern Camera camera;
 
 extern std::map<MaterialType, Material> materials;
@@ -52,13 +51,15 @@ PointLight light;
 extern void initMaterials();
 extern void initShaders(PointLight light);
 extern void initCamera();
-extern std::string getCoordinateSystemName(CoordinateSystem coordinateSystem);
+extern std::string getCoordinateSystemName(ReferenceSystem coordinateSystem);
 extern std::string getOperationModeName(OperationMode operationMode);
 extern std::string getWorkingAxisName(WorkingAxis workingAxis);
 
 
 void init();
 void initApplication();
+void initLight(glm::vec3 pos);
+void initGridAxis();
 void initObjects();
 
 void modifyModelMatrix(glm::vec3 translation_vector, glm::vec3 rotation_vector, GLfloat angle, GLfloat scale_factor);
@@ -71,29 +72,59 @@ void printSceneInfo();
 void init() {
 	// Default render settings
 	glEnable(GL_DEPTH_TEST);	// Hidden surface removal
-	glCullFace(GL_BACK);		// remove faces facing the background
+	//glCullFace(GL_BACK);		// remove faces facing the background
 	glEnable(GL_LINE_SMOOTH);
 
-	// Light initialization
-	light.position = { 5.0,5.0,-5.0 };
-	light.color = { 1.0,1.0,1.0 };
-	light.power = 1.f;
-
 	initApplication();
+	initLight(glm::vec3());
 	initCamera();
 
 	initMaterials();
 	initShaders(light);
+
+	initGridAxis();
 	initObjects();
 }
 
 void initApplication()
 {
+	app = {};
 	app.coordinateSystem = WCS;
 	app.operationMode = MODE_NAVIGATION;
 	app.workingAxis = AXIS_X;
-	app.showTransform = false;
-	app.showTransform = true;
+	app.showTransformInfo = true;
+	app.showGridAxis = true;
+}
+
+void initLight(glm::vec3 pos)
+{
+	if (pos == glm::vec3())
+		light.position = { 5.0,5.0,-5.0 };
+	else light.position = pos;
+	light.color = { 1.0,1.0,1.0 };
+	light.power = 1.f;
+}
+
+void initGridAxis()
+{
+	Object obj;
+	Mesh mesh;
+
+	// Axis for reference
+	if (loadMesh("axis.obj", VERTEX_NORMALS, &mesh) == 0)
+	{
+		obj = createObject("axis_", mesh, materials.at(COPPER), shaders.at(BLINN), glm::vec3(), glm::vec3(), glm::vec3(2., 2., 2.));
+		axisObject = obj;
+	}
+	else exit(EXIT_FAILURE);
+
+	// White Grid Plane for reference
+	if (loadMesh("reference_grid.obj", VERTEX_NORMALS, &mesh) == 0)
+	{
+		obj = createObject("grid_", mesh, materials.at(NONE), shaders.at(GOURAUD), glm::vec3(), glm::vec3(), glm::vec3(1., 1., 1.));
+		gridObject = obj;
+	}
+	else exit(EXIT_FAILURE);
 }
 
 void initObjects()
@@ -101,55 +132,70 @@ void initObjects()
 	Object obj;
 	Mesh mesh;
 
-	// Axis for reference
-	mesh = loadMesh("axis.obj", VERTEX_NORMALS);
-	obj = createObject("axis_", mesh, materials.at(COPPER), shaders.at(BLINN), glm::vec3(), glm::vec3(), glm::vec3(2., 2., 2.));
-	axisObject = obj;
-
-	// White Grid Plane for reference
-	mesh = loadMesh("reference_grid.obj", VERTEX_NORMALS);
-	obj = createObject("grid_", mesh, materials.at(NONE), shaders.at(GOURAUD), glm::vec3(), glm::vec3(), glm::vec3(1., 1., 1.));
-	gridObject = obj;
+	objects.clear();
 
 	// Point Light
-	mesh = loadMesh("sphere_n_t_smooth.obj", FACE_NORMALS);
-	obj = createObject("light", mesh, materials.at(NONE), shaders.at(PASS_THROUGH), light.position, glm::vec3(), glm::vec3(0.2, 0.2, 0.2));
-	objects.push_back(obj);
+	if (loadMesh("sphere_n_t_smooth.obj", FACE_NORMALS, &mesh) == 0)
+	{
+		obj = createObject("light", mesh, materials.at(NONE), shaders.at(PASS_THROUGH), light.position, glm::vec3(), glm::vec3(0.2, 0.2, 0.2));
+		objects.push_back(obj);
+	}
 
 	// FLAT Sphere (face normals)
-	mesh = loadMesh("sphere_n_t_flat.obj", FACE_NORMALS);
-	obj = createObject("Sphere FLAT", mesh, materials.at(EMERALD), shaders.at(PHONG), glm::vec3(3., 1., -6.), glm::vec3(), glm::vec3(1., 1., 1.));
-	objects.push_back(obj);
+	if (loadMesh("sphere_n_t_flat.obj", FACE_NORMALS, &mesh) == 0)
+	{
+		obj = createObject("Sphere FLAT", mesh, materials.at(EMERALD), shaders.at(PHONG), glm::vec3(3., 1., -6.), glm::vec3(), glm::vec3(1., 1., 1.));
+		objects.push_back(obj);
+	}
 
 	// SMOOTH Sphere (vertex normals)
-	mesh = loadMesh("sphere_n_t_smooth.obj", FACE_NORMALS);
-	obj = createObject("Sphere SMOOTH", mesh, materials.at(SILVER), shaders.at(BLINN), glm::vec3(6., 1., -3.), glm::vec3(), glm::vec3(1., 1., 1.));
-	objects.push_back(obj);
+	if (loadMesh("sphere_n_t_smooth.obj", FACE_NORMALS, &mesh) == 0)
+	{
+		obj = createObject("Sphere SMOOTH", mesh, materials.at(SILVER), shaders.at(BLINN), glm::vec3(6., 1., -3.), glm::vec3(), glm::vec3(1., 1., 1.));
+		objects.push_back(obj);
+	}
 
 	// Waving plane
-	mesh = loadMesh("GridPlane.obj", FACE_NORMALS);
-	obj = createObject("Waves", mesh, materials.at(TURQUOISE), shaders.at(WAVE_LIGHT), glm::vec3(0., -2., 0.), glm::vec3(), glm::vec3(8., 8., 8.));
-	objects.push_back(obj);
+	if (loadMesh("GridPlane.obj", FACE_NORMALS, &mesh) == 0)
+	{
+		obj = createObject("Waves", mesh, materials.at(TURQUOISE), shaders.at(WAVE_LIGHT), glm::vec3(0., -2., 0.), glm::vec3(), glm::vec3(8., 8., 8.));
+		objects.push_back(obj);
+	}
 
 	// Bunny model
-	mesh = loadMesh("bunny.obj", VERTEX_NORMALS);
-	obj = createObject("Bunny", mesh, materials.at(RED_PLASTIC), shaders.at(TOON), glm::vec3(0., 0., -2.), glm::vec3(), glm::vec3(2., 2., 2.));
-	objects.push_back(obj);
+	if (loadMesh("bunny.obj", VERTEX_NORMALS, &mesh) == 0)
+	{
+		obj = createObject("Bunny", mesh, materials.at(RED_PLASTIC), shaders.at(TOON), glm::vec3(0., 0., -2.), glm::vec3(), glm::vec3(2., 2., 2.));
+		objects.push_back(obj);
+	}
 
 	// Airplane model
-	mesh = loadMesh("airplane.obj", VERTEX_NORMALS);
-	obj = createObject("Airplane", mesh, materials.at(RED_PLASTIC), shaders.at(PHONG), glm::vec3(-10., 5., 0.), glm::vec3(0.0, 0.0, -40.0), glm::vec3(5., 5., 5.));
-	objects.push_back(obj);
+	if (loadMesh("airplane.obj", VERTEX_NORMALS, &mesh) == 0)
+	{
+		obj = createObject("Airplane", mesh, materials.at(RED_PLASTIC), shaders.at(PHONG), glm::vec3(-10., 5., 0.), glm::vec3(0.0, 0.0, -40.0), glm::vec3(5., 5., 5.));
+		objects.push_back(obj);
+	}
 
-	// Horse model
-	mesh = loadMesh("horse.obj", VERTEX_NORMALS);
-	obj = createObject("Horse FLAT", mesh, materials.at(GOLD), shaders.at(PHONG), glm::vec3(-3., 2., 5.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5));
-	objects.push_back(obj);
+	// Horse model 1
+	if (loadMesh("horse.obj", VERTEX_NORMALS, &mesh) == 0)
+	{
+		obj = createObject("Horse FLAT", mesh, materials.at(GOLD), shaders.at(PHONG), glm::vec3(-3., 3, 5.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5));
+		objects.push_back(obj);
+	}
 
-	// Horse model
-	mesh = loadMesh("horse.obj", FACE_NORMALS);
-	obj = createObject("Horse SMOOTH", mesh, materials.at(SLATE), shaders.at(PHONG), glm::vec3(-5., 2., 7.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5));
-	objects.push_back(obj);
+	// Horse model 2
+	if (loadMesh("horse.obj", FACE_NORMALS, &mesh) == 0)
+	{
+		obj = createObject("Horse SMOOTH", mesh, materials.at(SLATE), shaders.at(PHONG), glm::vec3(-5., 3, 7.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5));
+		objects.push_back(obj);
+	}
+
+	// Teapot model
+	if (loadMesh("teapot.obj", VERTEX_NORMALS, &mesh) == 0)
+	{
+		obj = createObject("Teapot", mesh, materials.at(RED_PLASTIC), shaders.at(TOON_V2), glm::vec3(5., 0., 7.), glm::vec3(), glm::vec3(0.5, 0.5, 0.5));
+		objects.push_back(obj);
+	}
 
 	// Test
 	//initBrokenMesh("horse.obj", "Horse", FACE_NORMALS, glm::vec3(-5., 2., -5), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5), materials.at(GOLD), shaders.at(PHONG));
@@ -254,8 +300,11 @@ void drawScene() {
 	glClearColor(0.4, 0.4, 0.4, 1);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-	drawObject(axisObject);
-	drawObject(gridObject);
+	if (app.showGridAxis)
+	{
+		drawObject(axisObject);
+		drawObject(gridObject);
+	}
 
 	for (int i = 0; i < objects.size(); i++)
 	{
@@ -274,13 +323,29 @@ void drawScene() {
 */
 void printSceneInfo()
 {
+	glm::mat4 modelM = objects[selectedObj].M;
+	glm::vec3 pos = modelM[3];
+	std::stringstream posStream;
+	posStream << std::fixed << std::setprecision(1) << pos.x << ", " << pos.y << ", " << pos.z;
+	
+	float scalingFactor = sqrt(modelM[0][0] * modelM[0][0] + modelM[0][1] * modelM[0][1] + modelM[0][2] * modelM[0][2]);
+	std::stringstream scaleStream;
+	scaleStream << std::fixed << std::setprecision(5) << scalingFactor;
+
+	glm::vec3 rot = modelM[3];
+	rot.x = glm::degrees(atan2f(modelM[1][2], modelM[2][2]));
+	rot.y = glm::degrees(atan2f(-modelM[0][2], sqrtf(modelM[1][2] * modelM[1][2] + modelM[2][2] * modelM[2][2])));
+	rot.z = glm::degrees(atan2f(modelM[0][1], modelM[0][0]));
+	std::stringstream rotationStream;
+	rotationStream << std::fixed << std::setprecision(1) << rot.x << ", " << rot.y << ", " << rot.z;
+
 	std::string refSystem = "Ref. System: " + getCoordinateSystemName(app.coordinateSystem);
 	std::string mode = "Operation: " + getOperationModeName(app.operationMode);
 	std::string axis = "Axis: " + getWorkingAxisName(app.workingAxis);
 	std::string object = "Object: " + objects[selectedObj].name;
-	std::string position = " Pos.: " + objects[selectedObj].name;
-	std::string rotation = " Rot.: " + objects[selectedObj].name;
-	std::string scale = " Scale: " + objects[selectedObj].name;
+	std::string position = " Pos.: (" + posStream.str() + ")";
+	std::string rotation = " Rot.: (" + rotationStream.str() + ")";
+	std::string scale = " Scale: " + scaleStream.str();
 	std::string material = " Material: " + objects.at(selectedObj).material.name;
 	std::string shader = " Shading: " + objects.at(selectedObj).shader.name;
 
@@ -295,6 +360,12 @@ void printSceneInfo()
 	std::vector<std::string> lines;
 	lines.push_back(shader);
 	lines.push_back(material);
+	if (app.showTransformInfo)
+	{
+		lines.push_back(scale);
+		lines.push_back(rotation);
+		lines.push_back(position);
+	}
 	lines.push_back(object);
 	lines.push_back(axis);
 	lines.push_back(mode);
@@ -306,8 +377,8 @@ void printSceneInfo()
 	resize(windowWidth, windowHeight);
 }
 
-int main(int argc, char** argv) {
-
+int main(int argc, char** argv)
+{
 	GLboolean GlewInitResult;
 	glutInit(&argc, argv);
 	glutSetOption(GLUT_MULTISAMPLE, 4);

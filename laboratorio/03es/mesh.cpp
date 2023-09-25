@@ -10,7 +10,8 @@ static void generateAndLoadBuffers(bool generate, Mesh* mesh);
 static int loadObjFile(std::string file_path, Mesh* mesh, bool vertices_normals)
 {
 	FILE* file;
-	if (fopen_s(&file, file_path.c_str(), "r") < 0) {
+	if (fopen_s(&file, file_path.c_str(), "r") != 0)
+	{
 		std::cerr << "\nFailed to open obj file! --> " << file_path << std::endl;
 		return -1;
 	}
@@ -19,73 +20,79 @@ static int loadObjFile(std::string file_path, Mesh* mesh, bool vertices_normals)
 	std::vector<glm::vec3> tmp_vertices, tmp_normals;
 	std::vector<glm::vec2> tmp_uvs;
 
-	char lineHeader[128];
-	while (fscanf_s(file, "%s", lineHeader, 64) != EOF) {
-		if (strcmp(lineHeader, "v") == 0) {
-			glm::vec3 vertex;
-			fscanf_s(file, " %f %f %f\n", &vertex.x, &vertex.y, &vertex.z, 64);
-			tmp_vertices.push_back(vertex);
-		}
-		else if (strcmp(lineHeader, "vn") == 0) {
-			glm::vec3 normal;
-			fscanf_s(file, " %f %f %f\n", &normal.x, &normal.y, &normal.z, 64);
-			tmp_normals.push_back(normal);
-		}
-		else if (strcmp(lineHeader, "vt") == 0) {
-			glm::vec2 uv;
-			fscanf_s(file, " %f %f\n", &uv.x, &uv.y, 64);
-			uv.y = 1 - uv.y;
-			tmp_uvs.push_back(uv);
-		}
-		else if (strcmp(lineHeader, "f") == 0) {
-			GLuint v_a, v_b, v_c; // index in position array
-			GLuint n_a, n_b, n_c; // index in normal array
-			GLuint t_a, t_b, t_c; // index in UV array
+	const int MAX_SIZE = 128;
+	char lineHeader[MAX_SIZE];
+	try {
+		while (fscanf_s(file, "%s", lineHeader, MAX_SIZE) != EOF) {
+			if (strcmp(lineHeader, "v") == 0) {
+				glm::vec3 vertex;
+				fscanf_s(file, " %f %f %f\n", &vertex.x, &vertex.y, &vertex.z, MAX_SIZE);
+				tmp_vertices.push_back(vertex);
+			}
+			else if (strcmp(lineHeader, "vn") == 0) {
+				glm::vec3 normal;
+				fscanf_s(file, " %f %f %f\n", &normal.x, &normal.y, &normal.z, MAX_SIZE);
+				tmp_normals.push_back(normal);
+			}
+			else if (strcmp(lineHeader, "vt") == 0) {
+				glm::vec2 uv;
+				fscanf_s(file, " %f %f\n", &uv.x, &uv.y, MAX_SIZE);
+				uv.y = 1 - uv.y;
+				tmp_uvs.push_back(uv);
+			}
+			else if (strcmp(lineHeader, "f") == 0) {
+				GLuint v_a, v_b, v_c; // index in position array
+				GLuint n_a, n_b, n_c; // index in normal array
+				GLuint t_a, t_b, t_c; // index in UV array
 
-			fscanf_s(file, "%s", lineHeader, 64);
-			if (strstr(lineHeader, "//")) { // case: v//n v//n v//n
-				sscanf_s(lineHeader, "%d//%d", &v_a, &n_a, 64);
-				fscanf_s(file, "%d//%d %d//%d\n", &v_b, &n_b, &v_c, &n_c, 64);
-				n_a--, n_b--, n_c--;
-				normalIndices.push_back(n_a); normalIndices.push_back(n_b); normalIndices.push_back(n_c);
+				fscanf_s(file, "%s", lineHeader, MAX_SIZE);
+				if (strstr(lineHeader, "//")) { // case: v//n v//n v//n
+					sscanf_s(lineHeader, "%d//%d", &v_a, &n_a, MAX_SIZE);
+					fscanf_s(file, "%d//%d %d//%d\n", &v_b, &n_b, &v_c, &n_c, MAX_SIZE);
+					n_a--, n_b--, n_c--;
+					normalIndices.push_back(n_a); normalIndices.push_back(n_b); normalIndices.push_back(n_c);
+				}
+				else if (strstr(lineHeader, "/")) {// case: v/t/n v/t/n v/t/n
+					sscanf_s(lineHeader, "%d/%d/%d", &v_a, &t_a, &n_a, MAX_SIZE);
+					fscanf_s(file, "%d/%d/%d %d/%d/%d\n", &v_b, &t_b, &n_b, &v_c, &t_c, &n_c, MAX_SIZE);
+					n_a--, n_b--, n_c--;
+					t_a--, t_b--, t_c--;
+					normalIndices.push_back(n_a); normalIndices.push_back(n_b); normalIndices.push_back(n_c);
+					uvIndices.push_back(t_a); uvIndices.push_back(t_b); uvIndices.push_back(t_c);
+				}
+				else {// case: v v v
+					sscanf_s(lineHeader, "%d", &v_a, MAX_SIZE);
+					fscanf_s(file, "%d %d\n", &v_b, &v_c, MAX_SIZE);
+				}
+				v_a--; v_b--; v_c--;
+				vertexIndices.push_back(v_a); vertexIndices.push_back(v_b); vertexIndices.push_back(v_c);
 			}
-			else if (strstr(lineHeader, "/")) {// case: v/t/n v/t/n v/t/n
-				sscanf_s(lineHeader, "%d/%d/%d", &v_a, &t_a, &n_a, 64);
-				fscanf_s(file, "%d/%d/%d %d/%d/%d\n", &v_b, &t_b, &n_b, &v_c, &t_c, &n_c, 64);
-				n_a--, n_b--, n_c--;
-				t_a--, t_b--, t_c--;
-				normalIndices.push_back(n_a); normalIndices.push_back(n_b); normalIndices.push_back(n_c);
-				uvIndices.push_back(t_a); uvIndices.push_back(t_b); uvIndices.push_back(t_c);
-			}
-			else {// case: v v v
-				sscanf_s(lineHeader, "%d", &v_a, 64);
-				fscanf_s(file, "%d %d\n", &v_b, &v_c, 64);
-			}
-			v_a--; v_b--; v_c--;
-			vertexIndices.push_back(v_a); vertexIndices.push_back(v_b); vertexIndices.push_back(v_c);
 		}
+		fclose(file);
 	}
-	fclose(file);
-
+	catch (...) {
+		return -2;
+	}
+	
 	// If normals and uvs are not loaded, we calculate normals for vertex
 	if (tmp_normals.size() == 0) {
 		tmp_normals.resize(vertexIndices.size() / 3, glm::vec3(0.0, 0.0, 0.0));
 		// normal of each face saved 1 time PER FACE!
 		for (int i = 0; i < vertexIndices.size(); i += 3)
 		{
-			GLushort ia = vertexIndices[i];
-			GLushort ib = vertexIndices[i + 1];
-			GLushort ic = vertexIndices[i + 2];
+			GLushort ia = vertexIndices.at(i);
+			GLushort ib = vertexIndices.at(i + 1);
+			GLushort ic = vertexIndices.at(i + 2);
 			glm::vec3 normal = glm::normalize(glm::cross(
-				glm::vec3(tmp_vertices[ib]) - glm::vec3(tmp_vertices[ia]),
-				glm::vec3(tmp_vertices[ic]) - glm::vec3(tmp_vertices[ia])));
+				glm::vec3(tmp_vertices.at(ib)) - glm::vec3(tmp_vertices.at(ia)),
+				glm::vec3(tmp_vertices.at(ic)) - glm::vec3(tmp_vertices.at(ia))));
 
 			if (vertices_normals)
 			{
 				// Vertices normals
-				tmp_normals[ia] += normal;
-				tmp_normals[ib] += normal;
-				tmp_normals[ic] += normal;
+				tmp_normals.at(ia) += normal;
+				tmp_normals.at(ib) += normal;
+				tmp_normals.at(ic) += normal;
 				// Put an index to the normal for all 3 vertex of the face
 				normalIndices.push_back(ia);
 				normalIndices.push_back(ib);
@@ -94,7 +101,7 @@ static int loadObjFile(std::string file_path, Mesh* mesh, bool vertices_normals)
 			else
 			{
 				// Faces normals
-				tmp_normals[i / 3] = normal;
+				tmp_normals.at(i / 3) = normal;
 				// Put an index to the normal for all 3 vertex of the face
 				normalIndices.push_back(i / 3);
 				normalIndices.push_back(i / 3);
@@ -109,10 +116,12 @@ static int loadObjFile(std::string file_path, Mesh* mesh, bool vertices_normals)
 	int i = 0;
 	// Now following the index arrays, we build the final arrays that will contain the data for glDrawArray...
 	for (int i = 0; i < vertexIndices.size(); i++) {
-		mesh->vertices.push_back(tmp_vertices[vertexIndices[i]]);
-		//mesh->normals.push_back(tmp_normals[normalIndices[i]]);
-		mesh->normals.push_back(glm::normalize(tmp_normals[normalIndices[i]]));
+		mesh->vertices.push_back(tmp_vertices.at(vertexIndices.at(i)));
+		//mesh->normals.push_back(tmp_normals.at(normalIndices.at(i)));
+		mesh->normals.push_back(glm::normalize(tmp_normals.at(normalIndices.at(i))));
 	}
+
+	return 0;
 }
 
 /*
@@ -166,17 +175,21 @@ static void generateAndLoadBuffers(bool generate, Mesh* mesh)
 * rotation is a vec3 containing the angle the object must be
 *	rotated (in degrees) for each axis (X, Y, Z)
 */
-Mesh loadMesh(std::string filename, bool verticesNormals)
+int loadMesh(std::string filename, bool verticesNormals, Mesh* mesh)
 {
-	Mesh mesh = {};
-	if (!loadObjFile(MESH_DIR + filename, &mesh, verticesNormals))
+	*mesh = {};
+	if (int res = loadObjFile(MESH_DIR + filename, mesh, verticesNormals) < 0)
 	{
-		std::getchar();
-		exit(EXIT_FAILURE);
-	}
-	generateAndLoadBuffers(true, &mesh);
+		if (res == -1)
+			std::cout << "File '" << MESH_DIR + filename << "' not found." << std::endl;
+		if (res == -2)
+			std::cout << "Error while loading file '" << MESH_DIR + filename << "'." << std::endl;
 
-	return mesh;
+		return -1;
+	}
+	generateAndLoadBuffers(true, mesh);
+
+	return 0;
 }
 
 
