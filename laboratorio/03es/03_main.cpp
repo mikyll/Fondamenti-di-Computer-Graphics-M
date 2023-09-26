@@ -140,8 +140,6 @@ void init()
 
 	initMaterials();
 	initShaders(light);
-
-	initGridAxis();
 	initObjects();
 }
 
@@ -185,6 +183,7 @@ void initObjects()
 	objects.clear();
 
 	initLightObject();
+	initGridAxis();
 
 	// FLAT Sphere (face normals)
 	if (loadMesh("sphere_n_t_flat.obj", FACE_NORMALS, &mesh) == 0)
@@ -238,7 +237,7 @@ void initObjects()
 	// Teapot model
 	if (loadMesh("teapot.obj", VERTEX_NORMALS, &mesh) == 0)
 	{
-		obj = createObject("Teapot", mesh, materials.at(RED_PLASTIC), shaders.at(TOON_V2), glm::vec3(5., 0., 7.), glm::vec3(), glm::vec3(0.5, 0.5, 0.5));
+		obj = createObject("Teapot", mesh, materials.at(RED_PLASTIC), shaders.at(TOON_V2), glm::vec3(5., 0., 7.), glm::vec3(0.0, 45.0f, 0.0), glm::vec3(0.5, 0.5, 0.5));
 		objects.push_back(obj);
 	}
 
