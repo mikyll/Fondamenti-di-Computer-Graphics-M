@@ -70,24 +70,6 @@
 *		select the Reference Coordinate System (WCS/OCS) and
 */
 
-
-/******************************************************************************************
-LAB 03
-Gestione interattiva di una scena 3D mediante controllo da mouse e da tastiera.
-I modelli geometrici in scena sono mesh poligonali in formato *.obj
-
-TRL+WHEEL = pan orizzontale della telecamera
-SHIFT+WHEEL = pan verticale della telecamera
-WHEEL = se navigazione  --> ZOOM IN/OUT
-		se modify       --> agisce sulla trasformazione dell'oggetto
-g r s	per le modalità di lavoro: traslate/rotate/scale
-x y z	per l'asse di lavoro
-wcs/ocs selezionabili dal menu pop-up
-
-OpenGL Mathematics (GLM) is a header only C++ mathematics library for graphics software
-based on the OpenGL Shading Language (GLSL) specifications.
-*******************************************************************************************/
-
 #include "commons.h"
 
 extern int windowWidth, windowHeight;

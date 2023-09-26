@@ -100,3 +100,16 @@ std::string getShaderName(ShadingType shadingType)
 
 	return result;
 }
+
+Object* getObject(std::string name)
+{
+	for (int i = 0; i < objects.size(); i++)
+	{
+		if (objects.at(i).name == name)
+		{
+			return &objects.at(i);
+		}
+	}
+
+	return NULL;
+}
