@@ -11,7 +11,7 @@ uniform mat4 P;
 uniform mat4 V;
 uniform mat4 M; // = position * rotation * scaling
 
-struct PointLight{
+struct PointLight {
 	vec3 position;
 	vec3 color;
 	float power;

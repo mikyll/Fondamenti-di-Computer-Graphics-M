@@ -28,6 +28,31 @@ struct Material {
 }; 
 uniform Material material;
 
+// Vectors
+// "Eye" vector (from camera to the vertex to be shaded). 
+// Helps determining how much of the surface is visible from 
+// the viewer's perspective.
+vec3 E;
+
+// "Normal" vector (surface normal at the vertex to be shaded). 
+// Used to determine how light interacts with the surface, 
+// and also needed to calculate the angle between the incoming 
+// light and the surface.
+vec3 N;
+
+// "Light" vector (direction from the surface point, to the light
+// source).
+// Helps determining how much light illuminates the surface, this
+// one too is needed to calculate the angle between the incoming 
+// light and the surface.
+vec3 L;
+
+// "Reflection" vector (direction of the perfect reflection of the
+// light vector L about the surface normal N).
+// Fundamental for determining the specular highlight on a surface,
+// contributes to the shiny appearance of materials.
+vec3 R;
+
 void main()
 {
     gl_Position = P * V * M * vec4(aPos, 1.0);
@@ -37,12 +62,12 @@ void main()
 	// Transform Light  position into eye (VCS) coordinates 
 	vec4 eyeLightPos = V * vec4(light.position, 1.0);
     // Transform vertex normal into VCS
-    vec3 N = normalize(transpose(inverse(mat3(V * M))) * aNormal);
+    N = normalize(transpose(inverse(mat3(V * M))) * aNormal);
 
 	// Compute vectors E,L,R in VCS
-	vec3 E = normalize(-eyePosition.xyz);
-	vec3 L = normalize((eyeLightPos - eyePosition).xyz);
-    vec3 R = reflect(-L, N);  
+	E = normalize(-eyePosition.xyz);
+	L = normalize((eyeLightPos - eyePosition).xyz);
+    R = reflect(-L, N);  
 
     // ambient
     vec3 ambient = light.power * material.ambient;

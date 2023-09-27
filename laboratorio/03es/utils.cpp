@@ -91,7 +91,8 @@ std::string getShaderName(ShadingType shadingType)
 		case PHONG: result = "Phong"; break;
 		case BLINN: result = "Blinn"; break;
 		case WAVE: result = "Wave"; break;
-		case WAVE_COLOR: result = "Wave Color"; break;
+		case WAVE_COLORS: result = "Wave Colors"; break;
+		case WAVE_OCEAN: result = "Wave Ocean"; break;
 		case WAVE_LIGHT: result = "Wave Light"; break;
 		case TOON: result = "Toon"; break;
 		case TOON_V2: result = "Toon v2"; break;

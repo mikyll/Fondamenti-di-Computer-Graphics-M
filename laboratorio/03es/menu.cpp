@@ -141,7 +141,7 @@ void buildOpenGLMenu()
 	// add Shading menu entries
 	for (int i = 0; i < NUM_SHADERS; i++)
 	{
-		glutAddMenuEntry(getShaderName(i).c_str(), i);
+		glutAddMenuEntry(shaders.at(i).name.c_str(), i);
 	}
 
 	menu = glutCreateMenu(NULL); // richiama main_menu_func() alla selezione di una voce menu

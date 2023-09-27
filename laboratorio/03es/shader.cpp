@@ -120,12 +120,12 @@ void initShaders(PointLight light)
 	shaders.insert({ WAVE, shader });
 
 	// TO-DO Extra: OK
-	// SHADER: Wave Color ----------------------------------------------------------------
+	// SHADER: Wave Colors ---------------------------------------------------------------
 	shader = {};
-	shader.name = "Wave Color";
-	shader.type = WAVE_COLOR;
+	shader.name = "Wave Colors";
+	shader.type = WAVE_COLORS;
 	// 1. Loading
-	shader.id = createProgram(SHADERS_DIR + "v_wave_color.glsl", SHADERS_DIR + "f_wave_color.glsl");
+	shader.id = createProgram(SHADERS_DIR + "v_wave_colors.glsl", SHADERS_DIR + "f_wave_colors.glsl");
 	// 2. Obtain pointers to uniform variables
 	shader.baseUniform.P_Matrix_pointer = glGetUniformLocation(shader.id, "P");
 	shader.baseUniform.V_Matrix_pointer = glGetUniformLocation(shader.id, "V");
@@ -135,7 +135,25 @@ void initShaders(PointLight light)
 	// 3. Activate the shader
 	glUseProgram(shader.id);
 	// 4. Add the shader to the map
-	shaders.insert({ WAVE_COLOR, shader });
+	shaders.insert({ WAVE_COLORS, shader });
+
+	// TO-DO Extra: OK
+	// SHADER: Wave Ocean ----------------------------------------------------------------
+	shader = {};
+	shader.name = "Wave Ocean";
+	shader.type = WAVE_OCEAN;
+	// 1. Loading
+	shader.id = createProgram(SHADERS_DIR + "v_wave_ocean.glsl", SHADERS_DIR + "f_wave_ocean.glsl");
+	// 2. Obtain pointers to uniform variables
+	shader.baseUniform.P_Matrix_pointer = glGetUniformLocation(shader.id, "P");
+	shader.baseUniform.V_Matrix_pointer = glGetUniformLocation(shader.id, "V");
+	shader.baseUniform.M_Matrix_pointer = glGetUniformLocation(shader.id, "M");
+	shader.baseUniform.time_delta_pointer = glGetUniformLocation(shader.id, "time");
+	shader.lightUniform = {};
+	// 3. Activate the shader
+	glUseProgram(shader.id);
+	// 4. Add the shader to the map
+	shaders.insert({ WAVE_OCEAN, shader });
 
 	// TO-DO Extra: OK
 	// SHADER: Wave Light ----------------------------------------------------------------
@@ -268,7 +286,14 @@ void updateUniforms(Object object, PointLight light)
 		glUniform1f(object.shader.baseUniform.time_delta_pointer, clock());
 		break;
 
-	case WAVE_COLOR:
+	case WAVE_COLORS:
+		// Caricamento matrice trasformazione del modello
+		glUniformMatrix4fv(object.shader.baseUniform.M_Matrix_pointer, 1, GL_FALSE, value_ptr(object.M));
+		// Time setting: clock() returns the amount of milliseconds from the application start
+		glUniform1f(object.shader.baseUniform.time_delta_pointer, clock());
+		break;
+
+	case WAVE_OCEAN:
 		// Caricamento matrice trasformazione del modello
 		glUniformMatrix4fv(object.shader.baseUniform.M_Matrix_pointer, 1, GL_FALSE, value_ptr(object.M));
 		// Time setting: clock() returns the amount of milliseconds from the application start
