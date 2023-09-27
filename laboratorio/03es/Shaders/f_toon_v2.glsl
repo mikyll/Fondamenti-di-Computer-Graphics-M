@@ -2,9 +2,6 @@
 // ================
 #version 450 core
 
-const vec3 red = vec3(1.0, 0.0, 0.0);
-const vec3 green = vec3(0.0, 1.0, 0.0);
-const vec3 blue = vec3(0.0, 0.0, 1.0);
 const float a = 0.8;
 const float b = 0.6;
 const float c = 0.5;
@@ -21,15 +18,6 @@ out vec4 fragColor;
 
 void main()
 {
-	/*if (Color.x > Color.y && Color.x > Color.z)
-	{
-		Color = red;
-	}
-	if (Color.y > Color.x && Color.y > Color.z)
-	{
-		Color = green;
-	}*/
-
 	vec4 color = vec4(Color, 1.0);
 	float intensity = dot(normalize(L),normalize(N));
 	

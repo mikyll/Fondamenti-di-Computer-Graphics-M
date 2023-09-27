@@ -41,6 +41,8 @@ void main()
 	{
 		color = e;
 	}
+	
+	// Add black border
 	float aa = dot(normalize(E), normalize(N));
 	
 	if(aa >= 0.0 && aa < 0.30)
