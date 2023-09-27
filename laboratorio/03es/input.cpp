@@ -190,10 +190,15 @@ static void mouseInput(int button, int state, int x, int y)
 	default:
 		break;
 	}
-	if (objects.at(selectedObj).name == "light")
+	if (app.operationMode == MODE_TRASLATING ||
+		app.operationMode == MODE_ROTATING ||
+		app.operationMode == MODE_SCALING)
 	{
-		light.position = getPosition(objects.at(selectedObj).M);
-		light.power = getScalingFactor(objects.at(selectedObj).M) * LIGHT_SCALE_FACTOR;
+		if (objects.at(selectedObj).name == "light")
+		{
+			light.position = getPosition(objects.at(selectedObj).M);
+			light.power = getScalingFactor(objects.at(selectedObj).M) * LIGHT_SCALE_FACTOR;
+		}
 	}
 }
 
