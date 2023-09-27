@@ -355,3 +355,4 @@ releases
 
 # .obj files
 !laboratorio/*/[Mm]esh/*.obj
+!laboratorio/*/[Oo]bject[s]/*.obj
