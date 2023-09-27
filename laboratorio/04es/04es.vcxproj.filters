@@ -30,7 +30,7 @@
     <ClCompile Include="glCanvas.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LAB_04_students.cpp">
+    <ClCompile Include="04_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="material.cpp">
@@ -43,6 +43,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="radiosity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="raytracer_es.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="raytracer_students.cpp">
@@ -75,9 +78,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="glCanvas.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="hit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="material.h">

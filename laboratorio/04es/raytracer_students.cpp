@@ -1,5 +1,5 @@
-#include "raytracer.h"
-#include "material.h"
+//#include "raytracer.h"
+/*#include "material.h"
 #include "vectors.h"
 #include "argparser.h"
 #include "raytree.h"
@@ -139,4 +139,4 @@ RayTracer::TraceRay (Ray & ray, Hit & hit, int bounce_count) const
   }
 
   return answer;
-}
+}*/
