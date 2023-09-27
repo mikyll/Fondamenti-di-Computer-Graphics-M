@@ -352,3 +352,6 @@ MigrationBackup/
 
 zip archives
 releases
+
+# .obj files
+!laboratorio/*/[Mm]esh/*.obj
