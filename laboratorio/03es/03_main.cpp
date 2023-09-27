@@ -223,8 +223,12 @@ void initObjects()
 		objects.push_back(obj);
 	}
 
-	// Test
-	//initBrokenMesh("horse.obj", "Horse", FACE_NORMALS, glm::vec3(-5., 2., -5), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5), materials.at(GOLD), shaders.at(PHONG));
+	// Broken loading of a mesh
+	/*if (loadBrokenMesh("horse.obj", FACE_NORMALS, &mesh) == 0)
+	{
+		obj = createObject("Broken Horse", mesh, materials.at(GOLD), shaders.at(PHONG), glm::vec3(3., 0., 5.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5));
+		objects.push_back(obj);
+	}*/
 }
 
 /*

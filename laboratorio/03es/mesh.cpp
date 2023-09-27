@@ -306,38 +306,20 @@ static int loadBrokenObjFile(std::string file_path, Mesh* mesh, bool vertices_no
 		mesh->normals.push_back(glm::normalize(tmp_normals[normalIndices[i]]));
 	}
 }
-/*void initBrokenMesh(
-	std::string filename,
-	std::string name,
-	bool verticesNormals,
-	glm::vec3 position,
-	glm::vec3 rotation,
-	glm::vec3 scale,
-	Material material,
-	ShadingType shader)
+
+int loadBrokenMesh(std::string filename, bool verticesNormals, Mesh* mesh)
 {
-	Mesh sphereS = {};
-	if (!loadBrokenObjFile(MESH_DIR + filename, &sphereS, verticesNormals))
+	*mesh = {};
+	if (int res = loadBrokenObjFile(MESH_DIR + filename, mesh, verticesNormals) < 0)
 	{
-		std::getchar();
-		exit(EXIT_FAILURE);
-	}
-	generateAndLoadBuffers(true, &sphereS);
+		if (res == -1)
+			std::cout << "File '" << MESH_DIR + filename << "' not found." << std::endl;
+		if (res == -2)
+			std::cout << "Error while loading file '" << MESH_DIR + filename << "'." << std::endl;
 
-	Object obj = {};
-	obj.mesh = sphereS;
-	obj.material = material;
-	obj.shader = shader;
-	obj.name = name;
-
-	// Transformations
-	obj.M = glm::translate(glm::mat4(1), position);
-	if (rotation != glm::vec3(0.0f, 0.0f, 0.0f))
-	{
-		obj.M = glm::rotate(obj.M, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
-		obj.M = glm::rotate(obj.M, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
-		obj.M = glm::rotate(obj.M, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
+		return -1;
 	}
-	obj.M = glm::scale(obj.M, scale);
-	objects.push_back(obj);
-}*/
+	generateAndLoadBuffers(true, mesh);
+
+	return 0;
+}
