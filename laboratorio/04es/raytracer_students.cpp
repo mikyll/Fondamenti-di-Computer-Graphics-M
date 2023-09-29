@@ -1,5 +1,5 @@
-//#include "raytracer.h"
-/*#include "material.h"
+/*#include "raytracer.h"
+#include "material.h"
 #include "vectors.h"
 #include "argparser.h"
 #include "raytree.h"

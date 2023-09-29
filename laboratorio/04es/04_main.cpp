@@ -1,5 +1,5 @@
 /*
-* Lab 03 - Scene Interactive Navigation with 3D Mesh Models
+* Lab 04 - Ray Tracing
 *
 * Solution by Michele Righi (0001025005)
 * GitHub: https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/tree/main/laboratorio/03es
