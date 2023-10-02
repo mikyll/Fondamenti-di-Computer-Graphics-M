@@ -132,7 +132,8 @@ Vec3f RayTracer::TraceRay(Ray& ray, Hit& hit, int bounce_count) const
 		Vec3f n_point, dista, pointOnLight;		
 		int num_lights = mesh->getLights().size();
 
-		// Iteriamo per ciascuna luce (contributo luminoso) in scena
+		// Dobbiamo considerare tutti i contributi luminosi, dunque 
+		// facciamo un ciclo per ciascuna luce in scena
 		for (int i = 0; i < num_lights; i++)
 		{
 			Face *f = mesh->getLights()[i];
@@ -151,38 +152,35 @@ Vec3f RayTracer::TraceRay(Ray& ray, Hit& hit, int bounce_count) const
 			{
 				// E' stato colpito qualcosa, allora voglio sapere se l'oggetto colpito è
 				// la sorgente luminosa (i-esima, nel ciclo for), oppure un altro oggetto.
-
-
+				// Per scoprirlo, controllo
 
 				n_point = shadow_ray->pointAtParameter(new_hit->getT());
 
-				// Calcola il vettore distanza fra il punto colpito dal raggio e il punto sulla luce
-				dista.Sub(dista, n_point, pointOnLight); // calcolo la distanza fra i due punti: punto colpito dallo shadow ray e il punto sul baricentro della luce (pointOnLight)
+				// Calcola il vettore distanza fra il punto colpito dallo shadow ray e il 
+				// punto sul baricentro della luce (pointOnLight)
+				dista.Sub(dista, n_point, pointOnLight);
 
-				// Se la norma del vettore è molto vicino a zero (non facciamo mai zero completo) signfica che dal punto colpito vedo la luce
+				// Se la norma del vettore è molto vicino a zero (non consideriamo mai 
+				// zero completo) signfica che dal punto colpito vedo la luce
 				if (dista.Length() < 0.01)
 				{
 					// Dal punto colpito si vede la luce (in linea diretta), dunque la fonte
 					// luminosa i-esima contribuisce all'illuminazione del punto considerato
 
-					// se vedo la luce significa che devo andare a calcolare (con Phong) la luce incidente e il contributo locale di quella luce su quel punto
+					// se vedo la luce significa che devo andare a calcolare (con Phong) la
+					// luce incidente e il contributo locale di quella luce su quel punto
 					if (normal.Dot3(dirToLight) > 0)
 					{
 						// Aggiungiamo il contributo della luce
 						Vec3f lightColor = 0.2 * f->getMaterial()->getEmittedColor() * f->getArea();
-						// NB: in answer ci avevamo già messo il contributo ambiente, ora aggiungiamo anche questo.
+						
+						// NB: in answer ci avevamo già messo il contributo ambiente, ora
+						// aggiungiamo anche questo.
 						answer += m->Shade(ray, hit, dirToLight, lightColor, args);
 					}
 				}
-
+				// else: la luce i-esima non contribuisce alla luminosità di point.
 			}
-
-	  
-
-			// se e' la sorgente luminosa i-esima allora
-			//	calcolare e aggiungere ad answer il contributo luminoso
-			// altrimenti
-			//    la luce i non contribuisce alla luminosita' di point.
 		}
 	}
 
