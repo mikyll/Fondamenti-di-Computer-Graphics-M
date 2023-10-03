@@ -1,0 +1,101 @@
+# m0
+material
+diffuse 0.8 0.8 0.8
+reflective 0 0 0
+emitted 1.27 1.27 1.27
+glossiness 0
+
+# m1
+material
+diffuse 0.84 0.84 0.84
+reflective 0 0 0
+emitted 0 0 0
+glossiness 0
+
+# m2
+material 
+diffuse 0.54 0.54 0.54
+reflective 0 0 0
+emitted 0 0 0
+glossiness 0
+
+# m3
+material 
+diffuse 1 0 0 
+reflective 0 0 0
+emitted 0 0 0
+glossiness 0
+
+# m4
+material 
+diffuse 0 0 1
+reflective 0 0 0
+emitted 0 0 0
+glossiness 0
+
+# m5
+material
+diffuse 0.2 0.2 0.2
+reflective 0.8 0.8 0.8
+emitted 0 0 0
+glossiness 0
+
+# m6
+material
+diffuse 0.2 0.2 0.2
+reflective 0.8 0.8 0.8
+emitted 0 0 0
+glossiness 0.5
+
+# m7
+material
+diffuse 0.2 0.2 0.2
+reflective 0.8 0.8 0.8
+emitted 0 0 0
+glossiness 1
+
+# m8
+material 
+diffuse 0 1 0
+reflective 0 0 0
+emitted 0 0 0
+glossiness 0
+
+v -1 -1 -1	# 1
+v 1 -1 -1	# 2
+v -1 1 -1	# 3
+v 1 1 -1	# 4
+v -1 -1 1	# 5
+v 1 -1 1	# 6
+v -1 1 1	# 7
+v 1 1 1		# 8
+
+# Cornell Box
+m 1
+f 5 7 8 6
+m 3
+f 1 2 4 3
+m 4
+f 3 4 8 7
+m 8
+f 1 5 6 2
+m 0
+f 1 3 7 5
+m 0
+f 2 6 8 4
+
+# Spheres
+m 5
+s -0.5 -0.7 0.5 0.3
+
+m 6
+s 0.0 -0.2 -0.2 0.3
+
+m 7
+s 0.5 0.5 0.0 0.3
+
+#m 7
+#s 0.5 -0.7 -0.5 0.3
+
+
+

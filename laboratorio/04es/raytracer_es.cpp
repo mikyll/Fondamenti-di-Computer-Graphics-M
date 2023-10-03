@@ -69,7 +69,6 @@ bool RayTracer::CastRay (Ray& ray, Hit& h, bool use_sphere_patches) const
 // questo metodo calcola i contributi locali che incidono sul punto
 Vec3f RayTracer::TraceRay(Ray& ray, Hit& hit, int bounce_count) const
 {
-
 	hit = Hit();
 	bool intersect = CastRay(ray, hit, false);
 
@@ -103,20 +102,24 @@ Vec3f RayTracer::TraceRay(Ray& ray, Hit& hit, int bounce_count) const
 		// ASSIGNMENT:  ADD REFLECTIVE LOGIC
 		// ==========================================
 	
-		// se (il punto sulla superficie e' riflettente & bounce_count > 0)
-		// NB: per questo basta che controllo se la Length del vettore è != 0 (ovvero non ha tutte le componenti nulle) e che non sia arrivato all'ultimo bounce (ultimo step della ricorsione)
+		// Se (il punto sulla superficie e' riflettente e non siamo arrivati all'ultimo
+		// bounce (ultimo step della ricorsione)
+		// NB: per questo basta che controllo se la Length del vettore reflective 
+		// dell'oggetto colpito è != 0 (ovvero il suo materiale non ha tutte le componenti 
+		// del vettore reflective nulle) e che il numero di bounce ancora da effettuare 
+		// sia > 0.
 		if (reflectiveColor.Length() != 0 && bounce_count > 0)
 		{
 			Vec3f VRay = ray.getDirection();
 		
-			//     calcolare ReflectionRay  R=2<n,l>n -l
-			// NB: ReflectionRay è rv a slide 28
+			// Calcolare reflectionRay: R = 2<n,l>n -l
+			// NB: ReflectionRay è rv a slide 28 (pdf PBR - Ray Tracing)
 			Vec3f reflectionRay = VRay - (2 * VRay.Dot3(normal) * normal);
 			reflectionRay.Normalize();
 			Ray* new_ray = new Ray(point, reflectionRay);
 
-			//	   invocare TraceRay(ReflectionRay, hit, bounce_count-1)
-			//     aggiungere ad answer il contributo riflesso
+			// Invocare TraceRay(ReflectionRay, hit, bounce_count-1)
+			// aggiungere ad answer il contributo riflesso
 			answer += TraceRay(*new_ray, hit, bounce_count - 1) * reflectiveColor;
 		}
 	
@@ -126,60 +129,106 @@ Vec3f RayTracer::TraceRay(Ray& ray, Hit& hit, int bounce_count) const
 		// ==========================================
 		// ASSIGNMENT:  ADD SHADOW LOGIC
 		// ==========================================
+		int num_lights = mesh->getLights().size();
+		Ray* shadow_ray;
 		Hit* new_hit;
 		bool colpito;
-		Ray* shadow_ray;
 		Vec3f n_point, dista, pointOnLight;		
-		int num_lights = mesh->getLights().size();
 
-		// Dobbiamo considerare tutti i contributi luminosi, dunque 
-		// facciamo un ciclo per ciascuna luce in scena
-		for (int i = 0; i < num_lights; i++)
+		// Hard shadows
+		if (!args->softShadow)
 		{
-			Face *f = mesh->getLights()[i];
-			pointOnLight = f->computeCentroid();
-			Vec3f dirToLight = pointOnLight - point;
-			dirToLight.Normalize();
-
-			// Creiamo uno shadow ray verso il punto luce
-			shadow_ray = new Ray(point, dirToLight);
-
-			// Casto il raggio e controllo il primo oggetto colpito (se esiste) da questo
-			new_hit = new Hit();
-			colpito = CastRay(*shadow_ray, *new_hit, false);
-			// Controllo se il raggio ha colpito qualcosa (che viene salvato in new_hit)
-			if (colpito)
+			// Dobbiamo considerare tutti i contributi luminosi, dunque 
+			// facciamo un ciclo per ciascuna luce in scena
+			for (int i = 0; i < num_lights; i++)
 			{
-				// E' stato colpito qualcosa, allora voglio sapere se l'oggetto colpito è
-				// la sorgente luminosa (i-esima, nel ciclo for), oppure un altro oggetto.
-				// Per scoprirlo, controllo
+				Face* f = mesh->getLights()[i];
+				// Trattiamo la luce come puntiforme, anche se è un'area
+				pointOnLight = f->computeCentroid();
+				Vec3f dirToLight = pointOnLight - point;
+				dirToLight.Normalize();
 
-				n_point = shadow_ray->pointAtParameter(new_hit->getT());
+				// Creiamo uno shadow ray verso il punto luce
+				shadow_ray = new Ray(point, dirToLight);
 
-				// Calcola il vettore distanza fra il punto colpito dallo shadow ray e il 
-				// punto sul baricentro della luce (pointOnLight)
-				dista.Sub(dista, n_point, pointOnLight);
-
-				// Se la norma del vettore è molto vicino a zero (non consideriamo mai 
-				// zero completo) signfica che dal punto colpito vedo la luce
-				if (dista.Length() < 0.01)
+				// Casto il raggio e controllo il primo oggetto colpito (se esiste) da questo
+				new_hit = new Hit();
+				colpito = CastRay(*shadow_ray, *new_hit, false);
+				// Controllo se il raggio ha colpito qualcosa (che viene salvato in new_hit)
+				if (colpito)
 				{
-					// Dal punto colpito si vede la luce (in linea diretta), dunque la fonte
-					// luminosa i-esima contribuisce all'illuminazione del punto considerato
+					// E' stato colpito qualcosa, allora voglio sapere se l'oggetto colpito è
+					// la sorgente luminosa (i-esima, nel ciclo for), oppure un altro oggetto.
+					// Per scoprirlo, controllo
 
-					// se vedo la luce significa che devo andare a calcolare (con Phong) la
-					// luce incidente e il contributo locale di quella luce su quel punto
-					if (normal.Dot3(dirToLight) > 0)
+					n_point = shadow_ray->pointAtParameter(new_hit->getT());
+
+					// Calcola il vettore distanza fra il punto colpito dallo shadow ray e il 
+					// punto sul baricentro della luce (pointOnLight)
+					dista.Sub(dista, n_point, pointOnLight);
+
+					// Se la norma del vettore è molto vicino a zero (non consideriamo mai 
+					// zero completo) signfica che dal punto colpito vedo la luce
+					if (dista.Length() < 0.01)
 					{
-						// Aggiungiamo il contributo della luce
-						Vec3f lightColor = 0.2 * f->getMaterial()->getEmittedColor() * f->getArea();
-						
-						// NB: in answer ci avevamo già messo il contributo ambiente, ora
-						// aggiungiamo anche questo.
-						answer += m->Shade(ray, hit, dirToLight, lightColor, args);
+						// Dal punto colpito si vede la luce (in linea diretta), dunque la fonte
+						// luminosa i-esima contribuisce all'illuminazione del punto considerato
+
+						// se vedo la luce significa che devo andare a calcolare (con Phong) la
+						// luce incidente e il contributo locale di quella luce su quel punto
+						if (normal.Dot3(dirToLight) > 0)
+						{
+							// Aggiungiamo il contributo della luce
+							Vec3f lightColor = 0.2 * f->getMaterial()->getEmittedColor() * f->getArea();
+
+							// NB: in answer ci avevamo già messo il contributo ambiente, ora
+							// aggiungiamo anche questo.
+							answer += m->Shade(ray, hit, dirToLight, lightColor, args);
+						}
+					}
+					// else: la luce i-esima non contribuisce alla luminosità di point.
+				}
+			}
+		}
+		// Soft shadows
+		else
+		{
+			int num_points = 100;
+
+			for (int i = 0; i < num_lights; i++)
+			{
+				Face* f = mesh->getLights()[i];
+
+				std::vector<Vec3f> pointsOnLigh;
+				std::vector<Vec3f> directionsToLight;
+
+				// Random points on area light
+				for (int j = 0; j < num_points; j++)
+				{
+					pointsOnLigh.push_back(f->RandomPoint());
+					Vec3f dirToLight = pointsOnLigh.at(j) - point;
+					dirToLight.Normalize();
+					directionsToLight.push_back(dirToLight);
+				}
+
+				for (int j = 0; j < pointsOnLigh.size(); j++) 
+				{
+					shadow_ray = new Ray(point, directionsToLight.at(j));
+					new_hit = new Hit();
+					colpito = CastRay(*shadow_ray, *new_hit, false);
+
+					if (colpito)
+					{
+						n_point = shadow_ray->pointAtParameter(new_hit->getT());
+						dista.Sub(dista, n_point, pointsOnLigh.at(j));
+
+						if (dista.Length() < 0.01 && normal.Dot3(directionsToLight.at(j)) > 0)
+						{
+							Vec3f lightColor = 0.2 / num_points * f->getMaterial()->getEmittedColor() * f->getArea();
+							answer += m->Shade(ray, hit, directionsToLight.at(j), lightColor, args);
+						}
 					}
 				}
-				// else: la luce i-esima non contribuisce alla luminosità di point.
 			}
 		}
 	}
