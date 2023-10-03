@@ -96,7 +96,7 @@ extern std::string getCoordinateSystemName(ReferenceSystem coordinateSystem);
 extern std::string getOperationModeName(OperationMode operationMode);
 extern std::string getWorkingAxisName(WorkingAxis workingAxis);
 
-
+void printControls();
 void init();
 void initApplication();
 void initGridAxis();
@@ -108,6 +108,33 @@ void refresh_monitor(int millis);
 void drawObject(Object object);
 void printSceneInfo();
 
+void printControls()
+{
+	std::cout << "Controls:" << std::endl;
+	std::cout << "- Scene setup:" << std::endl;
+	std::cout << "  - 'F1' reset the scene to defaults;" << std::endl;
+	std::cout << "  - 'F2', 'F3', 'F4', 'F5' moves the light in different points;" << std::endl << std::endl;
+	std::cout << "- Navigation:" << std::endl;
+	std::cout << "  - Mouse drag & drop: trackball that moves the camera;" << std::endl;
+	std::cout << "  - 'CTRL' + Mouse wheel: horizontal camera pan;" << std::endl;
+	std::cout << "  - 'SHIFT' + Mouse wheel: vertical camera pan;" << std::endl;
+	std::cout << "- Transform Operations:" << std::endl;
+	std::cout << "  When in modify mode, the user can scroll the " << std::endl;
+	std::cout << "  Mouse wheel to perform transform operations." << std::endl;
+	std::cout << "  To select the transformation:" << std::endl;
+	std::cout << "  - 'g' set the operation mode to \"Translation\";" << std::endl;
+	std::cout << "  - 'r' set the operation mode to \"Rotation\";" << std::endl;
+	std::cout << "  - 's' set the operation mode to \"Scaling\";" << std::endl;
+	std::cout << "  To select the transform axis:" << std::endl;
+	std::cout << "  - 'x' set the X-axis;" << std::endl;
+	std::cout << "  - 'y' set the Y-axis;" << std::endl;
+	std::cout << "  - 'z' set the Z-axis;" << std::endl << std::endl;
+	std::cout << "- Select scene objects:" << std::endl;
+	std::cout << "  - Left/Right arrow to scroll through scene objects." << std::endl;
+	std::cout << "- Scene Menu:" << std::endl;
+	std::cout << "  - Left Mouse click opens a context menu, that allows the user" << std::endl;
+	std::cout << "    to custom the settings and select shaders / materials." << std::endl << std::endl;
+}
 
 void init()
 {
@@ -407,6 +434,8 @@ void printSceneInfo()
 
 int main(int argc, char** argv)
 {
+	printControls();
+
 	GLboolean GlewInitResult;
 	glutInit(&argc, argv);
 	glutSetOption(GLUT_MULTISAMPLE, 4);

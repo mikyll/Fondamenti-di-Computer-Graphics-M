@@ -17,8 +17,8 @@
 const bool VERTEX_NORMALS = true;
 const bool FACE_NORMALS = false;
 
-const std::string MESH_DIR = "Mesh/";
-const std::string SHADERS_DIR = "Shaders/";
+const std::string MESH_DIR = "resources/Mesh/";
+const std::string SHADERS_DIR = "resources/Shaders/";
 
 const glm::vec3 DEFAULT_LIGHT_COLOR = { 1.0f, 1.0f, 1.0f };
 
