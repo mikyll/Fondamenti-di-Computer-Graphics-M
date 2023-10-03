@@ -124,8 +124,8 @@ static void initShader()
 {
 	GLenum ErrorCheckValue = glGetError();
 
-	char* vertexShader = (char*)"vertexShader.glsl";
-	char* fragmentShader = (char*)"fragmentShader.glsl";
+	char* vertexShader = (char*)"resources/shaders/vertexShader.glsl";
+	char* fragmentShader = (char*)"resources/shaders/fragmentShader.glsl";
 
 	programId = ShaderMaker::createProgram(vertexShader, fragmentShader);
 	glUseProgram(programId);
