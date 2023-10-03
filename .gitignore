@@ -356,3 +356,4 @@ releases
 # .obj files
 !laboratorio/*/[Mm]esh/*.obj
 !laboratorio/*/[Oo]bject[s]/*.obj
+!laboratorio/*/resources/[Oo]bject[s]/*.obj
