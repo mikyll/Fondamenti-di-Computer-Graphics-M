@@ -55,19 +55,6 @@ reflective 0 0 0
 emitted 0 0 0
 glossiness 0
 
-# Black chess box (m 9)
-material
-diffuse 0 0 0
-reflective 0.3 0.3 0.3
-emitted 0 0 0
-glossiness 0
-# White chess box (m 10)
-material
-diffuse 1 1 1
-reflective 0.8 0.8 0.8
-emitted 0 0 0
-glossiness 0
-
 v -1 -1 -1	# 1
 v 1 -1 -1	# 2
 v -1 1 -1	# 3
