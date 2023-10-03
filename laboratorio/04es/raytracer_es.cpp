@@ -211,7 +211,7 @@ Vec3f RayTracer::TraceRay(Ray& ray, Hit& hit, int bounce_count) const
 					directionsToLight.push_back(dirToLight);
 				}
 
-				for (int j = 0; j < pointsOnLigh.size(); j++) 
+				for (int j = 0; j < num_points; j++)
 				{
 					shadow_ray = new Ray(point, directionsToLight.at(j));
 					new_hit = new Hit();
