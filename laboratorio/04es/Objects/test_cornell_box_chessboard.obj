@@ -1,0 +1,157 @@
+material
+diffuse 0.8 0.8 0.8
+reflective 0.8 0.8 0.8
+emitted 1.27 1.27 1.27
+glossiness 0
+
+material
+diffuse 0.84 0.84 0.84
+reflective 0 0 0
+emitted 0 0 0
+glossiness 0
+
+material 
+diffuse 0.54 0.54 0.54
+reflective 0 0 0
+emitted 0 0 0
+glossiness 0
+
+material 
+diffuse 0 1 0 
+reflective 0 0 0
+emitted 0 0 0
+glossiness 0
+
+material 
+diffuse 0 0 1
+reflective 0 0 0
+emitted 0 0 0
+glossiness 0
+
+material
+diffuse 0.2 0.2 0.2
+reflective 0.8 0.8 0.8
+emitted 0 0 0
+glossiness 0.5
+
+# Yellow
+material
+diffuse 1 1 0
+reflective 0 0 0
+emitted 0 0 0
+glossiness 0
+
+# Cyan
+material
+diffuse 0 1 1
+reflective 0 0 0
+emitted 0 0 0
+glossiness 0
+
+# Magenta
+material
+diffuse 1 0 1
+reflective 0 0 0
+emitted 0 0 0
+glossiness 0
+
+# Black chess box (m 9)
+material
+diffuse 0 0 0
+reflective 0.3 0.3 0.3
+emitted 0 0 0
+glossiness 0
+# White chess box (m 10)
+material
+diffuse 1 1 1
+reflective 0.8 0.8 0.8
+emitted 0 0 0
+glossiness 0
+
+v -1 -1 -1	# 1
+v 1 -1 -1	# 2
+v -1 1 -1	# 3
+v 1 1 -1	# 4
+v -1 -1 1	# 5
+v 1 -1 1	# 6
+v -1 1 1	# 7
+v 1 1 1		# 8
+
+# ---------------------
+v -1 -1 -1		# 9
+v -0.5 -1 -1	# 10
+v 0 -1 -1 		# 11
+v 0.5 -1 -1 	# 12
+v 1 -1 -1		# 13
+
+v -1 -0.5 -1	# 14
+v -0.5 -0.5 -1	# 15
+v 0 -0.5 -1 	# 16
+v 0.5 -0.5 -1 	# 17
+v 1 -0.5 -1		# 18
+
+v -1 0 -1		# 19
+v -0.5 0 -1		# 20
+v 0 0 -1 		# 21
+v 0.5 0 -1 		# 22
+v 1 0 -1		# 23
+
+v -1 0.5 -1		# 24
+v -0.5 0.5 -1	# 25
+v 0 0.5 -1 		# 26
+v 0.5 0.5 -1 	# 27
+v 1 0.5 -1		# 28
+
+v -1 1 -1		# 29
+v -0.5 1 -1		# 30
+v 0 1 -1 		# 31
+v 0.5 1 -1 		# 32
+v 1 1 -1		# 33
+
+m 0
+f 5 7 8 6
+m 1
+f 3 4 8 7
+m 2
+f 1 5 6 2
+m 3
+f 1 3 7 5
+m 4
+f 2 6 8 4
+
+# Chessboard
+m 9
+f 9 10 15 14
+f 11 12 17 16
+f 15 16 21 20
+f 17 18 23 22
+f 19 20 25 24
+f 21 22 27 26
+f 25 26 31 30
+f 27 28 33 32
+m 10
+f 10 11 16 15
+f 12 13 18 17
+f 14 15 20 19
+f 16 17 22 21
+f 20 21 26 25
+f 22 23 28 27
+f 24 25 30 29
+f 26 27 32 31
+
+m 5
+s 0 -1 0 0.5
+
+m 6
+s -0.5 0.7 -0.3 0.2
+m 7
+s 0.6 0.8 -0.5 0.1
+m 8
+s 0.8 0.5 0.5 0.15
+
+
+#m 7
+#s 0.5 -0.7 -0.5 0.3
+
+
+
