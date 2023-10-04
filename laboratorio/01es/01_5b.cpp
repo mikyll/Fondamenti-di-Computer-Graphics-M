@@ -73,7 +73,7 @@ static void adaptiveSubdivision(Point2D* tmpPtsArray, int numPts)
 	Point2D p1 = tmpPtsArray[0];
 	Point2D pN = tmpPtsArray[numPts - 1];
 
-	// Flat Test: if each point between p1 and pN is <= planary tollerance => we consider the segment (p1,pN) flat
+	// Flat Test: if each point between p1 and pN is <= planary tollerance, then we consider the segment (p1,pN) flat
 	for (int i = 1; i < numPts - 1; i++)
 	{
 		// Flat Test: Calculate distance tmpPtsArray[i] from line

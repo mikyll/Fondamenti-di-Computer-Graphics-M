@@ -114,7 +114,7 @@ int iHoverCtrlPt = -1;
 // Used to detect while the user is dragging the mouse
 int dragging = 0;
 
-// Function pointer for getting the curve
+// Function pointer to calculate the curve
 static void (*getCurve)(Point2D* ctrlPts, int numCtrl, Point2D* curvePts, int* numCurve);
 
 int drawMode = DRAW_EVERYTHING;
@@ -476,33 +476,6 @@ static void inputMouseDrag(int x, int y)
 		ctrlPointArray[iHoverCtrlPt].y = MIN(1.0, MAX(-1.0, yPos));
 	}
 }
-
-// test
-/*void test()
-{
-	Point2D arr1[3] = { {-0.596,0.332}, {-0.088,0.556}, {0.324, 0.34} };
-	Point2D arr2[3] = { {-0.2,-0.2}, {-0.3,-0.3}, {-0.4,-0.4} };
-
-	glBindVertexArray(VAO_CurvePoints);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_CurvePoints);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(arr1), &arr1[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	// Draw the segments that form the line
-	glLineWidth(0.5);
-	glDrawArrays(GL_LINE_STRIP, 0, 2);
-	glBindVertexArray(0);
-
-	glBindVertexArray(VAO_CurvePoints);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_CurvePoints);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(arr2), &arr2[0], GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	// Draw the segments that form the line
-	glLineWidth(0.5);
-	glDrawArrays(GL_LINE_STRIP, 0, 3);
-	glBindVertexArray(0);
-}*/
 
 // UPDATE =================================================
 static void update(int value)
