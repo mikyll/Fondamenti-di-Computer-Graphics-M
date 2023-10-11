@@ -66,12 +66,15 @@ https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/assets/56556806/7e17
 
 <a href="./reports/lab05 Michele Righi.pdf">Report</a>
 ·
-<a href="./laboratorio/05es/">Codice</a>
-·
 <a href="">Download</a>
 <br/>
 <br/>
 
 ### Lab06 - 
+<img width="80%" src="./blender/06es/resources/results/lab06_result.png">
+
+<a href="./reports/lab06 Michele Righi.pdf">Report</a>
+·
+<a href="">Download</a>
 <br/>
 <br/>
