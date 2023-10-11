@@ -125,7 +125,7 @@ static vector<int> movables; // Objects that the user can move an focus on
 static vector<int> transparents; // Objects to be drawn later for blending reasons
 static vector<Object> objects; // All 3D stuff
 static vector<Material> materials;
-static int selectedObj = 0;
+static int selected_obj = 0;
 
 struct {
 	// Variables controlling the torus mesh resolution
@@ -609,7 +609,7 @@ void initShader()
 
 	//REFLECTION Shader loading
 	// TODO REFLECTION
-	
+
 	//REFRACTION Shader loading
 	// TODO REFRACTION
 
@@ -636,20 +636,12 @@ void initShader()
 
 	// Cube Texture
 	string skybox_textures[6] = {
-	/*
 	TextureDir + "cape_cubemap/" + "px.png",//GL_TEXTURE_CUBE_MAP_POSITIVE_X 	Right
 	TextureDir + "cape_cubemap/" + "nx.png",//GL_TEXTURE_CUBE_MAP_NEGATIVE_X 	Left
 	TextureDir + "cape_cubemap/" + "py.png",//GL_TEXTURE_CUBE_MAP_POSITIVE_Y 	Top
 	TextureDir + "cape_cubemap/" + "ny.png",//GL_TEXTURE_CUBE_MAP_NEGATIVE_Y 	Bottom
 	TextureDir + "cape_cubemap/" + "pz.png",//GL_TEXTURE_CUBE_MAP_POSITIVE_Z 	Back
 	TextureDir + "cape_cubemap/" + "nz.png" //GL_TEXTURE_CUBE_MAP_NEGATIVE_Z 	Front
-	*/
-	TextureDir + "yokohama3/" + "posx.jpg",//GL_TEXTURE_CUBE_MAP_POSITIVE_X 	Right
-	TextureDir + "yokohama3/" + "negx.jpg",//GL_TEXTURE_CUBE_MAP_NEGATIVE_X 	Left
-	TextureDir + "yokohama3/" + "posy.jpg",//GL_TEXTURE_CUBE_MAP_POSITIVE_Y 	Top
-	TextureDir + "yokohama3/" + "negy.jpg",//GL_TEXTURE_CUBE_MAP_NEGATIVE_Y 	Bottom
-	TextureDir + "yokohama3/" + "posz.jpg",//GL_TEXTURE_CUBE_MAP_POSITIVE_Z 	Back
-	TextureDir + "yokohama3/" + "negz.jpg" //GL_TEXTURE_CUBE_MAP_NEGATIVE_Z 	Front
 	};
 	//string skybox_textures[6] = {
 	//TextureDir + "cape_cubemap/" + "posx3.bmp",//GL_TEXTURE_CUBE_MAP_POSITIVE_X 	Right
@@ -669,34 +661,34 @@ void initShader()
 	init_skybox();
 
 	//PLANE with a procedural texture but no material, uses a texture-only shader
-	//init_textured_plane();
+	init_textured_plane();
 
 	// a cool rock  with normal mapping
-	//init_rock();
+	init_rock();
 
 	//Brick wall with normal mapping
-	//init_brick_column();
+	init_brick_column();
 
 	//Full reflective sphere
-	//init_reflective_sphere();
+	init_reflective_sphere();
 
 	//Full refractive sphere
-	//init_refractive_obj();
+	init_refractive_obj();
 
 	//Reference point of the position of the light
-	//init_light_object();
+	init_light_object();
 
 	// White Axis
-	//init_axis();
+	init_axis();
 
 	// White Grid for reference
 	init_grid();
 
 	// white window
-	//init_windows();
+	init_windows();
 
 	//The torus
-	//init_torus();
+	init_torus();
 
 
 }
@@ -998,12 +990,12 @@ void special(int key, int x, int y)
 	switch (key)
 	{
 	case GLUT_KEY_LEFT:
-		selectedObj = selectedObj > 0 ? selectedObj - 1 : movables.size() - 1;
-		ViewSetup.target = objects[movables[selectedObj]].M * glm::vec4(0.f, 0.f, 0.f, 1.f);
+		selected_obj = selected_obj > 0 ? selected_obj - 1 : movables.size() - 1;
+		ViewSetup.target = objects[movables[selected_obj]].M * glm::vec4(0.f, 0.f, 0.f, 1.f);
 		break;
 	case GLUT_KEY_RIGHT:
-		selectedObj = (selectedObj + 1) < movables.size() ? selectedObj + 1 : 0;
-		ViewSetup.target = objects[movables[selectedObj]].M * glm::vec4(0.f, 0.f, 0.f, 1.f);
+		selected_obj = (selected_obj + 1) < movables.size() ? selected_obj + 1 : 0;
+		ViewSetup.target = objects[movables[selected_obj]].M * glm::vec4(0.f, 0.f, 0.f, 1.f);
 		break;
 	default:
 		break;
@@ -1034,7 +1026,7 @@ void main_menu_func(int option)
 
 void material_menu_function(int option)
 {
-	objects[movables[selectedObj]].material = (MaterialType)option;
+	objects[movables[selected_obj]].material = (MaterialType)option;
 }
 
 void buildOpenGLMenu()
@@ -1138,7 +1130,7 @@ void computeTorusVertex(int i, int j, Mesh* mesh) {
 	mesh->vertices.push_back(glm::vec3(x, y, z));
 	mesh->normals.push_back(glm::vec3(sintheta * cosphi, sinphi, costheta * cosphi));
 	mesh->texCoords.push_back(glm::vec2(theta / pig, phi / pig));
-	}
+}
 
 void compute_Torus(Mesh* mesh)
 {
@@ -1441,10 +1433,10 @@ void printToScreen()
 {
 	string axis = "Axis: ";
 	string mode = "Navigate/Modify: ";
-	string obj = "Object: " + objects[movables[selectedObj]].name;
+	string obj = "Object: " + objects[movables[selected_obj]].name;
 	string ref = "WCS/OCS: ";
 	string shader = "Shader: ";
-	switch (objects[movables[selectedObj]].shading) {
+	switch (objects[movables[selected_obj]].shading) {
 	case ShadingType::NORMAL_MAPPING:shader += "NORMAL_MAPPING";
 		break;
 	case ShadingType::TEXTURE_PHONG:shader += "TEXTURE_PHONG";
