@@ -81,7 +81,7 @@ TO-DO
 <br/>
 <br/>
 
-### Lab07 - Shaders in OpenGL: Texture Mapping, Normal Mapping, Environmental e Refraction 
+### Lab07 - Shading: Texture, Normal, Environmental e Refraction Mapping in OpenGL 
 <img width="80%" src="./laboratorio/07es/resources/">
 
 TO-DO
