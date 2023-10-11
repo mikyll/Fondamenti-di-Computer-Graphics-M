@@ -70,10 +70,23 @@ https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/assets/56556806/7e17
 <br/>
 <br/>
 
-### Lab06 - 
+### Lab06 - Digital Art in Blender
 <img width="80%" src="./blender/06es/resources/results/lab06_result.png">
 
+TO-DO
+
 <a href="./reports/lab06 Michele Righi.pdf">Report</a>
+·
+<a href="">Download</a>
+<br/>
+<br/>
+
+### Lab07 - Shaders in OpenGL: Texture Mapping, Normal Mapping, Environmental e Refraction 
+<img width="80%" src="./laboratorio/07es/resources/">
+
+TO-DO
+
+<a href="./reports/lab07 Michele Righi.pdf">Report</a>
 ·
 <a href="">Download</a>
 <br/>
