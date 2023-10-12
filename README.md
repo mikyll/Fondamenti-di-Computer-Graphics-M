@@ -63,6 +63,7 @@ https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/assets/56556806/7e17
 
 ### Lab05 - Modellazione in Blender
 <img width="80%" src="./blender/05es/resources/results/lab05_result7.png">
+<img width="60%" src="./blender/05es/resources/results/lab05_result4.png">
 
 <a href="./reports/lab05 Michele Righi.pdf">Report</a>
 ·
