@@ -13,7 +13,7 @@ Per il setup dei progetti vedere [setup.md](./setup.md).
 ·
 <a href="./laboratorio/00es/">Codice</a>
 ·
-<a href="">Download</a>
+<a href="https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/releases/download/v1.0/lab00_Windows_x64.zip">Download</a>
 <br/>
 <br/>
 
@@ -24,7 +24,7 @@ Per il setup dei progetti vedere [setup.md](./setup.md).
 ·
 <a href="./laboratorio/01es/">Codice</a>
 ·
-<a href="">Download</a>
+<a href="https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/releases/download/v1.0/lab01_Windows_x64.zip">Download</a>
 <br/>
 <br/>
 
@@ -35,7 +35,7 @@ https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/assets/56556806/7e17
 ·
 <a href="./laboratorio/02es/">Codice</a>
 ·
-<a href="">Download</a>
+<a href="https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/releases/download/v1.0/lab02_Windows_x64.zip">Download</a>
 <br/>
 <br/>
 
@@ -46,7 +46,7 @@ https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/assets/56556806/7e17
 ·
 <a href="./laboratorio/03es/">Codice</a>
 ·
-<a href="">Download</a>
+<a href="https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/releases/download/v1.0/lab03_Windows_x64.zip">Download</a>
 <br/>
 <br/>
 
@@ -57,7 +57,7 @@ https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/assets/56556806/7e17
 ·
 <a href="./laboratorio/04es/">Codice</a>
 ·
-<a href="">Download</a>
+<a href="https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/releases/download/v1.0/lab04_Windows_x64.zip">Download</a>
 <br/>
 <br/>
 
@@ -67,7 +67,7 @@ https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/assets/56556806/7e17
 
 <a href="./reports/lab05 Michele Righi.pdf">Report</a>
 ·
-<a href="">Download</a>
+<a href="https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/releases/download/v1.0/lab05.blend">Download</a>
 <br/>
 <br/>
 
