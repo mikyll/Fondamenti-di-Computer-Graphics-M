@@ -1,5 +1,28 @@
-# Fondamenti-di-Computer-Graphics-M
-Repository per il corso di [Fondamenti di Computer Graphics M](https://www.unibo.it/it/didattica/insegnamenti/insegnamento/2022/468044).
+<div align="center">
+
+  [![MIT License][license-shield]][license-url]
+  [![Size][size-shield]][size-url]
+  [![Issues][issues-shield]][issues-url]
+  [![Downloads][downloads-shield]][downloads-url]
+  [![Stars][stars-shield]][stars-url]\
+  [![C][c-shield]][c-url]
+  [![C++][cpp-shield]][cpp-url]
+  [![VS][vs-shield]][vs-url]
+  [![Blender][blender-shield]][blender-url]
+
+
+  # Fondamenti-di-Computer-Graphics-M
+  Repository per le mie soluzioni di laboratorio per il corso di [Fondamenti di Computer Graphics M](https://www.unibo.it/it/didattica/insegnamenti/insegnamento/2022/468044).
+
+  [Tracce](./commons/2020-Scrum-Guide-US.pdf)
+  ·
+  [VS Solution](https://htmlpreview.github.io/?https://raw.githubusercontent.com/iss2022-BCR/WasteService/main/Sprint0/index.html)
+  ·
+  [Reports](./commons/presentation/WasteServiceBCR.pdf)
+  ·
+  [Download](./README.it.md)
+    
+</div>
 
 ## Setup
 Per il setup dei progetti vedere [setup.md](./setup.md).
@@ -92,3 +115,23 @@ TO-DO
 <a href="">Download</a>
 <br/>
 <br/>
+
+[downloads-shield]: https://img.shields.io/github/downloads/mikyll/Fondamenti-di-Computer-Graphics-M/total
+[downloads-url]: https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/releases/latest
+[license-shield]: https://img.shields.io/github/license/mikyll/Fondamenti-di-Computer-Graphics-M
+[license-url]: https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/blob/main/LICENSE
+[size-shield]: 	https://img.shields.io/github/repo-size/mikyll/Fondamenti-di-Computer-Graphics-M
+[size-url]: https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M
+[issues-shield]: https://img.shields.io/github/issues/mikyll/Fondamenti-di-Computer-Graphics-M
+[issues-url]: https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/issues
+[stars-shield]: https://custom-icon-badges.herokuapp.com/github/stars/mikyll/Fondamenti-di-Computer-Graphics-M?logo=star&logoColor=yellow
+[stars-url]: https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/stargazers
+
+[c-shield]: https://img.shields.io/badge/c-%2300599C.svg?logo=c&logoColor=white
+[c-url]: https://www.java.com
+[cpp-shield]: https://img.shields.io/badge/c++-%2300599C.svg?logo=c%2B%2B&logoColor=white
+[cpp-url]: https://isocpp.org/
+[vs-shield]: https://img.shields.io/badge/Visual%20Studio-5C2D91.svg?logo=visual-studio&logoColor=white
+[vs-url]: https://code.visualstudio.com/
+[blender-shield]: https://img.shields.io/badge/blender-%23F5792A.svg?logo=blender&logoColor=white
+[blender-url]: https://www.jetbrains.com/idea/ 
