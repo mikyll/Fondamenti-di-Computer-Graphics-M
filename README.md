@@ -56,7 +56,7 @@ Per il setup dei progetti vedere [setup.md](./setup.md).
 <br/>
 
 ### Lab02 - 2D Animazione & Gameplay in OpenGL
-https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/assets/56556806/7e170636-a165-4445-adc6-97f49cb02532 
+https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/assets/56556806/7ae7ba52-1bc4-4348-8198-17460bb7c5ea
 
 <a href="./tracce/lab_02_doc.pdf">Traccia</a>
 ·
