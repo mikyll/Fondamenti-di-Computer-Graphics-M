@@ -1,0 +1,72 @@
+% Original author: Michele Righi
+% GitHub: https://github.com/mikyll
+
+\documentclass[11pt]{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage[a4paper, total={6in, 8in}]{geometry}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{relsize}
+\usepackage[skins, minted]{tcolorbox}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage[shortlabels]{enumitem}
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage[italian]{babel}
+
+% Minted style stuff
+\usemintedstyle{colorful}
+\definecolor{LightGray}{gray}{0.9}
+% New colors defined below
+\definecolor{mintedbackground}{rgb}{0.95,0.95,0.95}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{mintedbackground}{rgb}{0.95,0.95,0.95}
+
+\newcommand{\subtitlerelsize}{1} %relative size: integer value
+\newcommand{\subtitlelinesep}{0.2em} %line separation: a LaTeX length
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{\textsc{Fondamenti di Computer Graphics M (8 cfu)} \\[\subtitlelinesep] \smaller[\subtitlerelsize]{\textcolor{gray}{\textsc{Lab N - Title}}} 
+\vspace{10pt}\hrule\vspace{10pt}}
+
+\author{Autor Name}
+\date{Date}
+
+\begin{document}
+
+\maketitle
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.\columnwidth]{gfx/Thumbnail.jpg}
+    \caption{Caption}
+    \label{fig:thumbnail.png}
+\end{figure}
+
+\section*{Traccia}
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+\section{Introduzione}
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+
+\section{Implementazione}
+\begin{minted}[
+    frame=lines,
+    framesep=2mm,
+    baselinestretch=1.2,
+    bgcolor=LightGray,
+    fontsize=\footnotesize,
+    linenos
+    ]{C}
+static void functionExample()
+{
+    // ...
+}
+\end{minted}
+
+\end{document}
