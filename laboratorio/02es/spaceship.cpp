@@ -450,6 +450,7 @@ void updateSpaceship(float deltaTime)
 		);
 	}
 
+	// Update spaceship angular speed
 	if (spaceship.angularSpeed != 0.0f)
 	{
 		spaceship.heading += spaceship.angularSpeed * deltaTime;
@@ -459,6 +460,7 @@ void updateSpaceship(float deltaTime)
 			spaceship.heading += 2 * PI;
 	}
 
+	// Update spaceship forward speed
 	if (spaceship.forwardSpeed != 0.0f)
 	{
 		spaceship.pos.x += cos(spaceship.heading) * spaceship.forwardSpeed * deltaTime;
