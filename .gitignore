@@ -349,8 +349,7 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 
-
-zip archives
+# Extra
 releases
 
 # .obj files
