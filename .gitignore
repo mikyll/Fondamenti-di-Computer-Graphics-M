@@ -351,6 +351,8 @@ MigrationBackup/
 
 # Extra
 releases
+*.blend
+*.blend1
 
 # .obj files
 !laboratorio/*/[Mm]esh/*.obj
