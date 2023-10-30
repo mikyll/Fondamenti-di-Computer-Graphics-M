@@ -150,11 +150,11 @@ https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/assets/56556806/7ae7
 [stars-shield]: https://custom-icon-badges.herokuapp.com/github/stars/mikyll/Fondamenti-di-Computer-Graphics-M?logo=star&logoColor=yellow
 [stars-url]: https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/stargazers
 
-[c-shield]: https://img.shields.io/badge/c-%2300599C.svg?logo=c&logoColor=white
+[c-shield]: https://img.shields.io/badge/C-%2300599C.svg?logo=c&logoColor=white
 [c-url]: https://www.java.com
-[cpp-shield]: https://img.shields.io/badge/c++-%2300599C.svg?logo=c%2B%2B&logoColor=white
+[cpp-shield]: https://img.shields.io/badge/C++-%2300599C.svg?logo=c%2B%2B&logoColor=white
 [cpp-url]: https://isocpp.org/
 [vs-shield]: https://img.shields.io/badge/Visual%20Studio-5C2D91.svg?logo=visual-studio&logoColor=white
 [vs-url]: https://code.visualstudio.com/
-[blender-shield]: https://img.shields.io/badge/blender-%23F5792A.svg?logo=blender&logoColor=white
+[blender-shield]: https://img.shields.io/badge/Blender-%23F5792A.svg?logo=blender&logoColor=white
 [blender-url]: https://www.jetbrains.com/idea/ 
