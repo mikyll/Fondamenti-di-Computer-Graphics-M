@@ -42,7 +42,7 @@ Per il setup dei progetti vedere [setup.md](./setup.md).
 <br/>
 <br/>
 
-### Lab01 - Curve di Bezier in OpenGL
+### Lab01 - Curve di Bézier in OpenGL
 <img width="40%" src="./laboratorio/01es/resources/Demo1.png"> <img width="40%" src="./laboratorio/01es/resources/Demo2.png">
 
 <a href="./tracce/lab_01_doc.pdf">Traccia</a>
