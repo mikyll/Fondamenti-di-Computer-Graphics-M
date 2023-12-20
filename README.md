@@ -11,71 +11,73 @@
   [![Blender][blender-shield]][blender-url]
 
 
-  # Fondamenti-di-Computer-Graphics-M
-  Repository per le mie soluzioni di laboratorio per il corso di [Fondamenti di Computer Graphics M](https://www.unibo.it/it/didattica/insegnamenti/insegnamento/2022/468044).
+  # Principles of Computer Graphics M
+  Repository for my laboratory solutions for the [Principles of Computer Graphics M]([https://www.unibo.it/it/didattica/insegnamenti/insegnamento/2022/468044](https://www.unibo.it/en/teaching/course-unit-catalogue/course-unit/2022/468044)) course.
 
-  [Tracce](./tracce)
+  [Guidelines](./tracce)
   ·
   [Reports](./reports)
   ·
   [VS Solution](./laboratorio)
   ·
   [Download](https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/releases/latest)
+  ·
+  [Italian <kbd><img width="20px" src="https://flagicons.lipis.dev/flags/4x3/it.svg"></kbd>](./README.it.md)
     
 </div>
 
 ## Setup
-Per il setup dei progetti vedere [setup.md](./setup.md).
+Check [setup.md](./setup.md) for setup guidelines for VS projects.
 
 ## Laboratorio
 
-### Lab00 - Introduzione a OpenGL
+### Lab00 - OpenGL Introduction
 <img width="40%" src="./laboratorio/00es/resources/Demo1.png"> <img width="40%" src="./laboratorio/00es/resources/Demo2.png">
 
-<a href="./tracce/lab_00_doc.pdf">Traccia</a>
+<a href="./tracce/lab_00_doc.pdf">Guidelines</a>
 ·
 <a href="./reports/lab00 Michele Righi.pdf">Report</a>
 ·
-<a href="./laboratorio/00es/">Codice</a>
+<a href="./laboratorio/00es/">Code</a>
 ·
 <a href="https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/releases/download/v1.0/lab00_Windows_x64.zip">Download (Win64)</a>
 <br/>
 <br/>
 
-### Lab01 - Curve di Bezier in OpenGL
+### Lab01 - Bézier Curves in OpenGL
 <img width="40%" src="./laboratorio/01es/resources/Demo1.png"> <img width="40%" src="./laboratorio/01es/resources/Demo2.png">
 
-<a href="./tracce/lab_01_doc.pdf">Traccia</a>
+<a href="./tracce/lab_01_doc.pdf">Guidelines</a>
 ·
 <a href="./reports/lab01 Michele Righi.pdf">Report</a>
 ·
-<a href="./laboratorio/01es/">Codice</a>
+<a href="./laboratorio/01es/">Code</a>
 ·
 <a href="https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/releases/download/v1.0/lab01_Windows_x64.zip">Download (Win64)</a>
 <br/>
 <br/>
 
-### Lab02 - 2D Animazione & Gameplay in OpenGL
+### Lab02 - 2D Animation & Gameplay in OpenGL
 https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/assets/56556806/7ae7ba52-1bc4-4348-8198-17460bb7c5ea
 
-<a href="./tracce/lab_02_doc.pdf">Traccia</a>
+<a href="./tracce/lab_02_doc.pdf">Guidelines</a>
 ·
 <a href="./reports/lab02 Michele Righi.pdf">Report</a>
 ·
-<a href="./laboratorio/02es/">Codice</a>
+<a href="./laboratorio/02es/">Code</a>
 ·
 <a href="https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/releases/download/v1.0/lab02_Windows_x64.zip">Download (Win64)</a>
 <br/>
 <br/>
 
-### Lab03 - Mesh, Shading e Lighting in OpenGL
+### Lab03 - Mesh, Shading and Lighting in OpenGL
 <img width="80%" src="./laboratorio/03es/resources/Thumbnail.png">
 
-<a href="./tracce/lab_03_doc.pdf">Traccia</a>
+<a href="./tracce/lab_03_doc.pdf">Guidelines</a>
 ·
 <a href="./reports/lab03 Michele Righi.pdf">Report</a>
 ·
-<a href="./laboratorio/03es/">Codice</a>
+<a href="./laboratorio/03es/">Code</a>
 ·
 <a href="https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/releases/download/v1.0/lab03_Windows_x64.zip">Download (Win64)</a>
 <br/>
@@ -84,21 +86,21 @@ https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/assets/56556806/7ae7
 ### Lab04 - Raytracing in OpenGL
 <img width="40%" src="./laboratorio/04es/resources/Extra_Chessboard_2.png"> <img width="40%" src="./laboratorio/04es/resources/Rendering_ReflectionRays_MirrorWalls_2.png">
 
-<a href="./tracce/lab_04_doc.pdf">Traccia</a>
+<a href="./tracce/lab_04_doc.pdf">Guidelines</a>
 ·
 <a href="./reports/lab04 Michele Righi.pdf">Report</a>
 ·
-<a href="./laboratorio/04es/">Codice</a>
+<a href="./laboratorio/04es/">Code</a>
 ·
 <a href="https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/releases/download/v1.0/lab04_Windows_x64.zip">Download (Win64)</a>
 <br/>
 <br/>
 
-### Lab05 - Modellazione in Blender
+### Lab05 - Modeling in Blender
 <img width="80%" src="./blender/05es/resources/results/lab05_result7.png">
 <img width="60%" src="./blender/05es/resources/results/lab05_result4.png">
 
-<a href="./tracce/lab_05_doc.pdf">Traccia</a>
+<a href="./tracce/lab_05_doc.pdf">Guidelines</a>
 ·
 <a href="./reports/lab05 Michele Righi.pdf">Report</a>
 ·
@@ -126,14 +128,16 @@ https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/assets/56556806/7ae7
 <br/>
 <br/>
 
-### Lab07 - Shading: Texture, Normal, Environmental Mapping e Refraction in OpenGL 
+### Lab07 - Shading: Texture, Normal, Environmental Mapping and Refraction in OpenGL 
 <img width="80%" src="./laboratorio/07es/resources/">
 
-*Sviluppo futuro*
+*Future development*
 
-<a href="./tracce/lab_07_doc.pdf">Traccia</a>
+<a href="./tracce/lab_07_doc.pdf">Guidelines</a>
 ·
 <a href="./reports/lab07 Michele Righi.pdf">Report (TO-DO)</a>
+·
+<a href="./laboratorio/04es/">Code (TO-DO)</a>
 ·
 <a href="">Download (TO-DO)</a>
 <br/>
