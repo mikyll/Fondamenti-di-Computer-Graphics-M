@@ -11,7 +11,7 @@
   [![Blender][blender-shield]][blender-url]
 
 
-  # Fondamenti-di-Computer-Graphics-M
+  # Fondamenti di Computer Graphics M
   Repository per le mie soluzioni di laboratorio per il corso di [Fondamenti di Computer Graphics M](https://www.unibo.it/it/didattica/insegnamenti/insegnamento/2022/468044).
 
   [Tracce](./tracce)
