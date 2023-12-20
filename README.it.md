@@ -21,7 +21,9 @@
   [VS Solution](./laboratorio)
   ·
   [Download](https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/releases/latest)
-    
+  ·
+  [English <kbd><img width="20px" src="https://flagicons.lipis.dev/flags/4x3/gb.svg"></kbd>](./README.md)
+  
 </div>
 
 ## Setup
