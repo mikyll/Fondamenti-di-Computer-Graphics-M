@@ -151,7 +151,7 @@ https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/assets/56556806/7ae7
 [size-url]: https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M
 [issues-shield]: https://img.shields.io/github/issues/mikyll/Fondamenti-di-Computer-Graphics-M
 [issues-url]: https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/issues
-[stars-shield]: https://custom-icon-badges.herokuapp.com/github/stars/mikyll/Fondamenti-di-Computer-Graphics-M?logo=star&logoColor=yellow
+[stars-shield]: https://custom-icon-badges.herokuapp.com/github/stars/mikyll/Fondamenti-di-Computer-Graphics-M?logo=star&logoColor=yellow&style=flat
 [stars-url]: https://github.com/mikyll/Fondamenti-di-Computer-Graphics-M/stargazers
 
 [c-shield]: https://img.shields.io/badge/C-%2300599C.svg?logo=c&logoColor=white
