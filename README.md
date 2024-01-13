@@ -29,7 +29,10 @@
 ## Setup
 Check [setup.md](./setup.md) for setup guidelines for VS projects.
 
-## Laboratorio
+## Report Template
+You can find a LaTeX template for the reports [here](./reports/templates/FCG-M%20lab%20template%20(EN)).
+
+## Laboratory
 
 ### Lab00 - OpenGL Introduction
 <img width="40%" src="./laboratorio/00es/resources/Demo1.png"> <img width="40%" src="./laboratorio/00es/resources/Demo2.png">
