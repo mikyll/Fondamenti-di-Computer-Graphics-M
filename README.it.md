@@ -29,6 +29,9 @@
 ## Setup
 Per il setup dei progetti vedere [setup.md](./setup.md).
 
+## Report Template
+Puoi trovare un template LaTeX per i report [qui](./reports/templates/FCG-M%20lab%20template%20(IT)).
+
 ## Laboratorio
 
 ### Lab00 - Introduzione a OpenGL
