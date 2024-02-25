@@ -612,8 +612,8 @@ Text createText(float posx, float posy, bool center, float scale, bool visibilit
 
 void updateText(Text* text, char* newMessage)
 {
-	float widthLines = text->figures.at(0).widthLines;
-	float sizePoints = text->figures.at(0).sizePoints;
+	float widthLines = text->scale / 3;
+	float sizePoints = text->scale / 1.5f;
 	text->figures.clear();
 
 	for (int i = 0; i < strlen(newMessage); i++)
