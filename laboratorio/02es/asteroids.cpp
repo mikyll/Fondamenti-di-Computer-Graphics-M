@@ -200,6 +200,7 @@ void destroyAsteroid(int i)
 {
 	Asteroid a = asteroids.at(i);
 	spawnExplosion(EXPLOSION_ASTEROID, a.pos, a.radius / 30, EXPLOSION_SPEED / 1.5f, 30);
+	playSoundEffect(CH_EXPLOSION_ASTEROID, "explosion_asteroid");
 
 	asteroids.erase(asteroids.begin() + i);
 }
@@ -216,11 +217,15 @@ void updateAsteroids(float deltaTime)
 {
 	if (game.state == GAME_RUNNING && asteroids.size() == 0)
 	{
+		time_t now = time(0);
+		game.stageTime = difftime(time(0), game.startTime);
+		game.totalTime += game.stageTime;
+
 		game.state = GAME_STAGE_COMPLETED;
 		showStageCompletedUI();
 
 		std::cout << "Stage " << game.stageLevel << " completed! Current score: " << game.totalScore + game.stageScore << std::endl << std::endl;
-
+		
 		return;
 	}
 
@@ -259,6 +264,8 @@ void updateAsteroids(float deltaTime)
 			if (game.lives == 0)
 			{
 				game.state = GAME_OVER;
+
+				game.totalTime += game.stageTime;
 
 				std::cout << "Spaceship destroyed, game over! Score: " << game.totalScore + game.stageScore << std::endl << std::endl;
 				showGameOverUI();

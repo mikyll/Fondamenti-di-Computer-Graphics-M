@@ -29,7 +29,10 @@ Text textStageCompletedNextStage;
 Text textGameOver;
 Text textGameOverReturnToMenu;
 
-Text textCurrentScore;
+Text textStageScore;
+Text textStageAccuracy;
+Text textStageTime;
+Text textTotalScore;
 
 Life lifeBase;
 
@@ -43,9 +46,10 @@ static Life buildLifeFigure(float posx, float posy, float scale);
 static void blinkStartText(int value);
 static void addScoreToTotal(int value);
 static void calculateNewScore(int value);
-static void countDownNextStageText(int value);
+static void countdownNextStageText(int value);
 static void blinkGameOverText(int value);
 
+// Draw the controls background box
 static Figure buildBackgroundControls()
 {
 	Figure fig = {};
@@ -175,7 +179,8 @@ void initUI()
 	textMenuStart = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 5, true, TEXT_SCALE / 2, true, "Press 'SPACE' to start");
 
 	// Controls
-	textControls = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 9 / 10 - 50, true, TEXT_SCALE , false, "CONTROLS");
+	backgroundControls = buildBackgroundControls();
+	textControls = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 9 / 10 - 50, true, TEXT_SCALE , true, "CONTROLS");
 	textControlMoveForward = createText(WINDOW_WIDTH / 2 - 200, WINDOW_HEIGHT / 2 + 150, false, TEXT_SCALE / 2, true,     "  W     - MOVE FORWARD");
 	textControlRotate = createText(WINDOW_WIDTH / 2 - 200, WINDOW_HEIGHT / 2 + 100, false, TEXT_SCALE / 2, true,     " A/D    - ROTATE LEFT/RIGHT");
 	textControlFire = createText(WINDOW_WIDTH / 2 - 200, WINDOW_HEIGHT / 2 + 25, false, TEXT_SCALE / 2, true,      "SPACE   - FIRE BULLET");
@@ -184,40 +189,40 @@ void initUI()
 	textControlBigShip = createText(WINDOW_WIDTH / 2 - 200, WINDOW_HEIGHT / 2 - 125, false, TEXT_SCALE / 2, true,   "  B     - TOGGLE BIG SHIP");
 	textPause = createText(WINDOW_WIDTH / 2 - 200, WINDOW_HEIGHT / 2 - 200, false, TEXT_SCALE / 2, true,            "  P     - TOGGLE PAUSE GAME");
 	textReturnToMenu = createText(WINDOW_WIDTH / 2 - 200, WINDOW_HEIGHT / 2 - 250, false, TEXT_SCALE / 2, true,     " ESC    - GO BACK TO MENU");
-	backgroundControls = buildBackgroundControls();
 
 	// Game
-	textGameScore = createText(50, WINDOW_HEIGHT - 50, false, TEXT_SCALE / 2, false, "SCORE: ");
-	textGameScoreValue = createText(150, WINDOW_HEIGHT - 50, false, TEXT_SCALE / 2, false, "0");
-	textGameStage = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT - 50, true, TEXT_SCALE / 2, false, "STAGE 1");
+	textGameScore = createText(50, WINDOW_HEIGHT - 50, false, TEXT_SCALE / 2, true, "SCORE: ");
+	textGameScoreValue = createText(150, WINDOW_HEIGHT - 50, false, TEXT_SCALE / 2, true, "0");
+	textGameStage = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT - 50, true, TEXT_SCALE / 2, true, "STAGE 1");
 	lifeBase = buildLifeFigure(WINDOW_WIDTH - 200, WINDOW_HEIGHT - 50, LIFE_SCALE);
-	textInvulnerability = createText(50, 50, false, TEXT_SCALE / 2, false, "SHIELD: ");
-	textInvulnerabilityTimeLeft = createText(170, 50, false, TEXT_SCALE / 2, false, "3");
+	textInvulnerability = createText(50, 50, false, TEXT_SCALE / 2, true, "SHIELD: ");
+	textInvulnerabilityTimeLeft = createText(170, 50, false, TEXT_SCALE / 2, true, "3");
 
 	// Paused
-	textGamePaused = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, true, TEXT_SCALE, false, "GAME PAUSED");
+	textGamePaused = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, true, TEXT_SCALE, true, "GAME PAUSED");
 
 	// Stage Level Completed
-	textStageCompleted = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 2 / 3, true, TEXT_SCALE, false, "STAGE 1 COMPLETED");
-	textStageCompletedNextStage = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 5, true, TEXT_SCALE / 2, false, "                             ");
+	textStageCompleted = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 4 / 5, true, TEXT_SCALE, true, "STAGE 1 COMPLETED");
+	textStageCompletedNextStage = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 5, true, TEXT_SCALE / 2, true, "                             ");
 
 	// Game Over
-	textGameOver = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 2 / 3, true, TEXT_SCALE, false, "GAME OVER");
+	textGameOver = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 4 / 5, true, TEXT_SCALE, true, "GAME OVER");
 	textGameOverReturnToMenu = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 5, true, TEXT_SCALE / 2, true, "Press 'ESC' to go back to the menu");
 
-
-	textCurrentScore = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 2 / 3 - 100, true, TEXT_SCALE / 2, false, "TOTAL SCORE:     0");
+	// Stats
+	textStageScore = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 3 / 5 , true, TEXT_SCALE / 2, true,			"STAGE SCORE:        0");
+	textStageAccuracy = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 3 / 5 - 50, true, TEXT_SCALE / 2, true,	"STAGE ACCURACY:  100%");
+	textStageTime = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 3 / 5 - 100, true, TEXT_SCALE / 2, true,		"STAGE TIME:  00:00:00");
+	textTotalScore = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 3 / 5 - 200, true, TEXT_SCALE / 2, true,		"TOTAL SCORE:        0");
 }
 
 static void blinkStartText(int value)
 {
 	if (game.state == GAME_MENU)
 	{
-		if (displayedText.size() == 4)
-			displayedText.pop_back();
-		else displayedText.push_back(&textMenuStart);
+		textMenuStart.visible = !textMenuStart.visible;
 
-		glutTimerFunc(displayedText.size() == 4 ? 1000 : 500, blinkStartText, 0);
+		glutTimerFunc(textMenuStart.visible ? 1000 : 500, blinkStartText, 0);
 	}
 }
 
@@ -226,8 +231,8 @@ static void addScoreToTotal(int value)
 	if (game.state == GAME_STAGE_COMPLETED || game.state == GAME_OVER)
 	{
 		char buffer[32];
-		snprintf(buffer, 32, "TOTAL SCORE: %5d +%d", game.totalScore, game.stageScore);
-		updateText(&textCurrentScore, buffer);
+		snprintf(buffer, 32, "TOTAL SCORE: %8d +%d", game.totalScore, game.stageScore);
+		updateText(&textTotalScore, buffer);
 
 		glutTimerFunc(1000, calculateNewScore, value);
 	}
@@ -241,8 +246,8 @@ static void calculateNewScore(int value)
 		{
 			char buffer[32];
 			game.totalScore++;
-			snprintf(buffer, 32, "TOTAL SCORE: %5d", game.totalScore);
-			updateText(&textCurrentScore, buffer);
+			snprintf(buffer, 32, "TOTAL SCORE: %8d", game.totalScore);
+			updateText(&textTotalScore, buffer);
 
 			glutTimerFunc(0, calculateNewScore, value);
 		}
@@ -250,7 +255,7 @@ static void calculateNewScore(int value)
 		{
 			if (game.state == GAME_STAGE_COMPLETED)
 			{
-				glutTimerFunc(1000, countDownNextStageText, 3);
+				glutTimerFunc(1000, countdownNextStageText, 3);
 			}
 			else
 			{
@@ -260,23 +265,22 @@ static void calculateNewScore(int value)
 	}
 }
 
-static void countDownNextStageText(int value)
+static void countdownNextStageText(int value)
 {
 	if (game.state == GAME_STAGE_COMPLETED)
 	{
 		if (value > 0)
 		{
-			displayedText.pop_back();
 			char buffer[32];
 			snprintf(buffer, 32, "NEXT STAGE WILL START IN %d...", value);
 			updateText(&textStageCompletedNextStage, buffer);
-			displayedText.push_back(&textStageCompletedNextStage);
+			textStageCompletedNextStage.visible = true;
 
-			glutTimerFunc(1000, countDownNextStageText, value - 1);
+			glutTimerFunc(1000, countdownNextStageText, value - 1);
 		}
 		else
 		{
-			updateText(&textStageCompletedNextStage, (char*)"                             ");
+			textStageCompletedNextStage.visible = false;
 			game.state = GAME_NEXT_STAGE_STARTING;
 		}
 	}
@@ -286,11 +290,9 @@ static void blinkGameOverText(int value)
 {
 	if (game.state == GAME_OVER)
 	{
-		if (displayedText.size() == 3)
-			displayedText.pop_back();
-		else displayedText.push_back(&textGameOverReturnToMenu);
+		textGameOverReturnToMenu.visible = !textGameOverReturnToMenu.visible;
 
-		glutTimerFunc(displayedText.size() == 3 ? 1000 : 500, blinkGameOverText, 0);
+		glutTimerFunc(textGameOverReturnToMenu.visible ? 1000 : 500, blinkGameOverText, 0);
 	}
 }
 
@@ -350,13 +352,29 @@ void showStageCompletedUI()
 	snprintf(buffer, 32, "STAGE %d COMPLETED", game.stageLevel);
 	updateText(&textStageCompleted, buffer);
 
-	snprintf(buffer, 32, "CURRENT SCORE: %5d", game.totalScore);
-	updateText(&textCurrentScore, buffer);
+	snprintf(buffer, 32, "STAGE SCORE: %8d", game.stageScore);
+	updateText(&textStageScore, buffer);
+
+	snprintf(buffer, 32, "STAGE ACCURACY:  %3d%%", game.stageBulletShot == 0 ? 0 : (int) (((float) game.stageAsteroidsHit / (float) game.stageBulletShot) * 100.0f));
+	updateText(&textStageAccuracy, buffer);
+
+	snprintf(buffer, 32, "STAGE TIME:  %02d:%02d:%02d", game.stageTime / 3600, game.stageTime / 60, game.stageTime);
+	updateText(&textStageTime, buffer);
+
+	snprintf(buffer, 32, "TOTAL SCORE: %8d", game.totalScore);
+	updateText(&textTotalScore, buffer);
+
+	textStageCompletedNextStage.visible = false;
+
+	std::cout << "Stage time: " << game.stageTime << std::endl << "Total time: " << game.totalTime << std::endl;
 
 	displayedText.clear();
 
 	displayedText.push_back(&textStageCompleted);
-	displayedText.push_back(&textCurrentScore);
+	displayedText.push_back(&textStageScore);
+	displayedText.push_back(&textStageAccuracy);
+	displayedText.push_back(&textStageTime);
+	displayedText.push_back(&textTotalScore);
 	displayedText.push_back(&textStageCompletedNextStage);
 
 	glutTimerFunc(1000, addScoreToTotal, game.totalScore + game.stageScore);
@@ -366,13 +384,24 @@ void showGameOverUI()
 {
 	// Update score value
 	char buffer[32];
-	snprintf(buffer, 32, "TOTAL SCORE: %5d", game.totalScore);
-	updateText(&textCurrentScore, buffer);
+	snprintf(buffer, 32, "TOTAL ACCURACY:  %3d%%", game.totalBulletShot == 0 ? 0 : (int)(((float)game.totalAsteroidsHit / (float)game.totalBulletShot) * 100.0f));
+	updateText(&textStageAccuracy, buffer);
+
+	snprintf(buffer, 32, "TOTAL TIME:  %02d:%02d:%02d", game.totalTime / 3600, game.totalTime / 60, game.totalTime);
+	updateText(&textStageTime, buffer);
+
+	snprintf(buffer, 32, "TOTAL SCORE: %8d", game.totalScore);
+	updateText(&textTotalScore, buffer);
+
+	textGameOverReturnToMenu.visible = false;
 
 	displayedText.clear();
 
 	displayedText.push_back(&textGameOver);
-	displayedText.push_back(&textCurrentScore);
+	displayedText.push_back(&textStageAccuracy);
+	displayedText.push_back(&textStageTime);
+	displayedText.push_back(&textTotalScore);
+	displayedText.push_back(&textGameOverReturnToMenu);
 
 	if (game.stageScore > 0)
 		glutTimerFunc(1000, addScoreToTotal, game.totalScore + game.stageScore);
@@ -438,26 +467,29 @@ void drawUI()
 	{
 		Text* text = displayedText.at(i);
 
-		for (int j = 0; j < text->figures.size(); j++)
+		if (text->visible)
 		{
-			Figure* fig = &text->figures.at(j);
+			for (int j = 0; j < text->figures.size(); j++)
+			{
+				Figure* fig = &text->figures.at(j);
 
-			glm::mat4 modelMatrix = glm::mat4(1.0);
-			modelMatrix = translate(modelMatrix, glm::vec3(text->pos.x, text->pos.y, 0.0f));
-			modelMatrix = scale(modelMatrix, glm::vec3(text->scale, text->scale, 0.0f));
-			glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(modelMatrix));
+				glm::mat4 modelMatrix = glm::mat4(1.0);
+				modelMatrix = translate(modelMatrix, glm::vec3(text->pos.x, text->pos.y, 0.0f));
+				modelMatrix = scale(modelMatrix, glm::vec3(text->scale, text->scale, 0.0f));
+				glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(modelMatrix));
 
-			glBindVertexArray(fig->VAO);
-			if (fig->sizePoints > 0.0f)
-				glPointSize(fig->sizePoints);
-			else glPointSize(1.0f);
-			if (fig->widthLines > 0.0f)
-				glLineWidth(fig->widthLines);
-			else glLineWidth(1.0f);
+				glBindVertexArray(fig->VAO);
+				if (fig->sizePoints > 0.0f)
+					glPointSize(fig->sizePoints);
+				else glPointSize(1.0f);
+				if (fig->widthLines > 0.0f)
+					glLineWidth(fig->widthLines);
+				else glLineWidth(1.0f);
 
-			glDrawArrays(fig->drawMode, 0, fig->vertices.size());
+				glDrawArrays(fig->drawMode, 0, fig->vertices.size());
 
-			glBindVertexArray(0);
+				glBindVertexArray(0);
+			}
 		}
 	}
 	glBindVertexArray(0);

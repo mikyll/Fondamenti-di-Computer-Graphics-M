@@ -3,7 +3,6 @@
 #include "commons.h"
 
 typedef struct {
-	int id;
 	std::vector<Figure> figures;
 	Point3D pos;
 	float scale;

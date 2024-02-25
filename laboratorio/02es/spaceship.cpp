@@ -363,6 +363,7 @@ void destroySpaceship()
 {
 	// explosion
 	spawnExplosion(EXPLOSION_SPACESHIP, spaceship.pos, spaceship.radius / 4, EXPLOSION_SPEED, 60);
+	playSoundEffect(CH_EXPLOSION_SPACESHIP, "explosion_spaceship");
 
 	// Schedule respawn
 	game.lives--;

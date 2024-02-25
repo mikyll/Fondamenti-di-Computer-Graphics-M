@@ -10,6 +10,14 @@ typedef struct {
 	int stageLevel;
 	int totalScore;
 	int stageScore;
+	int stageBulletShot;
+	int stageAsteroidsHit;
+	int totalBulletShot;
+	int totalAsteroidsHit;
+	time_t startTime;
+	time_t pausedStartTime;
+	time_t totalTime;
+	time_t stageTime;
 	int lives;
 	unsigned int MatProj;
 	unsigned int MatModel;

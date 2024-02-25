@@ -100,6 +100,14 @@ static void initGame()
 	game.lives = MAX_LIVES;
 }
 
+static void initSound()
+{
+	initSoundModule(MAX_CH);
+	
+	// Load tracks
+	// [...]
+}
+
 static void init()
 {
 	Projection = glm::ortho(0.0f, float(WINDOW_WIDTH), 0.0f, float(WINDOW_HEIGHT));
@@ -108,6 +116,7 @@ static void init()
 
 	initGame();
 
+	initSound();
 	initSpaceship();
 	initStars();
 	initFiretrail();
@@ -147,10 +156,17 @@ static void startMenu()
 	game.lives = MAX_LIVES;
 
 	showMenuUI();
+	playMusic("menu");
 }
 
 static void startGame(int stageLevel)
 {
+	if (stageLevel == 1)
+	{
+		playMusic("game");
+	}
+	game.startTime = time(0);
+
 	game.state = GAME_RUNNING;
 	game.stageScore = 0;
 
@@ -222,11 +238,15 @@ static void inputApplication()
 		{
 			game.state = GAME_PAUSED;
 			showGamePausedUI();
+			
+			game.pausedStartTime = time(0);
 		}
 		else if (game.state == GAME_PAUSED)
 		{
 			game.state = GAME_RUNNING;
 			showGameUI();
+
+			game.startTime += difftime(time(0), game.pausedStartTime);
 		}
 	}
 }

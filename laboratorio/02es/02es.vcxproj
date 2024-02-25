@@ -73,6 +73,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+    <IncludePath>D:\Michele Righi\Programmi\GitHub\Fondamenti-di-Computer-Graphics-M\laboratorio\02es\libs\SDL2-2.28.4\include;D:\Michele Righi\Programmi\GitHub\Fondamenti-di-Computer-Graphics-M\laboratorio\02es\libs\SDL2_mixer-2.6.3\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Michele Righi\Programmi\GitHub\Fondamenti-di-Computer-Graphics-M\laboratorio\02es\libs\SDL2_mixer-2.6.3\lib\x64;D:\Michele Righi\Programmi\GitHub\Fondamenti-di-Computer-Graphics-M\laboratorio\02es\libs\SDL2-2.28.4\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -125,12 +127,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>D:\Michele Righi\Programmi\GitHub\Fondamenti-di-Computer-Graphics-M\laboratorio\02es\libs\SDL2\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>robocopy "$(SolutionDir)$(ProjectName)\resources" "$(SolutionDir)x64\Release\resources" /s /e</Command>
@@ -155,6 +160,7 @@
     <ClCompile Include="firetrail.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="ShaderMaker.cpp" />
+    <ClCompile Include="sound.cpp" />
     <ClCompile Include="spaceship.cpp" />
     <ClCompile Include="stars.cpp" />
     <ClCompile Include="text.cpp" />
@@ -172,6 +178,7 @@
     <ClInclude Include="firetrail.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="ShaderMaker.h" />
+    <ClInclude Include="sound.h" />
     <ClInclude Include="spaceship.h" />
     <ClInclude Include="stars.h" />
     <ClInclude Include="structs.h" />

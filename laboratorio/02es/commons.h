@@ -4,6 +4,7 @@
 #include <iostream>
 #include <time.h>
 #include <vector>
+#include <map>
 
 // OpenGL
 #include <GL/glew.h>
@@ -32,3 +33,5 @@
 #include "bullets.h"
 #include "explosions.h"
 #include "ui.h"
+
+#include "sound.h"

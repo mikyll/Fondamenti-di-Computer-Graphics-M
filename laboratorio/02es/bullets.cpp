@@ -32,7 +32,7 @@ void initBullets()
 
 void fireBullet(float x, float y, float heading)
 {
-	if (reloadTime == 0.0f)
+	if (game.state != GAME_PAUSED && reloadTime == 0.0f)
 	{
 		Particle p = {};
 		p.pos = { x, y, 0.0f };
@@ -44,6 +44,14 @@ void fireBullet(float x, float y, float heading)
 		weapon.particles.push_back(p);
 
 		reloadTime = BULLET_RELOAD_COOLDOWN;
+
+		if (game.state == GAME_RUNNING)
+		{
+			game.stageBulletShot++;
+			game.totalBulletShot++;
+		}
+
+		playSoundEffect(CH_FIRE_BULLET, "fire_bullet");
 	}
 }
 
@@ -63,8 +71,8 @@ void updateBullets(float deltaTime)
 		bullet.pos.x += bullet.speed.x * deltaTime;
 		bullet.pos.y += bullet.speed.y * deltaTime;
 
-		if (bullet.pos.x < 0.0f || bullet.pos.x > WINDOW_WIDTH ||
-			bullet.pos.y < 0.0f || bullet.pos.y > WINDOW_HEIGHT)
+		if (bullet.pos.x < -50.0f || bullet.pos.x > WINDOW_WIDTH + 50.0f ||
+			bullet.pos.y < -50.0f || bullet.pos.y > WINDOW_HEIGHT + 50.0f)
 		{
 			weapon.particles.erase(weapon.particles.begin() + i);
 			continue;
@@ -107,6 +115,11 @@ void updateBullets(float deltaTime)
 
 				// Add points to score
 				game.stageScore += 4 - (asteroid.scale * 2 / ASTEROID_SCALE_BASE);
+
+				game.stageAsteroidsHit++;
+				game.totalAsteroidsHit++;
+
+				playSoundEffect(CH_EXPLOSION_ASTEROID, "explosion_asteroid");
 			}
 		}
 	}

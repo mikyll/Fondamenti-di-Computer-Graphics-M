@@ -95,3 +95,27 @@ enum {
 // TEXT ===================================================
 #define TEXT_SCALE					10.0f
 #define DEFAULT_TEXT_LINE_WIDTH		3.0f
+
+// SOUND ==================================================
+#define SOUNDS_DIR "resources/sounds/"
+
+enum {
+	CH_ANY = -1,
+	CH_CLICK,
+	CH_SHIELD,
+	CH_PROPULSOR,
+	CH_FIRE_BULLET,
+	CH_EXPLOSION_ASTEROID,
+	CH_EXPLOSION_SPACESHIP,
+	MAX_CH = 16,
+};
+
+enum {
+	SND_CLICK,
+	SND_SHIELD,
+	SND_PROPULSOR,
+	SND_FIRE_BULLET,
+	SND_ASTEROID_EXPLOSION,
+	SND_EXPLOSION_SPACESHIP,
+	MAX_SND,
+};
