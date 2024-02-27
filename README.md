@@ -12,7 +12,7 @@
 
 
   # Principles of Computer Graphics M
-  Repository for my laboratory solutions for the [Principles of Computer Graphics M]([https://www.unibo.it/it/didattica/insegnamenti/insegnamento/2022/468044](https://www.unibo.it/en/teaching/course-unit-catalogue/course-unit/2022/468044)) course.
+  Repository for my laboratory solutions for the [Principles of Computer Graphics M](https://www.unibo.it/en/teaching/course-unit-catalogue/course-unit/2022/468044) course.
 
   [Guidelines](./tracce)
   ·
