@@ -229,6 +229,27 @@ void initShaders(PointLight light)
 	glUniform1f(shader.lightUniform.light_power_pointer, light.power);
 	// 5. Add the shader to the map
 	shaders.insert({ TOON_V2, shader });
+
+	// EXTRAAAA
+	// SHADER: Glitch --------------------------------------------------------------------
+	shader = {};
+	shader.name = "Glitch";
+	shader.type = GLITCH;
+	// 1. Loading
+	shader.id = createProgram(SHADERS_DIR + "v_glitch.glsl", SHADERS_DIR + "f_glitch.glsl");
+	// 2. Obtain pointers to uniform variables
+	shader.baseUniform.P_Matrix_pointer = glGetUniformLocation(shader.id, "P");
+	shader.baseUniform.V_Matrix_pointer = glGetUniformLocation(shader.id, "V");
+	shader.baseUniform.M_Matrix_pointer = glGetUniformLocation(shader.id, "M");
+	// 3. Activate the shader
+	glUseProgram(shader.id);
+	// 4. Shader uniforms initialization
+	shader.baseUniform.time_delta_pointer = glGetUniformLocation(shader.id, "time");
+	glUniform1f(shader.baseUniform.time_delta_pointer, clock());
+	GLint resolutionLocation = glGetUniformLocation(shader.id, "resolution");
+	glUniform2f(resolutionLocation, windowWidth, windowHeight);
+	// 4. Add the shader to the map
+	shaders.insert({ GLITCH, shader });
 }
 
 void updateUniforms(Object object, PointLight light)
@@ -333,6 +354,13 @@ void updateUniforms(Object object, PointLight light)
 		// Update light properties
 		glUniform3f(object.shader.lightUniform.light_position_pointer, light.position.x, light.position.y, light.position.z);
 		glUniform1f(object.shader.lightUniform.light_power_pointer, light.power);
+		break;
+
+	case GLITCH:
+		// Caricamento matrice trasformazione del modello
+		glUniformMatrix4fv(object.shader.baseUniform.M_Matrix_pointer, 1, GL_FALSE, value_ptr(object.M));
+		// Update time
+		glUniform1f(object.shader.baseUniform.time_delta_pointer, clock());
 		break;
 
 	default:

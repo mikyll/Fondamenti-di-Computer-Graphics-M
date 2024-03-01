@@ -87,6 +87,7 @@ enum {
 	WAVE_LIGHT,
 	TOON,
 	TOON_V2,
+	GLITCH,
 	NUM_SHADERS
 };
 
