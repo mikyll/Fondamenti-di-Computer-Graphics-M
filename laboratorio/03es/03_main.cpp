@@ -230,14 +230,14 @@ void initObjects()
 	}
 
 	// Horse model 1
-	if (loadMesh("horse.obj", VERTEX_NORMALS, &mesh) == 0)
+	if (loadMesh("horse.obj", FACE_NORMALS, &mesh) == 0)
 	{
 		obj = createObject("Horse FLAT", mesh, materials.at(GOLD), shaders.at(PHONG), glm::vec3(-3., 3, 5.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5));
 		objects.push_back(obj);
 	}
 
 	// Horse model 2
-	if (loadMesh("horse.obj", FACE_NORMALS, &mesh) == 0)
+	if (loadMesh("horse.obj", VERTEX_NORMALS, &mesh) == 0)
 	{
 		obj = createObject("Horse SMOOTH", mesh, materials.at(SLATE), shaders.at(PHONG), glm::vec3(-5., 3, 7.), glm::vec3(0.0, 225.0f, 0.0), glm::vec3(0.5, 0.5, 0.5));
 		objects.push_back(obj);
