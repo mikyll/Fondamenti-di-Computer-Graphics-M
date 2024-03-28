@@ -12,7 +12,8 @@
 
 
   # Principles of Computer Graphics M
-  Repository for my laboratory solutions for the [Principles of Computer Graphics M](https://www.unibo.it/en/teaching/course-unit-catalogue/course-unit/2022/468044) course.
+  Repository for my laboratory solutions for the [Principles of Computer Graphics M](https://www.unibo.it/en/teaching/course-unit-catalogue/course-unit/2022/468044) course.\
+  **NB**: reports are written in Italian.
 
   [Guidelines](./tracce)
   ·
