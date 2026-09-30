@@ -338,10 +338,8 @@ void spawnSpaceship(int value)
 	spaceship.invulnerable = value;
 	spaceship.invulnerabilityTime = value ? SPACESHIP_INVULNERABILITY_TIME : 0.0f;
 
-	// Build graphics for the spaceship
-	buildSpaceship();
-
-	// Collider
+	// Collider (the spaceship figures are built once, in initSpaceship())
+	destroyCircleCollider(&spaceship.collider);
 	createCircleCollider(&spaceship.collider, spaceship.pos, spaceship.radius, COLLIDER_COLOR);
 }
 

@@ -27,6 +27,23 @@ void updateFigureVertices(Figure* fig)
 	glBufferData(GL_ARRAY_BUFFER, fig->vertices.size() * sizeof(Point3D), fig->vertices.data(), GL_STATIC_DRAW);
 }
 
+/*
+Release the GPU resources (VAO and VBOs) of a figure created with createFigureVAO().
+Must be called before discarding or rebuilding a figure, otherwise they leak.
+*/
+void destroyFigure(Figure* fig)
+{
+	glDeleteBuffers(1, &fig->VBO_Geom);
+	glDeleteBuffers(1, &fig->VBO_Col);
+	glDeleteVertexArrays(1, &fig->VAO);
+
+	fig->VAO = 0;
+	fig->VBO_Geom = 0;
+	fig->VBO_Col = 0;
+	fig->vertices.clear();
+	fig->colors.clear();
+}
+
 void buildCircle(Figure* fig, Point3D center, float radius, int numTriangles, ColorRGBA colorExtern, ColorRGBA colorIntern)
 {
 	// PI * 2 = complete circle => divide by num of triangles we want to use

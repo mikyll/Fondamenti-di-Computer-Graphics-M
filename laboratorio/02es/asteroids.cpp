@@ -202,15 +202,19 @@ void destroyAsteroid(int i)
 	spawnExplosion(EXPLOSION_ASTEROID, a.pos, a.radius / 30, EXPLOSION_SPEED / 1.5f, 30);
 	playSoundEffect(CH_EXPLOSION_ASTEROID, "explosion_asteroid");
 
+	destroyFigure(&asteroids.at(i).figure);
+	destroyCircleCollider(&asteroids.at(i).collider);
 	asteroids.erase(asteroids.begin() + i);
 }
 
 void clearAsteroids()
 {
-	while (asteroids.size() > 0)
+	for (int i = 0; i < asteroids.size(); i++)
 	{
-		asteroids.erase(asteroids.begin());
+		destroyFigure(&asteroids.at(i).figure);
+		destroyCircleCollider(&asteroids.at(i).collider);
 	}
+	asteroids.clear();
 }
 
 void updateAsteroids(float deltaTime)

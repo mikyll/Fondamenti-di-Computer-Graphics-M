@@ -4,6 +4,7 @@
 
 typedef struct {
 	std::vector<Figure> figures;
+	std::string message;	// currently displayed message
 	Point3D pos;
 	float scale;
 	bool visible;

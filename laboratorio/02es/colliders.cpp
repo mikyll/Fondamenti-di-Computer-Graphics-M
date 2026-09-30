@@ -17,11 +17,17 @@ void updateCircleCollider(CircleCollider* collider, Point3D newPos, float newRad
 	if (collider->radius != newRadius)
 	{
 		collider->radius = newRadius;
+		destroyFigure(&collider->figure);
 		collider->figure = {};
 		collider->figure.drawMode = GL_LINE_STRIP;
 		buildCircumference(&collider->figure, { 0.0f, 0.0f, 0.0f }, newRadius, COLLIDER_NUM_SEGMENTS, collider->color);
 		createFigureVAO(&collider->figure);
 	}
+}
+
+void destroyCircleCollider(CircleCollider* collider)
+{
+	destroyFigure(&collider->figure);
 }
 
 void drawCircleCollider(CircleCollider collider, float heading)

@@ -596,6 +596,7 @@ Text createText(float posx, float posy, bool center, float scale, bool visibilit
 	text.pos.y = posy;
 	text.scale = scale;
 	text.visible = visibility;
+	text.message = message;
 
 	for (int i = 0; i < strlen(message); i++)
 	{
@@ -612,9 +613,17 @@ Text createText(float posx, float posy, bool center, float scale, bool visibilit
 
 void updateText(Text* text, char* newMessage)
 {
+	// Rebuild the letters only if the message actually changed
+	if (text->message == newMessage)
+		return;
+
 	float widthLines = text->scale / 3;
 	float sizePoints = text->scale / 1.5f;
+
+	for (int i = 0; i < text->figures.size(); i++)
+		destroyFigure(&text->figures.at(i));
 	text->figures.clear();
+	text->message = newMessage;
 
 	for (int i = 0; i < strlen(newMessage); i++)
 	{

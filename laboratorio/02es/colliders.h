@@ -4,6 +4,7 @@
 
 void createCircleCollider(CircleCollider* collider, Point3D pos, float radius, ColorRGBA color);
 void updateCircleCollider(CircleCollider* collider, Point3D newPos, float newRadius);
+void destroyCircleCollider(CircleCollider* collider);
 void drawCircleCollider(CircleCollider collider, float heading);
 
 bool isColliding(CircleCollider collider, Point3D pos, float radius);
