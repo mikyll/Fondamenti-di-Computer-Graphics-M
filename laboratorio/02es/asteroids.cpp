@@ -269,6 +269,7 @@ void updateAsteroids(float deltaTime)
 			{
 				game.state = GAME_OVER;
 
+				game.stageTime = difftime(time(0), game.startTime);
 				game.totalTime += game.stageTime;
 
 				std::cout << "Spaceship destroyed, game over! Score: " << game.totalScore + game.stageScore << std::endl << std::endl;

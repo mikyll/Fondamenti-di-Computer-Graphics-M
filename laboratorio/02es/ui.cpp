@@ -358,7 +358,7 @@ void showStageCompletedUI()
 	snprintf(buffer, 32, "STAGE ACCURACY:  %3d%%", game.stageBulletShot == 0 ? 0 : (int) (((float) game.stageAsteroidsHit / (float) game.stageBulletShot) * 100.0f));
 	updateText(&textStageAccuracy, buffer);
 
-	snprintf(buffer, 32, "STAGE TIME:  %02d:%02d:%02d", game.stageTime / 3600, game.stageTime / 60, game.stageTime);
+	snprintf(buffer, 32, "STAGE TIME:  %02d:%02d:%02d", (int)(game.stageTime / 3600), (int)(game.stageTime / 60 % 60), (int)(game.stageTime % 60));
 	updateText(&textStageTime, buffer);
 
 	snprintf(buffer, 32, "TOTAL SCORE: %8d", game.totalScore);
@@ -387,7 +387,7 @@ void showGameOverUI()
 	snprintf(buffer, 32, "TOTAL ACCURACY:  %3d%%", game.totalBulletShot == 0 ? 0 : (int)(((float)game.totalAsteroidsHit / (float)game.totalBulletShot) * 100.0f));
 	updateText(&textStageAccuracy, buffer);
 
-	snprintf(buffer, 32, "TOTAL TIME:  %02d:%02d:%02d", game.totalTime / 3600, game.totalTime / 60, game.totalTime);
+	snprintf(buffer, 32, "TOTAL TIME:  %02d:%02d:%02d", (int)(game.totalTime / 3600), (int)(game.totalTime / 60 % 60), (int)(game.totalTime % 60));
 	updateText(&textStageTime, buffer);
 
 	snprintf(buffer, 32, "TOTAL SCORE: %8d", game.totalScore);
