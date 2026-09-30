@@ -68,11 +68,12 @@ void drawStars()
 	glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(mat));
 	glBindVertexArray(stars.VAO);
 	
+	// glDrawArrays(mode, first, count): the third argument is the number of stars
 	glPointSize(4.0f);
-	glDrawArrays(GL_POINTS, STAR_OFFSET_NEAR, STAR_OFFSET_MIDDLE);
+	glDrawArrays(GL_POINTS, STAR_OFFSET_NEAR, NUM_STARS_NEAR);
 	glPointSize(2.5f);
-	glDrawArrays(GL_POINTS, STAR_OFFSET_MIDDLE, STAR_OFFSET_FAR);
+	glDrawArrays(GL_POINTS, STAR_OFFSET_MIDDLE, NUM_STARS_MIDDLE);
 	glPointSize(1.0f);
-	glDrawArrays(GL_POINTS, STAR_OFFSET_FAR, NUM_TOT_STARS);
+	glDrawArrays(GL_POINTS, STAR_OFFSET_FAR, NUM_STARS_FAR);
 	glBindVertexArray(0);
 }
