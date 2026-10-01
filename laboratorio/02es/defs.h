@@ -74,6 +74,13 @@ enum {
 
 #define NUM_ASTEROIDS	3
 
+// Stage time bonus: 1 point for each second saved with respect to a reference
+// time of TIME_BONUS_SECONDS_PER_ASTEROID for each (big) asteroid of the stage.
+// On game over it's scaled by the fraction of the stage points made.
+#define TIME_BONUS_SECONDS_PER_ASTEROID	20
+// Points for fully destroying a big asteroid: 1 (big) + 2 * 2 (medium) + 4 * 3 (small)
+#define MAX_SCORE_PER_ASTEROID			17
+
 // BULLETS ================================================
 #define BULLET_RADIUS		5.0f
 #define BULLET_MAX_SPEED	650.0f
@@ -95,6 +102,9 @@ enum {
 // TEXT ===================================================
 #define TEXT_SCALE					10.0f
 #define DEFAULT_TEXT_LINE_WIDTH		3.0f
+
+// UI =====================================================
+#define SCORE_COUNT_DURATION	3.0f // seconds to count the stage score into the total
 
 // SOUND ==================================================
 #define SOUNDS_DIR "resources/sounds/"

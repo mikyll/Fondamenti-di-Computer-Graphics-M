@@ -32,6 +32,7 @@ Text textGameOverReturnToMenu;
 Text textStageScore;
 Text textStageAccuracy;
 Text textStageTime;
+Text textTimeBonus;
 Text textTotalScore;
 
 Life lifeBase;
@@ -41,11 +42,17 @@ Figure backgroundControls;
 std::vector<Text*> displayedText;
 std::vector<Life> lives;
 
+// Total score count-up (stage completed / game over)
+static bool scoreCounting = false;
+static int scoreCountFrom = 0;
+static int scoreCountTo = 0;
+static float scoreCountElapsed = 0.0f;
+
 static Life buildLifeFigure(float posx, float posy, float scale);
 
 static void blinkStartText(int value);
 static void addScoreToTotal(int value);
-static void calculateNewScore(int value);
+static void startScoreCount(int value);
 static void countdownNextStageText(int value);
 static void blinkGameOverText(int value);
 
@@ -213,6 +220,7 @@ void initUI()
 	textStageScore = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 3 / 5 , true, TEXT_SCALE / 2, true,			"STAGE SCORE:        0");
 	textStageAccuracy = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 3 / 5 - 50, true, TEXT_SCALE / 2, true,	"STAGE ACCURACY:  100%");
 	textStageTime = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 3 / 5 - 100, true, TEXT_SCALE / 2, true,		"STAGE TIME:  00:00:00");
+	textTimeBonus = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 3 / 5 - 150, true, TEXT_SCALE / 2, true,		"TIME BONUS:        +0");
 	textTotalScore = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 3 / 5 - 200, true, TEXT_SCALE / 2, true,		"TOTAL SCORE:        0");
 }
 
@@ -231,36 +239,50 @@ static void addScoreToTotal(int value)
 	if (game.state == GAME_STAGE_COMPLETED || game.state == GAME_OVER)
 	{
 		char buffer[32];
-		snprintf(buffer, 32, "TOTAL SCORE: %8d +%d", game.totalScore, game.stageScore);
+		snprintf(buffer, 32, "TOTAL SCORE: %8d +%d", game.totalScore, value - game.totalScore);
 		updateText(&textTotalScore, buffer);
 
-		glutTimerFunc(1000, calculateNewScore, value);
+		glutTimerFunc(1000, startScoreCount, value);
 	}
 }
 
-static void calculateNewScore(int value)
+static void startScoreCount(int value)
 {
 	if (game.state == GAME_STAGE_COMPLETED || game.state == GAME_OVER)
 	{
-		if (game.totalScore < value)
-		{
-			char buffer[32];
-			game.totalScore++;
-			snprintf(buffer, 32, "TOTAL SCORE: %8d", game.totalScore);
-			updateText(&textTotalScore, buffer);
+		scoreCounting = true;
+		scoreCountFrom = game.totalScore;
+		scoreCountTo = value;
+		scoreCountElapsed = 0.0f;
+	}
+}
 
-			glutTimerFunc(0, calculateNewScore, value);
+// Count the total score up to its new value: the duration is always
+// SCORE_COUNT_DURATION, regardless of how many points are added
+static void updateScoreCount(float deltaTime)
+{
+	if (!scoreCounting || (game.state != GAME_STAGE_COMPLETED && game.state != GAME_OVER))
+		return;
+
+	scoreCountElapsed += deltaTime;
+	float t = MIN(1.0f, scoreCountElapsed / SCORE_COUNT_DURATION);
+	game.totalScore = scoreCountFrom + (int)((scoreCountTo - scoreCountFrom) * t);
+
+	char buffer[32];
+	snprintf(buffer, 32, "TOTAL SCORE: %8d", game.totalScore);
+	updateText(&textTotalScore, buffer);
+
+	if (t >= 1.0f)
+	{
+		scoreCounting = false;
+
+		if (game.state == GAME_STAGE_COMPLETED)
+		{
+			glutTimerFunc(1000, countdownNextStageText, 3);
 		}
 		else
 		{
-			if (game.state == GAME_STAGE_COMPLETED)
-			{
-				glutTimerFunc(1000, countdownNextStageText, 3);
-			}
-			else
-			{
-				glutTimerFunc(1000, blinkGameOverText, 0);
-			}
+			glutTimerFunc(1000, blinkGameOverText, 0);
 		}
 	}
 }
@@ -346,6 +368,14 @@ void showGamePausedUI()
 	displayedText.push_back(&textGamePaused);
 }
 
+static void updateTimeBonusText()
+{
+	char bonus[16], buffer[32];
+	snprintf(bonus, 16, "+%d", game.stageTimeBonus);
+	snprintf(buffer, 32, "TIME BONUS:  %8s", bonus);
+	updateText(&textTimeBonus, buffer);
+}
+
 void showStageCompletedUI()
 {
 	char buffer[32];
@@ -361,10 +391,13 @@ void showStageCompletedUI()
 	snprintf(buffer, 32, "STAGE TIME:  %02d:%02d:%02d", (int)(game.stageTime / 3600), (int)(game.stageTime / 60 % 60), (int)(game.stageTime % 60));
 	updateText(&textStageTime, buffer);
 
+	updateTimeBonusText();
+
 	snprintf(buffer, 32, "TOTAL SCORE: %8d", game.totalScore);
 	updateText(&textTotalScore, buffer);
 
 	textStageCompletedNextStage.visible = false;
+	scoreCounting = false;
 
 	std::cout << "Stage time: " << game.stageTime << std::endl << "Total time: " << game.totalTime << std::endl;
 
@@ -374,10 +407,11 @@ void showStageCompletedUI()
 	displayedText.push_back(&textStageScore);
 	displayedText.push_back(&textStageAccuracy);
 	displayedText.push_back(&textStageTime);
+	displayedText.push_back(&textTimeBonus);
 	displayedText.push_back(&textTotalScore);
 	displayedText.push_back(&textStageCompletedNextStage);
 
-	glutTimerFunc(1000, addScoreToTotal, game.totalScore + game.stageScore);
+	glutTimerFunc(1000, addScoreToTotal, game.totalScore + game.stageScore + game.stageTimeBonus);
 }
 
 void showGameOverUI()
@@ -390,26 +424,32 @@ void showGameOverUI()
 	snprintf(buffer, 32, "TOTAL TIME:  %02d:%02d:%02d", (int)(game.totalTime / 3600), (int)(game.totalTime / 60 % 60), (int)(game.totalTime % 60));
 	updateText(&textStageTime, buffer);
 
+	updateTimeBonusText();
+
 	snprintf(buffer, 32, "TOTAL SCORE: %8d", game.totalScore);
 	updateText(&textTotalScore, buffer);
 
 	textGameOverReturnToMenu.visible = false;
+	scoreCounting = false;
 
 	displayedText.clear();
 
 	displayedText.push_back(&textGameOver);
 	displayedText.push_back(&textStageAccuracy);
 	displayedText.push_back(&textStageTime);
+	displayedText.push_back(&textTimeBonus);
 	displayedText.push_back(&textTotalScore);
 	displayedText.push_back(&textGameOverReturnToMenu);
 
-	if (game.stageScore > 0)
-		glutTimerFunc(1000, addScoreToTotal, game.totalScore + game.stageScore);
+	if (game.stageScore + game.stageTimeBonus > 0)
+		glutTimerFunc(1000, addScoreToTotal, game.totalScore + game.stageScore + game.stageTimeBonus);
 	else glutTimerFunc(1000, blinkGameOverText, 0);
 }
 
 void updateUI()
 {
+	updateScoreCount(game.deltaTime);
+
 	if (game.state == GAME_RUNNING)
 	{
 		char buffer[32];
