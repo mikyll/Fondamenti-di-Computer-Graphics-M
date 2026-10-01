@@ -32,6 +32,7 @@ Text textGameOverReturnToMenu;
 Text textStageScore;
 Text textStageAccuracy;
 Text textStageTime;
+Text textTimeBonus;
 Text textTotalScore;
 
 Life lifeBase;
@@ -219,6 +220,7 @@ void initUI()
 	textStageScore = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 3 / 5 , true, TEXT_SCALE / 2, true,			"STAGE SCORE:        0");
 	textStageAccuracy = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 3 / 5 - 50, true, TEXT_SCALE / 2, true,	"STAGE ACCURACY:  100%");
 	textStageTime = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 3 / 5 - 100, true, TEXT_SCALE / 2, true,		"STAGE TIME:  00:00:00");
+	textTimeBonus = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 3 / 5 - 150, true, TEXT_SCALE / 2, true,		"TIME BONUS:        +0");
 	textTotalScore = createText(WINDOW_WIDTH / 2, WINDOW_HEIGHT * 3 / 5 - 200, true, TEXT_SCALE / 2, true,		"TOTAL SCORE:        0");
 }
 
@@ -237,7 +239,7 @@ static void addScoreToTotal(int value)
 	if (game.state == GAME_STAGE_COMPLETED || game.state == GAME_OVER)
 	{
 		char buffer[32];
-		snprintf(buffer, 32, "TOTAL SCORE: %8d +%d", game.totalScore, game.stageScore);
+		snprintf(buffer, 32, "TOTAL SCORE: %8d +%d", game.totalScore, value - game.totalScore);
 		updateText(&textTotalScore, buffer);
 
 		glutTimerFunc(1000, startScoreCount, value);
@@ -366,6 +368,14 @@ void showGamePausedUI()
 	displayedText.push_back(&textGamePaused);
 }
 
+static void updateTimeBonusText()
+{
+	char bonus[16], buffer[32];
+	snprintf(bonus, 16, "+%d", game.stageTimeBonus);
+	snprintf(buffer, 32, "TIME BONUS:  %8s", bonus);
+	updateText(&textTimeBonus, buffer);
+}
+
 void showStageCompletedUI()
 {
 	char buffer[32];
@@ -381,6 +391,8 @@ void showStageCompletedUI()
 	snprintf(buffer, 32, "STAGE TIME:  %02d:%02d:%02d", (int)(game.stageTime / 3600), (int)(game.stageTime / 60 % 60), (int)(game.stageTime % 60));
 	updateText(&textStageTime, buffer);
 
+	updateTimeBonusText();
+
 	snprintf(buffer, 32, "TOTAL SCORE: %8d", game.totalScore);
 	updateText(&textTotalScore, buffer);
 
@@ -395,10 +407,11 @@ void showStageCompletedUI()
 	displayedText.push_back(&textStageScore);
 	displayedText.push_back(&textStageAccuracy);
 	displayedText.push_back(&textStageTime);
+	displayedText.push_back(&textTimeBonus);
 	displayedText.push_back(&textTotalScore);
 	displayedText.push_back(&textStageCompletedNextStage);
 
-	glutTimerFunc(1000, addScoreToTotal, game.totalScore + game.stageScore);
+	glutTimerFunc(1000, addScoreToTotal, game.totalScore + game.stageScore + game.stageTimeBonus);
 }
 
 void showGameOverUI()
@@ -411,6 +424,8 @@ void showGameOverUI()
 	snprintf(buffer, 32, "TOTAL TIME:  %02d:%02d:%02d", (int)(game.totalTime / 3600), (int)(game.totalTime / 60 % 60), (int)(game.totalTime % 60));
 	updateText(&textStageTime, buffer);
 
+	updateTimeBonusText();
+
 	snprintf(buffer, 32, "TOTAL SCORE: %8d", game.totalScore);
 	updateText(&textTotalScore, buffer);
 
@@ -422,11 +437,12 @@ void showGameOverUI()
 	displayedText.push_back(&textGameOver);
 	displayedText.push_back(&textStageAccuracy);
 	displayedText.push_back(&textStageTime);
+	displayedText.push_back(&textTimeBonus);
 	displayedText.push_back(&textTotalScore);
 	displayedText.push_back(&textGameOverReturnToMenu);
 
-	if (game.stageScore > 0)
-		glutTimerFunc(1000, addScoreToTotal, game.totalScore + game.stageScore);
+	if (game.stageScore + game.stageTimeBonus > 0)
+		glutTimerFunc(1000, addScoreToTotal, game.totalScore + game.stageScore + game.stageTimeBonus);
 	else glutTimerFunc(1000, blinkGameOverText, 0);
 }
 

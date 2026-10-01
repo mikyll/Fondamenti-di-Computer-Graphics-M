@@ -10,6 +10,7 @@ typedef struct {
 	int stageLevel;
 	int totalScore;
 	int stageScore;
+	int stageTimeBonus;
 	int stageBulletShot;
 	int stageAsteroidsHit;
 	int totalBulletShot;

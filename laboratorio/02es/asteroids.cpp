@@ -217,6 +217,15 @@ void clearAsteroids()
 	asteroids.clear();
 }
 
+// Time bonus of the current stage, scaled by its progress (1.0 = stage completed)
+static int computeTimeBonus(float progress)
+{
+	int referenceTime = TIME_BONUS_SECONDS_PER_ASTEROID * NUM_ASTEROIDS * game.stageLevel;
+	int bonus = MAX(0, referenceTime - (int)game.stageTime);
+
+	return (int)(bonus * MIN(1.0f, progress));
+}
+
 void updateAsteroids(float deltaTime)
 {
 	if (game.state == GAME_RUNNING && asteroids.size() == 0)
@@ -225,10 +234,13 @@ void updateAsteroids(float deltaTime)
 		game.stageTime = difftime(time(0), game.startTime);
 		game.totalTime += game.stageTime;
 
+		// The faster the stage is completed, the more points
+		game.stageTimeBonus = computeTimeBonus(1.0f);
+
 		game.state = GAME_STAGE_COMPLETED;
 		showStageCompletedUI();
 
-		std::cout << "Stage " << game.stageLevel << " completed! Current score: " << game.totalScore + game.stageScore << std::endl << std::endl;
+		std::cout << "Stage " << game.stageLevel << " completed! Current score: " << game.totalScore + game.stageScore + game.stageTimeBonus << std::endl << std::endl;
 		
 		return;
 	}
@@ -272,7 +284,11 @@ void updateAsteroids(float deltaTime)
 				game.stageTime = difftime(time(0), game.startTime);
 				game.totalTime += game.stageTime;
 
-				std::cout << "Spaceship destroyed, game over! Score: " << game.totalScore + game.stageScore << std::endl << std::endl;
+				// Stage not completed: the time bonus is proportional to the progress
+				int maxStageScore = MAX_SCORE_PER_ASTEROID * NUM_ASTEROIDS * game.stageLevel;
+				game.stageTimeBonus = computeTimeBonus((float)game.stageScore / maxStageScore);
+
+				std::cout << "Spaceship destroyed, game over! Score: " << game.totalScore + game.stageScore + game.stageTimeBonus << std::endl << std::endl;
 				showGameOverUI();
 				
 				return;
