@@ -96,6 +96,9 @@ enum {
 #define TEXT_SCALE					10.0f
 #define DEFAULT_TEXT_LINE_WIDTH		3.0f
 
+// UI =====================================================
+#define SCORE_COUNT_DURATION	3.0f // seconds to count the stage score into the total
+
 // SOUND ==================================================
 #define SOUNDS_DIR "resources/sounds/"
 
